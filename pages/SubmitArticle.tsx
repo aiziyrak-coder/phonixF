@@ -357,45 +357,74 @@ const SubmitArticle: React.FC = () => {
         if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
         
         try {
-            // Create transaction record first
-            const transactionData = {
-                article: selectedJournalId,
-                amount: currentTotal,
-                service_type: additionalServices.fastTrack ? 'fast-track' : 'publication_fee',
-                description: `Maqola yuborish to'lovi: ${selectedJournal?.name || 'Noma\'lum jurnal'}`
-            };
+            // First, submit the article to get article ID
+            // Then create transaction and process payment
+            let articleId: string | undefined = undefined;
             
-            // In a real implementation, we would create a transaction via API first
-            // For now, we'll proceed directly to Click payment
-            
-            // Create invoice via Click payment service
-            const response = await paymentService.createInvoice({
-                amount: currentTotal,
-                phoneNumber: user?.phone || '',
-                merchantTransId: `article_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-            });
-            
-            if (response.error_code === 0) {
-                // Success - redirect to Click payment page or show payment form
-                setPaymentStatus('success');
-                try {
-                    await submitArticle(true);
-                } catch (submitErr) {
-                    console.error('Failed to submit article after payment:', submitErr);
-                    // Still consider payment successful even if article submission fails
-                    addNotification({ message: "To'lov amalga oshirildi, lekin maqola yuborishda xatolik yuz berdi." });
+            try {
+                // Submit article first (without payment completed flag)
+                const articleData = {
+                    title: fileName.replace(/\.[^/.]+$/, ""),
+                    abstract: generatedAbstract || "Maqola annotatsiyasi",
+                    keywords: generatedKeywords ? generatedKeywords.split(',').map(k => k.trim()) : ["kalit so'z"],
+                    journal: selectedJournalId,
+                    page_count: pageCount,
+                    fast_track: additionalServices.fastTrack,
+                    status: 'Yangi'
+                };
+                
+                const articleResponse = await apiService.articles.create(articleData, { mainFile: file });
+                articleId = articleResponse?.id || articleResponse?.data?.id;
+                
+                if (!articleId) {
+                    throw new Error("Maqola yaratildi, lekin ID olinmadi.");
                 }
-                // Small delay to ensure any notifications are shown
+            } catch (articleErr: any) {
+                console.error('Failed to create article before payment:', articleErr);
+                throw new Error(`Maqola yaratishda xatolik: ${articleErr.message || 'Noma\'lum xatolik'}`);
+            }
+            
+            // Now create transaction and process payment
+            const result = await paymentService.createTransactionAndPay(
+                currentTotal,
+                'UZS',
+                additionalServices.fastTrack ? 'fast-track' : 'publication_fee',
+                articleId,
+                undefined  // translationRequestId
+            );
+            
+            if (result && result.success === true && result.payment_url) {
+                // Redirect to Click payment page
+                addNotification({ 
+                    message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
+                });
+                
                 setTimeout(() => {
-                    navigate('/articles');
+                    if (result.payment_url) {
+                        paymentService.redirectToPayment(result.payment_url);
+                    }
                 }, 1000);
+                
+                // Note: After payment is completed via Click callback,
+                // the article status will be updated automatically
+                // For now, we redirect to payment page
             } else {
-                throw new Error(response.error_note || "To'lovni amalga oshirishda xatolik yuz berdi.");
+                // Payment preparation failed
+                const errorMsg = result?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
+                setPaymentStatus('failed');
+                setPaymentError(errorMsg);
+                addNotification({ 
+                    message: errorMsg,
+                });
             }
         } catch (err: any) {
             console.error('Payment failed:', err);
+            const errorMsg = err.message || err.error_note || err.user_message || "To'lovni amalga oshirishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.";
             setPaymentStatus('failed');
-            setPaymentError(err.message || "To'lovni amalga oshirishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+            setPaymentError(errorMsg);
+            addNotification({ 
+                message: errorMsg,
+            });
         }
     };
     

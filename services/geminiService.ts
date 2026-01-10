@@ -2,7 +2,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 // Ensure API_KEY is set in your environment variables
-const API_KEY = process.env.API_KEY;
+// Vite uses import.meta.env instead of process.env
+const API_KEY = import.meta.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
 
 if (!API_KEY) {
   console.warn("Gemini uchun API kaliti o'rnatilmagan. Sun'iy intellekt funksiyalari ishlamaydi.");

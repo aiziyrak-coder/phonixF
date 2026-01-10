@@ -8,6 +8,15 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        fs: {
+          // Allow serving files from one level up to the project root
+          allow: ['..']
+        },
+        watch: {
+          // Reduce file watching overhead
+          usePolling: false,
+          interval: 100
+        }
       },
       plugins: [react()],
       define: {
@@ -17,7 +26,12 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
-        }
+          'components': path.resolve(__dirname, './components'),
+        },
+        extensions: ['.tsx', '.ts', '.jsx', '.js', '.json']
+      },
+      optimizeDeps: {
+        include: ['react', 'react-dom', 'react-router-dom', 'lucide-react']
       }
     };
 });

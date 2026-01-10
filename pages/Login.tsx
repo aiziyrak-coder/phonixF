@@ -38,7 +38,23 @@ const Login: React.FC = () => {
         setIsLoading(true);
         
         try {
-            const fullPhone = `${countryCode}${phone}`.replace(/\s/g, '');
+            // Remove + sign from country code and combine with phone
+            const cleanCountryCode = countryCode.replace(/^\+/, '');
+            const fullPhone = `${cleanCountryCode}${phone}`.replace(/\s/g, '').replace(/\D/g, '');
+            
+            if (!fullPhone || fullPhone.length < 9) {
+                setError('Iltimos, to\'g\'ri telefon raqamni kiriting.');
+                setIsLoading(false);
+                return;
+            }
+            
+            if (!password || password.trim().length === 0) {
+                setError('Iltimos, parolni kiriting.');
+                setIsLoading(false);
+                return;
+            }
+            
+            console.log('Attempting login with phone:', fullPhone);
             const success = await login(fullPhone, password);
             
             if (success) {
@@ -46,9 +62,30 @@ const Login: React.FC = () => {
             } else {
                 setError('Telefon raqam yoki parol xato.');
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('Login error:', err);
-            setError('Xatolik yuz berdi. Iltimos qaytadan urinib ko\'ring.');
+            
+            // Extract error message from different error formats
+            let errorMessage = 'Xatolik yuz berdi. Iltimos qaytadan urinib ko\'ring.';
+            
+            if (err.response) {
+                const apiError = err.response;
+                if (apiError.non_field_errors && Array.isArray(apiError.non_field_errors) && apiError.non_field_errors.length > 0) {
+                    errorMessage = apiError.non_field_errors[0];
+                } else if (apiError.phone) {
+                    errorMessage = Array.isArray(apiError.phone) ? apiError.phone[0] : apiError.phone;
+                } else if (apiError.password) {
+                    errorMessage = Array.isArray(apiError.password) ? apiError.password[0] : apiError.password;
+                } else if (apiError.detail) {
+                    errorMessage = apiError.detail;
+                } else if (apiError.error) {
+                    errorMessage = apiError.error;
+                }
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }

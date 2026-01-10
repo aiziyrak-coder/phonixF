@@ -246,37 +246,52 @@ const SubmitBook: React.FC = () => {
     };
     
     const handlePay = async () => {
-        // Vaqtincha o'chirib qo'yilgan to'lov funksiyasi
-        // TODO: To'lov tizimini qayta ulash kerak
-        setPaymentStatus('success');
-        submitBook(true);
-        
-        /*
         setPaymentError(null);
         setPaymentStatus('processing');
         if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
         
         try {
-            // Create invoice via Click payment service
-            const response = await paymentService.createInvoice({
-                amount: calculatedCosts.total,
-                phoneNumber: user?.phone || '',
-                merchantTransId: `book_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-            });
+            // Create transaction and process payment via Click
+            const result = await paymentService.createTransactionAndPay(
+                calculatedCosts.total,
+                'UZS',
+                'book_publication',
+                undefined, // articleId
+                undefined  // translationRequestId
+            );
             
-            if (response.error_code === 0) {
-                // Success - redirect to Click payment page or show payment form
-                setPaymentStatus('success');
-                submitBook(true);
+            if (result && result.success === true && result.payment_url) {
+                // Redirect to Click payment page
+                setTimeout(() => {
+                    if (result.payment_url) {
+                        paymentService.redirectToPayment(result.payment_url);
+                    }
+                }, 1000);
+                
+                // Note: After payment is completed, Click will call our callback
+                // which should update the transaction status
+                // For now, we'll wait for user to complete payment on Click
+                addNotification({ 
+                    message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
+                });
             } else {
-                throw new Error(response.error_note || "To'lovni amalga oshirishda xatolik yuz berdi.");
+                // Payment preparation failed
+                const errorMsg = result?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
+                setPaymentStatus('failed');
+                setPaymentError(errorMsg);
+                addNotification({ 
+                    message: errorMsg,
+                });
             }
         } catch (err: any) {
             console.error('Payment failed:', err);
+            const errorMsg = err.message || err.error_note || err.user_message || "To'lovni amalga oshirishda xatolik yuz berdi.";
             setPaymentStatus('failed');
-            setPaymentError(err.message || "To'lovni amalga oshirishda xatolik yuz berdi.");
+            setPaymentError(errorMsg);
+            addNotification({ 
+                message: errorMsg,
+            });
         }
-        */
     };
     
     const closePaymentModal = () => setIsPaymentModalOpen(false);

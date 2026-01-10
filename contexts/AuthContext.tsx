@@ -127,7 +127,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     
     try {
-      const response = await apiService.auth.login(phone, password);
+      // Ensure phone number doesn't have + sign
+      const cleanPhone = phone.replace(/^\+/, '').replace(/\s/g, '').replace(/\D/g, '');
+      
+      if (!cleanPhone || cleanPhone.length < 9) {
+        setError('Iltimos, to\'g\'ri telefon raqamni kiriting.');
+        setLoading(false);
+        return false;
+      }
+      
+      if (!password || password.trim().length === 0) {
+        setError('Iltimos, parolni kiriting.');
+        setLoading(false);
+        return false;
+      }
+      
+      console.log('Login attempt - phone:', cleanPhone, 'has password:', !!password);
+      
+      const response = await apiService.auth.login(cleanPhone, password);
       
       // Handle different response formats
       const responseData = response?.data || response;

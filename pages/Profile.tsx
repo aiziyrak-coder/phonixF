@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { User, Mail, Phone, Building, Award, Hash, Edit } from 'lucide-react';
+import { User, Mail, Phone, Building, Award, Hash, Edit, CreditCard } from 'lucide-react';
 import { apiService } from '../services/apiService';
+import { paymentService } from '../services/paymentService';
+import { toast } from 'react-toastify';
 
 const Profile: React.FC = () => {
     const { user, logout } = useAuth();
@@ -12,6 +14,7 @@ const Profile: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<any>({});
+    const [processingPayment, setProcessingPayment] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -60,9 +63,101 @@ const Profile: React.FC = () => {
             const userData = updatedProfile.data || updatedProfile;
             setProfile(userData);
             setIsEditing(false);
+            toast.success('Profil muvaffaqiyatli yangilandi');
         } catch (err: any) {
             console.error('Failed to update profile:', err);
             setError('Profilni yangilashda xatolik yuz berdi.');
+            toast.error('Profilni yangilashda xatolik yuz berdi');
+        }
+    };
+
+    const handleTestPayment = async () => {
+        if (processingPayment) return;
+
+        setProcessingPayment(true);
+        setError(null);
+        
+        try {
+            toast.info('To\'lov tayyorlanmoqda...', { autoClose: 2000 });
+            
+            console.log('Starting test payment...');
+            
+            // Create transaction and process payment with 1000 UZS
+            const result = await paymentService.createTransactionAndPay(
+                1000, // 1000 so'm test to'lov
+                'UZS',
+                'top_up'
+            );
+
+            console.log('Payment result:', result);
+
+            // Check if payment was successful
+            if (result && result.success === true && result.payment_url) {
+                toast.success('To\'lov sahifasiga yo\'naltirilmoqdasiz...', { autoClose: 2000 });
+                
+                // Redirect to payment page after short delay
+                setTimeout(() => {
+                    if (result.payment_url) {
+                        paymentService.redirectToPayment(result.payment_url);
+                    }
+                }, 1500);
+            } else {
+                // Payment failed - show error message
+                let errorMsg = 'To\'lovni amalga oshirishda xatolik yuz berdi';
+                
+                if (result) {
+                    // Check for user-friendly message first
+                    if (result.user_message) {
+                        errorMsg = result.user_message;
+                    } else if (result.error_note) {
+                        errorMsg = result.error_note;
+                    } else if (result.error) {
+                        errorMsg = result.error;
+                    } else if (result.details) {
+                        // Check details for error message
+                        if (result.details.user_message) {
+                            errorMsg = result.details.user_message;
+                        } else if (result.details.error_note) {
+                            errorMsg = result.details.error_note;
+                        } else if (result.details.error) {
+                            errorMsg = result.details.error;
+                        }
+                    }
+                    
+                    // If no payment_url, provide specific guidance
+                    if (!result.payment_url) {
+                        if (result.error_code === -514 || result.details?.error_code === -514) {
+                            errorMsg = 'Sizning telefon raqamingiz Click tizimida ro\'yxatdan o\'tmagan. Iltimos, telefon raqamingizni Click tizimida ro\'yxatdan o\'tkazing va qayta urinib ko\'ring.';
+                        } else if (result.error_code === -1 || !result.error_code) {
+                            errorMsg = 'Invoice yaratib bo\'lmadi. Iltimos, telefon raqamingizni tekshiring va qayta urinib ko\'ring.';
+                        }
+                    }
+                }
+                
+                console.error('Payment failed:', result);
+                toast.error(errorMsg, { autoClose: 8000 });
+                setError(errorMsg);
+            }
+        } catch (err: any) {
+            console.error('Test payment error:', err);
+            
+            // Extract error message
+            let errorMsg = 'To\'lovni amalga oshirishda xatolik yuz berdi';
+            
+            if (err.response) {
+                // API error response
+                const errorData = err.response.data || err.response;
+                errorMsg = errorData.error_note || errorData.error || errorData.detail || errorMsg;
+            } else if (err.message) {
+                errorMsg = err.message;
+            } else if (typeof err === 'string') {
+                errorMsg = err;
+            }
+            
+            toast.error(errorMsg, { autoClose: 5000 });
+            setError(errorMsg);
+        } finally {
+            setProcessingPayment(false);
         }
     };
 
@@ -347,10 +442,40 @@ const Profile: React.FC = () => {
             )}
             
             <Card title="Hisobni boshqarish">
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <Button variant="danger" onClick={logout}>
-                        Chiqish
-                    </Button>
+                <div className="space-y-4">
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                        <h3 className="text-sm font-medium text-blue-300 mb-2">Test To'lov</h3>
+                        <p className="text-xs text-gray-400 mb-3">
+                            Click to'lov tizimini sinab ko'rish uchun 1000 so'm miqdorida test to'lovini amalga oshirish mumkin.
+                        </p>
+                        
+                        {error && (
+                            <div className="mb-3 p-2 bg-red-500/20 border border-red-500/30 rounded text-xs text-red-300">
+                                {error}
+                            </div>
+                        )}
+                        
+                        <Button 
+                            onClick={handleTestPayment}
+                            disabled={processingPayment}
+                            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed w-full"
+                        >
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            {processingPayment ? 'Jarayonda...' : '1000 so\'m test to\'lov'}
+                        </Button>
+                        
+                        {processingPayment && (
+                            <div className="text-xs text-gray-400 text-center">
+                                To'lov tayyorlanmoqda, iltimos kuting...
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-white/10">
+                        <Button variant="danger" onClick={logout}>
+                            Chiqish
+                        </Button>
+                    </div>
                 </div>
             </Card>
         </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { useAuth, useNotifications } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Role, ArticleStatus, ActivityLogEvent, SubmissionCertificateData } from '../types';
 import { Check, X, Award, UploadCloud, BookOpen, Download, Edit, Send, GitCommit, UserCheck, FileCheck2, BookUp, XCircle, Clock, FileInput, CheckCircle, Shield, Bot, ExternalLink, Printer, Eye, FileText, Inbox } from 'lucide-react';
 import SubmissionCertificate from '../components/SubmissionCertificate';

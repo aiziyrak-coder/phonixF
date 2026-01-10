@@ -48,14 +48,49 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      let error;
+      let error: any;
+      
+      // Try to parse as JSON
       try {
         error = JSON.parse(errorText);
       } catch (e) {
-        error = { detail: errorText || 'Unknown error' };
+        // If not JSON, check if it's HTML (Django error page)
+        if (errorText.includes('<!DOCTYPE html>') || errorText.includes('<html')) {
+          // Extract error message from HTML if possible
+          const errorMatch = errorText.match(/<pre class="exception_value">(.*?)<\/pre>/s);
+          if (errorMatch) {
+            error = { detail: errorMatch[1].trim(), html: true };
+          } else {
+            error = { detail: `Server xatosi (Status: ${response.status})`, html: true };
+          }
+        } else {
+          error = { detail: errorText || 'Unknown error' };
+        }
       }
+      
       console.error(`API request to ${endpoint} failed with status ${response.status}:`, error);
-      throw new Error(error.detail || error.message || `API request failed with status ${response.status}`);
+      
+      // Extract error message from different error formats
+      let errorMessage = `API request failed with status ${response.status}`;
+      
+      if (error.non_field_errors && Array.isArray(error.non_field_errors) && error.non_field_errors.length > 0) {
+        errorMessage = error.non_field_errors[0];
+      } else if (error.detail) {
+        errorMessage = typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail);
+      } else if (error.error) {
+        errorMessage = typeof error.error === 'string' ? error.error : JSON.stringify(error.error);
+      } else if (error.error_note) {
+        errorMessage = error.error_note;
+      } else if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      const apiError: any = new Error(errorMessage);
+      apiError.status = response.status;
+      apiError.response = error;
+      throw apiError;
     }
 
     const text = await response.text();
@@ -629,6 +664,8 @@ export const apiService = {
   payments: {
     listTransactions: () => apiFetch('/payments/transactions/'),
 
+    getTransaction: (id: string) => apiFetch(`/payments/transactions/${id}/`),
+
     createTransaction: (transactionData: any) =>
       apiFetch('/payments/transactions/', {
         method: 'POST',
@@ -637,6 +674,16 @@ export const apiService = {
 
     processPayment: (id: string) =>
       apiFetch(`/payments/transactions/${id}/process_payment/`, {
+        method: 'POST',
+      }),
+
+    preparePayment: (id: string) =>
+      apiFetch(`/payments/transactions/${id}/prepare_payment/`, {
+        method: 'POST',
+      }),
+
+    checkStatus: (id: string) =>
+      apiFetch(`/payments/transactions/${id}/check_status/`, {
         method: 'POST',
       }),
   },
