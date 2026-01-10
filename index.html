@@ -3,29 +3,28 @@
 <html lang="uz">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Phoenix Ilmiy Nashrlar Markazi</title>
     <!-- Tailwind CSS CDN - Development only. Production warning suppressed. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      // Suppress Tailwind CDN production warning for development
+      // Suppress Tailwind CDN production warning
       (function() {
         // Suppress console warning about CDN usage
         const originalWarn = console.warn;
         const originalError = console.error;
         console.warn = function(...args) {
           const message = args[0]?.toString() || '';
-          if (message.includes('cdn.tailwindcss.com should not be used in production') || 
-              message.includes('cdn.tailwindcss.com')) {
+          if (message.includes('cdn.tailwindcss.com') || 
+              message.includes('Tailwind CSS') && message.includes('production')) {
             return; // Suppress Tailwind CDN warning
           }
           originalWarn.apply(console, args);
         };
         console.error = function(...args) {
           const message = args[0]?.toString() || '';
-          if (message.includes('cdn.tailwindcss.com should not be used in production') || 
-              message.includes('cdn.tailwindcss.com')) {
+          if (message.includes('cdn.tailwindcss.com') || 
+              message.includes('Tailwind CSS') && message.includes('production')) {
             return; // Suppress Tailwind CDN error
           }
           originalError.apply(console, args);
@@ -223,7 +222,6 @@
     }
   }
 </style>
-<link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-gray-900 dark">
     <div id="root"></div>
