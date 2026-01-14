@@ -245,7 +245,13 @@ const SubmitBook: React.FC = () => {
         setIsPaymentModalOpen(true);
     };
     
-    const handlePay = async () => {
+    const handlePay = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+        // Prevent default button behavior
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
         setPaymentError(null);
         setPaymentStatus('processing');
         if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
@@ -260,20 +266,29 @@ const SubmitBook: React.FC = () => {
                 undefined  // translationRequestId
             );
             
+            console.log('Payment result:', result);
+            
             if (result && result.success === true && result.payment_url) {
-                // Redirect to Click payment page
-                setTimeout(() => {
-                    if (result.payment_url) {
-                        paymentService.redirectToPayment(result.payment_url);
-                    }
-                }, 1000);
+                // Close modal first
+                setIsPaymentModalOpen(false);
                 
-                // Note: After payment is completed, Click will call our callback
-                // which should update the transaction status
-                // For now, we'll wait for user to complete payment on Click
+                // Show notification
                 addNotification({ 
                     message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
                 });
+                
+                // Redirect to Click payment page after short delay
+                setTimeout(() => {
+                    if (result.payment_url) {
+                        console.log('Redirecting to payment URL:', result.payment_url);
+                        paymentService.redirectToPayment(result.payment_url);
+                    } else {
+                        console.error('Payment URL is missing');
+                        setPaymentStatus('failed');
+                        setPaymentError("To'lov URL topilmadi. Iltimos, qayta urinib ko'ring.");
+                        setIsPaymentModalOpen(true);
+                    }
+                }, 500);
             } else {
                 // Payment preparation failed
                 const errorMsg = result?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
@@ -399,7 +414,11 @@ const SubmitBook: React.FC = () => {
                                 <h3 className="text-xl font-semibold text-white">To'lovni tasdiqlash</h3>
                                 <p className="text-sm text-gray-400 mt-1">Kitob nashr etish</p>
                                 <p className="text-4xl font-bold my-4 text-white">{formatCurrency(calculatedCosts.total)}</p>
-                                <Button onClick={handlePay} className="w-full">
+                                <Button 
+                                    onClick={(e) => handlePay(e)} 
+                                    className="w-full"
+                                    type="button"
+                                >
                                     To'lash
                                 </Button>
                                 <Button variant="secondary" onClick={closePaymentModal} className="w-full mt-3">
@@ -429,10 +448,19 @@ const SubmitBook: React.FC = () => {
                                 <p className="mt-4 text-lg font-medium text-gray-200">To'lovda xatolik!</p>
                                 <p className="text-sm text-gray-400 max-w-xs mx-auto">{paymentError}</p>
                                 <div className="flex space-x-2 mt-6">
-                                     <Button onClick={handlePay} className="w-full">
+                                     <Button 
+                                        onClick={(e) => handlePay(e)} 
+                                        className="w-full"
+                                        type="button"
+                                    >
                                         Qayta urinish
                                     </Button>
-                                    <Button variant="secondary" onClick={closePaymentModal} className="w-1/2">
+                                    <Button 
+                                        variant="secondary" 
+                                        onClick={closePaymentModal} 
+                                        className="w-1/2"
+                                        type="button"
+                                    >
                                         Yopish
                                     </Button>
                                 </div>

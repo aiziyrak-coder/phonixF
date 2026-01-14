@@ -115,12 +115,63 @@ class PaymentService {
 
   /**
    * Redirect user to Click payment page
+   * Uses window.location.replace() to avoid CSP issues and prevent back navigation
    */
   redirectToPayment(paymentUrl: string): void {
-    if (paymentUrl) {
-      window.location.href = paymentUrl;
-    } else {
+    if (!paymentUrl) {
       console.error('Payment URL is not available');
+      throw new Error('To\'lov URL topilmadi');
+    }
+    
+    // Validate URL format
+    try {
+      const url = new URL(paymentUrl);
+      if (!url.protocol.startsWith('http')) {
+        console.error('Invalid payment URL protocol:', paymentUrl);
+        throw new Error('Noto\'g\'ri to\'lov URL formati');
+      }
+    } catch (urlError) {
+      console.error('Invalid payment URL format:', paymentUrl, urlError);
+      throw new Error('Noto\'g\'ri to\'lov URL formati');
+    }
+    
+    // Redirect to payment page
+    // Using window.location.replace() instead of href to:
+    // 1. Avoid CSP issues with history manipulation
+    // 2. Prevent users from going back to payment page after redirect
+    // 3. Better handling of external redirects
+    try {
+      console.log('Redirecting to payment URL:', paymentUrl);
+      
+      // Clear any potential CSP-violating content before redirect
+      // This helps avoid CSP errors during redirect
+      if (document.body) {
+        document.body.innerHTML = '';
+      }
+      
+      // Use replace instead of href to avoid history issues
+      // This also helps with CSP compliance
+      window.location.replace(paymentUrl);
+      
+      // Fallback if replace doesn't work
+      setTimeout(() => {
+        if (window.location.href !== paymentUrl) {
+          console.warn('Replace failed, using href as fallback');
+          window.location.href = paymentUrl;
+        }
+      }, 100);
+    } catch (redirectError) {
+      console.error('Failed to redirect to payment URL:', redirectError);
+      
+      // Last resort: try opening in new window
+      try {
+        const newWindow = window.open(paymentUrl, '_blank');
+        if (!newWindow) {
+          throw new Error('Popup blocked');
+        }
+      } catch (popupError) {
+        throw new Error('To\'lov sahifasiga yo\'naltirishda xatolik yuz berdi. Iltimos, quyidagi linkni oching: ' + paymentUrl);
+      }
     }
   }
 

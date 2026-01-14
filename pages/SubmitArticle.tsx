@@ -351,7 +351,13 @@ const SubmitArticle: React.FC = () => {
         if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
     };
 
-    const handlePay = async () => {
+    const handlePay = async (e?: React.MouseEvent<HTMLButtonElement>) => {
+        // Prevent default button behavior
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
         setPaymentError(null);
         setPaymentStatus('processing');
         if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
@@ -393,17 +399,29 @@ const SubmitArticle: React.FC = () => {
                 undefined  // translationRequestId
             );
             
+            console.log('Payment result:', result);
+            
             if (result && result.success === true && result.payment_url) {
-                // Redirect to Click payment page
+                // Close modal first if it's open
+                setIsPaymentModalOpen(false);
+                
+                // Show notification
                 addNotification({ 
                     message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
                 });
                 
+                // Redirect to Click payment page after short delay
                 setTimeout(() => {
                     if (result.payment_url) {
+                        console.log('Redirecting to payment URL:', result.payment_url);
                         paymentService.redirectToPayment(result.payment_url);
+                    } else {
+                        console.error('Payment URL is missing');
+                        setPaymentStatus('failed');
+                        setPaymentError("To'lov URL topilmadi. Iltimos, qayta urinib ko'ring.");
+                        setIsPaymentModalOpen(true);
                     }
-                }, 1000);
+                }, 500);
                 
                 // Note: After payment is completed via Click callback,
                 // the article status will be updated automatically
