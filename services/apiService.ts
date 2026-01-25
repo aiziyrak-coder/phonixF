@@ -5,8 +5,12 @@
 
 import { getUserFriendlyError, isAuthError } from '../utils/errorHandler';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.ilmiyfaoliyat.uz/api/v1';
-const MEDIA_URL = import.meta.env.VITE_MEDIA_URL || 'https://api.ilmiyfaoliyat.uz/media/';
+// Production API URL - always use production URL in built version
+// In development, use VITE_API_BASE_URL from .env, otherwise use production
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.PROD ? 'https://api.ilmiyfaoliyat.uz/api/v1' : 'http://127.0.0.1:8000/api/v1');
+const MEDIA_URL = import.meta.env.VITE_MEDIA_URL || 
+  (import.meta.env.PROD ? 'https://api.ilmiyfaoliyat.uz/media/' : 'http://127.0.0.1:8000/media/');
 
 // Get token from localStorage
 const getToken = () => localStorage.getItem('access_token');
