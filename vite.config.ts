@@ -46,11 +46,27 @@ export default defineConfig(({ mode }) => {
           }
         },
         sourcemap: !isProduction, // Only generate sourcemaps in development
+        chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
         rollupOptions: {
           output: {
-            manualChunks: {
-              'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-              'ui-vendor': ['lucide-react']
+            manualChunks: (id) => {
+              // Split node_modules into separate chunks
+              if (id.includes('node_modules')) {
+                if (id.includes('react') || id.includes('react-dom')) {
+                  return 'react-vendor';
+                }
+                if (id.includes('react-router')) {
+                  return 'router-vendor';
+                }
+                if (id.includes('lucide-react')) {
+                  return 'ui-vendor';
+                }
+                if (id.includes('@google/genai')) {
+                  return 'ai-vendor';
+                }
+                // Other node_modules
+                return 'vendor';
+              }
             }
           }
         }
