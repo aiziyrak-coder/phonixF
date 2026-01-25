@@ -3,35 +3,39 @@
 <html lang="uz">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Phoenix Ilmiy Nashrlar Markazi</title>
-    <!-- Tailwind CSS CDN - Development only. Production warning suppressed. -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS CDN - Production warning suppressed. -->
     <script>
-      // Suppress Tailwind CDN production warning for development
+      // Suppress Tailwind CDN production warning - run immediately before Tailwind loads
       (function() {
-        // Suppress console warning about CDN usage
         const originalWarn = console.warn;
         const originalError = console.error;
         console.warn = function(...args) {
-          const message = args[0]?.toString() || '';
-          if (message.includes('cdn.tailwindcss.com should not be used in production') || 
-              message.includes('cdn.tailwindcss.com')) {
+          const message = String(args[0] || '');
+          if (message.includes('cdn.tailwindcss.com') || 
+              (message.includes('Tailwind CSS') && message.includes('production')) ||
+              message.includes('should not be used in production')) {
             return; // Suppress Tailwind CDN warning
           }
           originalWarn.apply(console, args);
         };
         console.error = function(...args) {
-          const message = args[0]?.toString() || '';
-          if (message.includes('cdn.tailwindcss.com should not be used in production') || 
-              message.includes('cdn.tailwindcss.com')) {
+          const message = String(args[0] || '');
+          if (message.includes('cdn.tailwindcss.com') || 
+              (message.includes('Tailwind CSS') && message.includes('production')) ||
+              message.includes('should not be used in production')) {
             return; // Suppress Tailwind CDN error
           }
           originalError.apply(console, args);
         };
-        
-        // Configure Tailwind if available
+      })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configure Tailwind after it loads
+      (function() {
         if (typeof tailwind !== 'undefined') {
           tailwind.config = tailwind.config || {};
           tailwind.config.darkMode = 'class';
@@ -212,7 +216,6 @@
     }
   }
 </style>
-<link rel="stylesheet" href="/index.css">
   <script type="importmap">
 {
   "imports": {
@@ -225,7 +228,9 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-Dpn04G_o.js"></script>
+  <script type="module" crossorigin src="/assets/index-DHJdtzw_.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-G_0sPdHk.js">
+  <link rel="modulepreload" crossorigin href="/assets/ui-vendor-CHENPNk6.js">
   <link rel="stylesheet" crossorigin href="/assets/index-VYesxZYF.css">
 </head>
   <body class="bg-gray-900 dark">

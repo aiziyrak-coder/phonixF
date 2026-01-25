@@ -7,6 +7,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { LogIn } from 'lucide-react';
 import { Role } from '../types';
+import { getUserFriendlyError } from '../utils/errorHandler';
 
 const COUNTRIES = [
     { code: '+998', label: 'UZ' },
@@ -63,28 +64,8 @@ const Login: React.FC = () => {
                 setError('Telefon raqam yoki parol xato.');
             }
         } catch (err: any) {
-            console.error('Login error:', err);
-            
-            // Extract error message from different error formats
-            let errorMessage = 'Xatolik yuz berdi. Iltimos qaytadan urinib ko\'ring.';
-            
-            if (err.response) {
-                const apiError = err.response;
-                if (apiError.non_field_errors && Array.isArray(apiError.non_field_errors) && apiError.non_field_errors.length > 0) {
-                    errorMessage = apiError.non_field_errors[0];
-                } else if (apiError.phone) {
-                    errorMessage = Array.isArray(apiError.phone) ? apiError.phone[0] : apiError.phone;
-                } else if (apiError.password) {
-                    errorMessage = Array.isArray(apiError.password) ? apiError.password[0] : apiError.password;
-                } else if (apiError.detail) {
-                    errorMessage = apiError.detail;
-                } else if (apiError.error) {
-                    errorMessage = apiError.error;
-                }
-            } else if (err.message) {
-                errorMessage = err.message;
-            }
-            
+            // Use centralized error handler
+            const errorMessage = getUserFriendlyError(err);
             setError(errorMessage);
         } finally {
             setIsLoading(false);

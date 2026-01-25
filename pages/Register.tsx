@@ -7,6 +7,7 @@ import { UserPlus } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
+import { getUserFriendlyError, getFieldError } from '../utils/errorHandler';
 
 const COUNTRIES = [
     { code: '+998', label: 'UZ' },
@@ -112,38 +113,25 @@ const Register: React.FC = () => {
                 throw new Error('Ro\'yxatdan o\'tishda xatolik yuz berdi.');
             }
         } catch (err: any) {
-            console.error('Registration error:', err);
+            // Use centralized error handler
+            // Check for field-specific errors first
+            const phoneError = getFieldError(err, 'phone');
+            const emailError = getFieldError(err, 'email');
+            const passwordError = getFieldError(err, 'password');
+            const passwordConfirmError = getFieldError(err, 'password_confirm');
             
             let errorMessage = 'Ro\'yxatdan o\'tishda xatolik yuz berdi.';
             
-            // Handle API errors - check both err.response and err directly
-            const apiError = err.response || err;
-            
-            if (apiError) {
-                // Check for field-specific errors first
-                if (apiError.phone) {
-                    const phoneError = Array.isArray(apiError.phone) ? apiError.phone[0] : apiError.phone;
-                    errorMessage = `Telefon raqam: ${phoneError}`;
-                } else if (apiError.email) {
-                    const emailError = Array.isArray(apiError.email) ? apiError.email[0] : apiError.email;
-                    errorMessage = `Email: ${emailError}`;
-                } else if (apiError.password) {
-                    const passwordError = Array.isArray(apiError.password) ? apiError.password[0] : apiError.password;
-                    errorMessage = `Parol: ${passwordError}`;
-                } else if (apiError.password_confirm) {
-                    const confirmError = Array.isArray(apiError.password_confirm) ? apiError.password_confirm[0] : apiError.password_confirm;
-                    errorMessage = `Parol tasdiqlash: ${confirmError}`;
-                } else if (apiError.non_field_errors && Array.isArray(apiError.non_field_errors) && apiError.non_field_errors.length > 0) {
-                    errorMessage = apiError.non_field_errors[0];
-                } else if (apiError.detail) {
-                    errorMessage = typeof apiError.detail === 'string' ? apiError.detail : JSON.stringify(apiError.detail);
-                } else if (apiError.error) {
-                    errorMessage = typeof apiError.error === 'string' ? apiError.error : JSON.stringify(apiError.error);
-                } else if (typeof apiError === 'string') {
-                    errorMessage = apiError;
-                }
-            } else if (err.message) {
-                errorMessage = err.message;
+            if (phoneError) {
+                errorMessage = `Telefon raqam: ${phoneError}`;
+            } else if (emailError) {
+                errorMessage = `Email: ${emailError}`;
+            } else if (passwordError) {
+                errorMessage = `Parol: ${passwordError}`;
+            } else if (passwordConfirmError) {
+                errorMessage = `Parol tasdiqlash: ${passwordConfirmError}`;
+            } else {
+                errorMessage = getUserFriendlyError(err);
             }
             
             setError(errorMessage);

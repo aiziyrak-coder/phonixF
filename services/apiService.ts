@@ -3,6 +3,8 @@
  * Handles all HTTP requests to the backend
  */
 
+import { getUserFriendlyError, isAuthError } from '../utils/errorHandler';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.ilmiyfaoliyat.uz/api/v1';
 const MEDIA_URL = import.meta.env.VITE_MEDIA_URL || 'https://api.ilmiyfaoliyat.uz/media/';
 
@@ -43,7 +45,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     if (response.status === 401) {
       removeToken();
       window.location.href = '/#/login';
-      throw new Error('Session expired. Please login again.');
+      throw new Error('Sizning sessiyangiz muddati tugagan. Iltimos, qayta kiring.');
     }
 
     if (!response.ok) {
@@ -64,28 +66,12 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
             error = { detail: `Server xatosi (Status: ${response.status})`, html: true };
           }
         } else {
-          error = { detail: errorText || 'Unknown error' };
+          error = { detail: errorText || 'Noma\'lum xatolik' };
         }
       }
       
-      console.error(`API request to ${endpoint} failed with status ${response.status}:`, error);
-      
-      // Extract error message from different error formats
-      let errorMessage = `API request failed with status ${response.status}`;
-      
-      if (error.non_field_errors && Array.isArray(error.non_field_errors) && error.non_field_errors.length > 0) {
-        errorMessage = error.non_field_errors[0];
-      } else if (error.detail) {
-        errorMessage = typeof error.detail === 'string' ? error.detail : JSON.stringify(error.detail);
-      } else if (error.error) {
-        errorMessage = typeof error.error === 'string' ? error.error : JSON.stringify(error.error);
-      } else if (error.error_note) {
-        errorMessage = error.error_note;
-      } else if (error.message) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
+      // Use centralized error handler for user-friendly messages
+      const errorMessage = getUserFriendlyError({ response: error, status: response.status });
       
       const apiError: any = new Error(errorMessage);
       apiError.status = response.status;
