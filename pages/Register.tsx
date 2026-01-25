@@ -65,8 +65,14 @@ const Register: React.FC = () => {
             return;
         }
         
-        if (!password || password.length < 6) {
-            setError('Parol kamida 6 ta belgidan iborat bo\'lishi kerak.');
+        if (!password || password.length < 8) {
+            setError('Parol kamida 8 ta belgidan iborat bo\'lishi kerak.');
+            return;
+        }
+        
+        // Password must contain at least one digit and one letter
+        if (!/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+            setError('Parol kamida bitta raqam va bitta harfni o\'z ichiga olishi kerak.');
             return;
         }
         
@@ -260,8 +266,8 @@ const Register: React.FC = () => {
                             className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Kamida 6 ta belgi"
-                            minLength={6}
+                            placeholder="Kamida 8 ta belgi (raqam va harf)"
+                            minLength={8}
                         />
                     </div>
                     <div>
@@ -273,7 +279,7 @@ const Register: React.FC = () => {
                             value={passwordConfirm}
                             onChange={(e) => setPasswordConfirm(e.target.value)}
                             placeholder="Parolni qayta kiriting"
-                            minLength={6}
+                            minLength={8}
                         />
                     </div>
 
