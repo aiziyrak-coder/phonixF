@@ -24,12 +24,18 @@ interface PaymentStatusResponse {
 class PaymentService {
   /**
    * Process payment for a transaction
-   * Creates invoice via Click API and returns payment URL
+   * Creates invoice via Click or Payme API and returns payment URL
+   * 
+   * @param transactionId - Transaction ID
+   * @param provider - Payment provider ('click' or 'payme'), default 'click'
    */
-  async processPayment(transactionId: string): Promise<ProcessPaymentResponse> {
+  async processPayment(
+    transactionId: string, 
+    provider: 'click' | 'payme' = 'click'
+  ): Promise<ProcessPaymentResponse> {
     try {
-      console.log('Processing payment for transaction ID:', transactionId);
-      const response = await apiService.payments.processPayment(transactionId);
+      console.log('Processing payment for transaction ID:', transactionId, 'Provider:', provider);
+      const response = await apiService.payments.processPayment(transactionId, provider);
       console.log('Process payment response:', response);
       
       // Ensure response has success field
@@ -178,13 +184,16 @@ class PaymentService {
   /**
    * Create transaction and process payment
    * Helper method that creates transaction first, then processes payment
+   * 
+   * @param provider - Payment provider ('click' or 'payme'), default 'click'
    */
   async createTransactionAndPay(
     amount: number,
     currency: string,
     serviceType: string,
     articleId?: string,
-    translationRequestId?: string
+    translationRequestId?: string,
+    provider: 'click' | 'payme' = 'click'
   ): Promise<ProcessPaymentResponse> {
     try {
       console.log('Creating transaction with data:', { amount, currency, serviceType, articleId, translationRequestId });
@@ -220,10 +229,10 @@ class PaymentService {
         };
       }
 
-      console.log('Processing payment for transaction:', transaction.id);
+      console.log('Processing payment for transaction:', transaction.id, 'Provider:', provider);
 
       // Process payment for the created transaction
-      const paymentResult = await this.processPayment(transaction.id);
+      const paymentResult = await this.processPayment(transaction.id, provider);
       console.log('Payment processing result:', paymentResult);
       
       return paymentResult;

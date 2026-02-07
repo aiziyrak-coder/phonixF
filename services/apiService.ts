@@ -662,8 +662,8 @@ export const apiService = {
         body: JSON.stringify(transactionData),
       }),
 
-    processPayment: (id: string) =>
-      apiFetch(`/payments/transactions/${id}/process_payment/`, {
+    processPayment: (id: string, provider: 'click' | 'payme' = 'click') =>
+      apiFetch(`/payments/transactions/${id}/process_payment/?provider=${provider}`, {
         method: 'POST',
       }),
 
