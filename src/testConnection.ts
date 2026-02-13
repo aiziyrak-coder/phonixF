@@ -5,11 +5,10 @@ export async function testConnection() {
     console.log('Testing connection to backend...');
     
     // Test login
+    // NOTE: Test parollar olib tashlandi - production'da faqat haqiqiy parollar ishlatiladi
     console.log('Testing login...');
-    const loginResponse = await auth.login({
-      phone: '+998910574905',
-      password: 'admin123'
-    });
+    // Login test o'chirildi - production'da haqiqiy foydalanuvchi ma'lumotlari kerak
+    throw new Error('Test login o\'chirildi - production\'da haqiqiy foydalanuvchi ma\'lumotlari kerak');
     
     console.log('Login successful!', loginResponse.data);
     
