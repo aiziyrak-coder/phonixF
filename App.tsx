@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import ArticleDetail from './pages/ArticleDetail';
 import Login from './pages/LoginSimple';
 import Register from './pages/RegisterSimple';
+import ClickPayment from './pages/ClickPayment';
 import JournalManagement from './pages/JournalManagement';
 import PublishedArticles from './pages/PublishedArticles';
 import Financials from './pages/Financials';
@@ -47,6 +48,7 @@ const AppContent: React.FC = () => {
         <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/payment/click" element={<ClickPayment />} />
             
             <Route path="/" element={
                 <ProtectedRoute>
