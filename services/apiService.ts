@@ -7,15 +7,23 @@ import { getUserFriendlyError, isAuthError } from '../utils/errorHandler';
 
 // Production API URL - always use production URL in built version
 // In development, use VITE_API_BASE_URL from .env, otherwise use production
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-  (import.meta.env.PROD ? 'https://api.ilmiyfaoliyat.uz/api/v1' : 'http://127.0.0.1:8000/api/v1');
-const MEDIA_URL = import.meta.env.VITE_MEDIA_URL || 
-  (import.meta.env.PROD ? 'https://api.ilmiyfaoliyat.uz/media/' : 'http://127.0.0.1:8000/media/');
+// IMPORTANT: Production build'da har doim production URL ishlatiladi
+const isProduction = import.meta.env.PROD || window.location.hostname === 'ilmiyfaoliyat.uz' || window.location.hostname === 'www.ilmiyfaoliyat.uz';
+
+const API_BASE_URL = isProduction 
+  ? 'https://api.ilmiyfaoliyat.uz/api/v1'
+  : (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1');
+
+const MEDIA_URL = isProduction
+  ? 'https://api.ilmiyfaoliyat.uz/media/'
+  : (import.meta.env.VITE_MEDIA_URL || 'http://127.0.0.1:8000/media/');
 
 // Debug: API URL'ni console'da ko'rsatish (production'da ham)
 if (typeof window !== 'undefined') {
   console.log(`[API] API_BASE_URL: ${API_BASE_URL}`);
-  console.log(`[API] Environment: ${import.meta.env.PROD ? 'production' : 'development'}`);
+  console.log(`[API] Hostname: ${window.location.hostname}`);
+  console.log(`[API] Environment: ${isProduction ? 'production' : 'development'}`);
+  console.log(`[API] VITE_API_BASE_URL: ${import.meta.env.VITE_API_BASE_URL || 'not set'}`);
 }
 
 // Get token from localStorage
