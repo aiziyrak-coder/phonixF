@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { Upload, FileCheck, Printer, Link as LinkIcon } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { Upload, FileCheck, Printer, Link as LinkIcon, CreditCard } from 'lucide-react';
+import { useAuth, useNotifications } from '../contexts/AuthContext';
 import { CertificateData } from '../types';
 import Certificate from '../components/Certificate';
 import { apiService } from '../services/apiService';
+import { paymentService } from '../services/paymentService';
 import { toast } from 'react-toastify';
 
 // New types for detailed results
@@ -32,13 +33,33 @@ interface PlagiarismCheckRequest {
   userId: string;
 }
 
+// Antiplagiat tekshiruvi narxi
+const PLAGIARISM_CHECK_PRICE = 50000; // 50,000 so'm
+
 const PlagiarismCheck: React.FC = () => {
   const { user } = useAuth();
+  const { addNotification } = useNotifications();
   const [file, setFile] = useState<File | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<PlagiarismResult | null>(null);
   const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
+  
+  // Payment modal state
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [articleId, setArticleId] = useState<string | null>(null);
+  const paymentTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timer on unmount
+  React.useEffect(() => {
+      return () => {
+          if (paymentTimerRef.current) {
+              clearTimeout(paymentTimerRef.current);
+          }
+      };
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
@@ -46,11 +67,75 @@ const PlagiarismCheck: React.FC = () => {
           setResult(null);
           setCertificateData(null);
           setProgress(0);
+          setArticleId(null);
       }
   };
   
   const handlePrint = () => {
       window.print();
+  };
+
+  const closePaymentModal = () => {
+      setIsPaymentModalOpen(false);
+      if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
+      setPaymentStatus('idle');
+      setPaymentError(null);
+  };
+
+  const handlePay = async () => {
+      if (!file || !user) return;
+
+      setPaymentError(null);
+      setPaymentStatus('processing');
+      if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
+
+      try {
+          // Create transaction and process payment via Click
+          const result = await paymentService.createTransactionAndPay(
+              PLAGIARISM_CHECK_PRICE,
+              'UZS',
+              'language_editing', // Using language_editing as service type for plagiarism check
+              articleId || undefined
+          );
+          
+          console.log('Payment result:', result);
+          
+          if (result && result.success === true && result.payment_url) {
+              // Close modal first
+              setIsPaymentModalOpen(false);
+              
+              // Show notification
+              addNotification({ 
+                  message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
+              });
+              
+              // Redirect to Click payment page after short delay
+              setTimeout(() => {
+                  if (result.payment_url) {
+                      console.log('Redirecting to payment URL:', result.payment_url);
+                      paymentService.redirectToPayment(result.payment_url);
+                  } else {
+                      console.error('Payment URL is missing');
+                      setPaymentStatus('failed');
+                      setPaymentError("To'lov URL topilmadi. Iltimos, qayta urinib ko'ring.");
+                      setIsPaymentModalOpen(true);
+                  }
+              }, 500);
+          } else {
+              // Payment preparation failed
+              const errorMsg = result?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
+              setPaymentStatus('failed');
+              setPaymentError(errorMsg);
+              addNotification({ 
+                  message: errorMsg,
+              });
+          }
+      } catch (err: any) {
+          console.error('Payment failed:', err);
+          const errorMsg = err.message || err.error_note || err.user_message || "To'lovni amalga oshirishda xatolik yuz berdi.";
+          setPaymentStatus('failed');
+          setPaymentError(errorMsg);
+      }
   };
 
   const MOCK_SOURCES = [
@@ -60,8 +145,14 @@ const PlagiarismCheck: React.FC = () => {
       { url: 'researchgate.net/publication/3456789/AI_in_Economics', snippet: '...sun\'iy intellekt texnologiyalarini joriy etish kelajakdagi rivojlanishning asosiy omili hisoblanadi...' },
   ];
 
-  const handleCheck = async () => {
+  const handleCheck = async (paymentCompleted = false) => {
       if (!file || !user) return;
+      
+      // If payment is not completed, show payment modal first
+      if (!paymentCompleted) {
+          setIsPaymentModalOpen(true);
+          return;
+      }
       
       setIsChecking(true);
       setCertificateData(null);
@@ -85,6 +176,9 @@ const PlagiarismCheck: React.FC = () => {
               articleData,
               { mainFile: file }
           );
+
+          // Save article ID for payment
+          setArticleId(articleResponse.id);
 
           // Now trigger the plagiarism check on this article
           const plagiarismResult = await apiService.articles.checkPlagiarism(articleResponse.id);
@@ -157,9 +251,17 @@ const PlagiarismCheck: React.FC = () => {
                   <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.doc,.docx" />
               </label>
           </div>
-          <div className="mt-6 text-center">
-              <Button onClick={handleCheck} disabled={!file || isChecking} isLoading={isChecking} className="w-full max-w-xs mx-auto">
-                  {isChecking ? 'Tekshirilmoqda...' : <><FileCheck className="mr-2 h-4 w-4" /> Tekshirish</>}
+          <div className="mt-6 text-center space-y-4">
+              <div className="p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
+                  <p className="text-sm text-gray-300 mb-2">
+                      <span className="font-semibold text-blue-300">Narx:</span> {PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm
+                  </p>
+                  <p className="text-xs text-gray-400">
+                      Antiplagiat tekshiruvi uchun to'lov talab qilinadi
+                  </p>
+              </div>
+              <Button onClick={() => handleCheck(false)} disabled={!file || isChecking} isLoading={isChecking} className="w-full max-w-xs mx-auto">
+                  {isChecking ? 'Tekshirilmoqda...' : <><FileCheck className="mr-2 h-4 w-4" /> To'lov va Tekshirish</>}
               </Button>
           </div>
 
@@ -222,6 +324,61 @@ const PlagiarismCheck: React.FC = () => {
               </div>
               <div id="certificate-print-area">
                   <Certificate data={certificateData} />
+              </div>
+          </div>
+      )}
+
+      {/* Payment Modal */}
+      {isPaymentModalOpen && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-900 rounded-lg p-6 max-w-md w-full border border-white/10">
+                  {paymentStatus === 'idle' && (
+                      <div>
+                          <h3 className="text-xl font-semibold text-white mb-4">To'lovni tasdiqlash</h3>
+                          <p className="text-gray-300 mb-4">
+                              Antiplagiat tekshiruvi uchun to'lov: <span className="font-bold text-blue-400">{PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm</span>
+                          </p>
+                          <div className="flex gap-3">
+                              <Button onClick={handlePay} className="flex-1">
+                                  <CreditCard className="mr-2 h-4 w-4" />
+                                  To'lovni Amalga Oshirish
+                              </Button>
+                              <Button variant="secondary" onClick={closePaymentModal} className="flex-1">
+                                  Bekor qilish
+                              </Button>
+                          </div>
+                      </div>
+                  )}
+                  {paymentStatus === 'processing' && (
+                      <div className="text-center">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                          <p className="mt-4 text-lg font-medium text-gray-200">To'lov tasdiqlanmoqda...</p>
+                      </div>
+                  )}
+                  {paymentStatus === 'success' && (
+                      <div className="text-center">
+                          <div className="text-green-500 text-4xl mb-4">✓</div>
+                          <p className="mt-4 text-lg font-medium text-gray-200">To'lov muvaffaqiyatli!</p>
+                          <Button onClick={() => { closePaymentModal(); handleCheck(true); }} className="w-full mt-6">
+                              Tekshirishni Davom Ettirish
+                          </Button>
+                      </div>
+                  )}
+                  {paymentStatus === 'failed' && (
+                      <div>
+                          <div className="text-red-500 text-4xl mb-4 text-center">✗</div>
+                          <p className="mt-4 text-lg font-medium text-gray-200 text-center">To'lovda xatolik!</p>
+                          <p className="text-sm text-gray-400 max-w-xs mx-auto text-center mb-4">{paymentError}</p>
+                          <div className="flex gap-3">
+                              <Button onClick={handlePay} className="flex-1">
+                                  Qayta Urinish
+                              </Button>
+                              <Button variant="secondary" onClick={closePaymentModal} className="flex-1">
+                                  Yopish
+                              </Button>
+                          </div>
+                      </div>
+                  )}
               </div>
           </div>
       )}
