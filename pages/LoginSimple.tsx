@@ -23,18 +23,17 @@ const LoginSimple: React.FC = () => {
         }
     }, [user, navigate]);
 
-    // Telefon raqamni avtomatik formatlash
+    // Telefon raqamni formatlash (faqat 9 ta raqam, +998 alohida ko'rsatiladi)
     const formatPhone = (value: string): string => {
-        const digits = value.replace(/\D/g, '');
+        // Faqat raqamlarni qoldirish
+        let digits = value.replace(/\D/g, '');
         
-        if (digits.length === 9 && !digits.startsWith('998')) {
-            return '998' + digits;
-        }
-        
+        // Agar "998" bilan boshlansa, uni olib tashlash (+998 alohida ko'rsatilgani uchun)
         if (digits.startsWith('998')) {
-            return digits.substring(0, 12);
+            digits = digits.substring(3); // "998" ni olib tashlash
         }
         
+        // Faqat 9 ta raqamgacha qabul qilish (907863888 formatida)
         return digits.substring(0, 9);
     };
 
@@ -49,13 +48,15 @@ const LoginSimple: React.FC = () => {
         setIsLoading(true);
         
         try {
-            const fullPhone = phone.startsWith('998') ? phone : `998${phone}`;
-            
-            if (!fullPhone || fullPhone.length < 9) {
-                setError('Iltimos, telefon raqamni kiriting (masalan: 901234567)');
+            // Phone endi faqat 9 ta raqam bo'ladi (masalan: 907863888), +998 alohida ko'rsatiladi
+            if (!phone || phone.length !== 9) {
+                setError('Iltimos, telefon raqamni to\'liq kiriting (9 ta raqam, masalan: 901234567)');
                 setIsLoading(false);
                 return;
             }
+            
+            // To'liq telefon raqamini yaratish (998 + 9 ta raqam)
+            const fullPhone = `998${phone}`;
             
             if (!password || password.trim().length === 0) {
                 setError('Iltimos, parolni kiriting.');

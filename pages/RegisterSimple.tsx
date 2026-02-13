@@ -36,21 +36,17 @@ const RegisterSimple: React.FC = () => {
         }
     }, [user, navigate]);
 
-    // Telefon raqamni avtomatik formatlash (998XXXXXXXXX)
+    // Telefon raqamni formatlash (faqat 9 ta raqam, +998 alohida ko'rsatiladi)
     const formatPhone = (value: string): string => {
         // Faqat raqamlarni qoldirish
-        const digits = value.replace(/\D/g, '');
+        let digits = value.replace(/\D/g, '');
         
-        // Agar 998 bilan boshlanmasa va 9 ta raqam bo'lsa, 998 qo'shish
-        if (digits.length === 9 && !digits.startsWith('998')) {
-            return '998' + digits;
-        }
-        
-        // Agar 998 bilan boshlansa, 12 ta raqamgacha qabul qilish
+        // Agar "998" bilan boshlansa, uni olib tashlash (+998 alohida ko'rsatilgani uchun)
         if (digits.startsWith('998')) {
-            return digits.substring(0, 12);
+            digits = digits.substring(3); // "998" ni olib tashlash
         }
         
+        // Faqat 9 ta raqamgacha qabul qilish (907863888 formatida)
         return digits.substring(0, 9);
     };
 
@@ -63,9 +59,9 @@ const RegisterSimple: React.FC = () => {
         e.preventDefault();
         setError('');
         
-        // Minimal validation
-        if (!phone || phone.length < 9) {
-            setError('Iltimos, telefon raqamni kiriting (masalan: 901234567)');
+        // Minimal validation (phone endi faqat 9 ta raqam bo'ladi, +998 alohida)
+        if (!phone || phone.length !== 9) {
+            setError('Iltimos, telefon raqamni to\'liq kiriting (9 ta raqam, masalan: 901234567)');
             return;
         }
         
