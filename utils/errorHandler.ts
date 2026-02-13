@@ -100,9 +100,18 @@ export function getFieldError(error: any, fieldName: string): string | null {
  * Check if error is network error
  */
 export function isNetworkError(error: any): boolean {
-  return error?.message?.includes('Network') || 
-         error?.message?.includes('Failed to fetch') ||
-         error?.code === 'NETWORK_ERROR';
+  const errorMessage = error?.message?.toLowerCase() || '';
+  const errorName = error?.name?.toLowerCase() || '';
+  
+  return errorMessage.includes('network') || 
+         errorMessage.includes('failed to fetch') ||
+         errorMessage.includes('networkerror') ||
+         errorMessage.includes('load failed') ||
+         errorMessage.includes('network request failed') ||
+         errorName === 'typeerror' ||
+         error?.code === 'NETWORK_ERROR' ||
+         error?.code === 'ERR_NETWORK' ||
+         !error?.response; // Agar response bo'lmasa, network error bo'lishi mumkin
 }
 
 /**
@@ -120,7 +129,14 @@ export function isAuthError(error: any): boolean {
  */
 export function getUserFriendlyError(error: any): string {
   if (isNetworkError(error)) {
-    return 'Internet aloqasi yo\'q. Iltimos, internet aloqasini tekshiring.';
+    // Aniqroq xabar - API'ga ulanib bo'lmaganligi haqida
+    // Production'da API URL'ni ko'rsatmaslik (xavfsizlik uchun)
+    if (import.meta.env.PROD) {
+      return 'Serverga ulanib bo\'lmadi. Iltimos, internet aloqasini tekshiring yoki keyinroq urinib ko\'ring.';
+    } else {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.ilmiyfaoliyat.uz/api/v1';
+      return `Serverga ulanib bo'lmadi. Iltimos, internet aloqasini tekshiring yoki keyinroq urinib ko'ring. (API: ${apiUrl})`;
+    }
   }
   
   if (isAuthError(error)) {

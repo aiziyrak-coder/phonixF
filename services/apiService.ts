@@ -95,8 +95,35 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     } catch (e) {
       throw new Error('Invalid response format');
     }
-  } catch (error) {
-    console.error(`API request to ${endpoint} failed:`, error);
+  } catch (error: any) {
+    const fullUrl = `${API_BASE_URL}${endpoint}`;
+    console.error(`API request failed:`, {
+      url: fullUrl,
+      endpoint,
+      error: error?.message || error,
+      name: error?.name,
+      stack: error?.stack
+    });
+    
+    // Network error handling - agar fetch xatolik bersa
+    if (error?.name === 'TypeError' && (error?.message?.includes('fetch') || error?.message?.includes('Failed'))) {
+      const networkError: any = new Error('Serverga ulanib bo\'lmadi.');
+      networkError.name = 'NetworkError';
+      networkError.code = 'NETWORK_ERROR';
+      networkError.originalError = error;
+      networkError.url = fullUrl;
+      throw networkError;
+    }
+    
+    // CORS error handling
+    if (error?.message?.includes('CORS') || error?.message?.includes('cors')) {
+      const corsError: any = new Error('Server CORS sozlamalari noto\'g\'ri. Iltimos, administratorga murojaat qiling.');
+      corsError.name = 'CORS_ERROR';
+      corsError.code = 'CORS_ERROR';
+      throw corsError;
+    }
+    
+    // Agar error allaqachon formatlangan bo'lsa, uni qaytarish
     throw error;
   }
 };
