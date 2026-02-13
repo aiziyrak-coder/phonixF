@@ -129,7 +129,9 @@ const Profile: React.FC = () => {
                         if (result.error_code === -514 || result.details?.error_code === -514) {
                             errorMsg = 'Sizning telefon raqamingiz Click tizimida ro\'yxatdan o\'tmagan. Iltimos, telefon raqamingizni Click tizimida ro\'yxatdan o\'tkazing va qayta urinib ko\'ring.';
                         } else if (result.error_code === -1 || !result.error_code) {
-                            errorMsg = 'Invoice yaratib bo\'lmadi. Iltimos, telefon raqamingizni tekshiring va qayta urinib ko\'ring.';
+                            errorMsg = 'To\'lov URL yaratib bo\'lmadi. Iltimos, qayta urinib ko\'ring yoki texnik yordamga murojaat qiling.';
+                        } else {
+                            errorMsg = 'To\'lovni amalga oshirishda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.';
                         }
                     }
                 }
