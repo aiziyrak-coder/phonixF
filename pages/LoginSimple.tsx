@@ -98,14 +98,14 @@ const LoginSimple: React.FC = () => {
                             Telefon raqam
                         </label>
                         <div className="relative">
-                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">+998</span>
+                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10 pointer-events-none">+998</span>
                             <input
                                 type="tel"
                                 name="phone"
                                 id="phone"
                                 value={phone}
                                 onChange={handlePhoneChange}
-                                className="w-full pl-12 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                className="w-full pl-16 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
                                 placeholder="90 123 45 67"
                                 required
                                 maxLength={12}
