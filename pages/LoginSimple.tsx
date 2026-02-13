@@ -58,6 +58,8 @@ const LoginSimple: React.FC = () => {
             // To'liq telefon raqamini yaratish (998 + 9 ta raqam)
             const fullPhone = `998${phone}`;
             
+            console.log('Login attempt - phone input:', phone, 'full phone:', fullPhone);
+            
             if (!password || password.trim().length === 0) {
                 setError('Iltimos, parolni kiriting.');
                 setIsLoading(false);

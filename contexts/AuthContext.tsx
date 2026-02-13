@@ -127,11 +127,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     
     try {
-      // Ensure phone number doesn't have + sign
+      // Ensure phone number doesn't have + sign and normalize
       const cleanPhone = phone.replace(/^\+/, '').replace(/\s/g, '').replace(/\D/g, '');
       
-      if (!cleanPhone || cleanPhone.length < 9) {
-        setError('Iltimos, to\'g\'ri telefon raqamni kiriting.');
+      // Validate phone number (should be 9-12 digits)
+      // 9 digits: 907863888 -> backend will add 998
+      // 12 digits: 998907863888 -> backend will use as-is
+      if (!cleanPhone || cleanPhone.length < 9 || cleanPhone.length > 12) {
+        setError('Iltimos, to\'g\'ri telefon raqamni kiriting (9-12 ta raqam).');
         setLoading(false);
         return false;
       }
