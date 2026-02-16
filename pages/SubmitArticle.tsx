@@ -332,18 +332,24 @@ const SubmitArticle: React.FC = () => {
             return;
         }
         
-        setLoading(true);
+        const paymentModel = selectedJournal?.paymentModel ?? (selectedJournal as any)?.payment_model;
+        const isPostPayment = paymentModel === PaymentModel.PostPayment;
         
-        // Bypass payment requirement - submit article directly
-        try {
-            await submitArticle();
-            // Success notification and navigation are now handled in submitArticle function
-        } catch (err) {
-            console.error('Failed to submit article:', err);
-            alert('Maqola yuborishda xatolik yuz berdi.');
-        } finally {
-            setLoading(false);
+        if (isPostPayment) {
+            setLoading(true);
+            try {
+                await submitArticle();
+            } catch (err) {
+                alert('Maqola yuborishda xatolik yuz berdi.');
+            } finally {
+                setLoading(false);
+            }
+            return;
         }
+        
+        setPaymentStatus('idle');
+        setPaymentError(null);
+        setIsPaymentModalOpen(true);
     };
 
     const closePaymentModal = () => {
@@ -1107,11 +1113,59 @@ const SubmitArticle: React.FC = () => {
                         </Button>
                     ) : (
                         <Button onClick={handleSubmit} disabled={!submissionType || loading}>
-                             {loading ? 'Yuborilmoqda...' : (selectedJournal?.paymentModel === PaymentModel.PostPayment ? 'Yuborish' : "To'lov va Yuborish")}
+                             {loading ? 'Yuborilmoqda...' : (selectedJournal?.paymentModel === PaymentModel.PostPayment || (selectedJournal as any)?.payment_model === 'post-payment' ? 'Yuborish' : "To'lov va Yuborish")}
                         </Button>
                     )}
                 </div>
             </div>
+
+            {isPaymentModalOpen && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-900 rounded-lg p-6 max-w-md w-full border border-white/10">
+                        {paymentStatus === 'idle' && (
+                            <div>
+                                <h3 className="text-xl font-semibold text-white mb-4">To'lovni tasdiqlash</h3>
+                                <p className="text-gray-300 mb-2">Maqola yuborish uchun to'lov:</p>
+                                <div className="p-4 bg-blue-900/20 rounded-lg border border-blue-700/30 mb-4">
+                                    <p className="text-2xl font-bold text-white text-center">{currentTotal.toLocaleString()} so'm</p>
+                                </div>
+                                <div className="flex gap-3">
+                                    <Button onClick={(e) => handlePay(e)} className="flex-1">
+                                        To'lovni Amalga Oshirish
+                                    </Button>
+                                    <Button variant="secondary" onClick={closePaymentModal} className="flex-1">
+                                        Bekor qilish
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                        {paymentStatus === 'processing' && (
+                            <div className="text-center py-8">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                                <p className="text-lg font-medium text-gray-200">To'lov tasdiqlanmoqda...</p>
+                            </div>
+                        )}
+                        {paymentStatus === 'success' && (
+                            <div className="text-center py-8">
+                                <div className="text-green-500 text-4xl mb-4">✓</div>
+                                <p className="text-lg font-medium text-gray-200">To'lov muvaffaqiyatli!</p>
+                                <p className="text-sm text-gray-400 mt-2">To'lov sahifasiga yo'naltirilmoqdasiz</p>
+                            </div>
+                        )}
+                        {paymentStatus === 'failed' && (
+                            <div>
+                                <div className="text-red-500 text-4xl mb-4 text-center">✗</div>
+                                <p className="text-lg font-medium text-gray-200 text-center">To'lovda xatolik!</p>
+                                <p className="text-sm text-gray-400 max-w-xs mx-auto text-center mb-4">{paymentError}</p>
+                                <div className="flex gap-3">
+                                    <Button onClick={(e) => handlePay(e)} className="flex-1">Qayta Urinish</Button>
+                                    <Button variant="secondary" onClick={closePaymentModal} className="flex-1">Yopish</Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

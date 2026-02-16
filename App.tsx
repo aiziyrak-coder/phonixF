@@ -29,15 +29,22 @@ import JournalAdminPanel from './pages/JournalAdminPanel';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth();
-    
+
     if (loading) {
-        return <div>Yuklanmoqda...</div>; // Show loading state
+        return (
+            <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+                    <p className="text-gray-400">Yuklanmoqda...</p>
+                </div>
+            </div>
+        );
     }
-    
+
     if (!user) {
         return <Navigate to="/login" replace />;
     }
-    
+
     return <>{children}</>;
 };
 

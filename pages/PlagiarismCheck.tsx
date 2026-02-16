@@ -7,6 +7,7 @@ import { CertificateData } from '../types';
 import Certificate from '../components/Certificate';
 import { apiService } from '../services/apiService';
 import { paymentService } from '../services/paymentService';
+import { getUserFriendlyError } from '../utils/errorHandler';
 import { toast } from 'react-toastify';
 
 // New types for detailed results
@@ -227,9 +228,8 @@ const PlagiarismCheck: React.FC = () => {
           setCertificateData(newCertificateData);
 
           toast.success('Antiplagiat tekshiruvi muvaffaqiyatli amalga oshirildi!');
-      } catch (error) {
-          console.error('Error during plagiarism check:', error);
-          toast.error('Antiplagiat tekshiruvida xatolik yuz berdi: ' + (error as Error).message);
+      } catch (err: any) {
+          toast.error(getUserFriendlyError(err) || 'Antiplagiat tekshiruvida xatolik yuz berdi.');
       } finally {
           setIsChecking(false);
           setProgress(100);

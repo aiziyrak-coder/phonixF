@@ -155,9 +155,9 @@ const UserManagement: React.FC = () => {
 
     if (error) {
         return (
-            <Card title="Error">
+            <Card title="Xatolik">
                 <p className="text-red-400">{error}</p>
-                <Button onClick={() => window.location.reload()} className="mt-4">Retry</Button>
+                <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
             </Card>
         );
     }

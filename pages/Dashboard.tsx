@@ -107,8 +107,7 @@ const Dashboard: React.FC = () => {
                     }
                 }
             } catch (error: any) {
-                console.error('Failed to fetch dashboard data:', error);
-                setError('Failed to load dashboard data. Please try again later.');
+                setError(error?.message || 'Boshqaruv paneli ma\'lumotlarini yuklashda xatolik. Iltimos, keyinroq urinib ko\'ring.');
             } finally {
                 setLoading(false);
             }
@@ -129,9 +128,9 @@ const Dashboard: React.FC = () => {
     
     if (error) {
         return (
-            <Card title="Error">
+            <Card title="Xatolik">
                 <p className="text-red-400">{error}</p>
-                <Button onClick={() => window.location.reload()} className="mt-4">Retry</Button>
+                <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
             </Card>
         );
     }

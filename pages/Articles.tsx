@@ -490,8 +490,7 @@ const Articles: React.FC = () => {
             setTranslations(translationsArray);
             setJournals(journalsArray);
         } catch (error: any) {
-            console.error('Failed to fetch articles data:', error);
-            setError('Failed to load articles data. Please try again later.');
+            setError(error?.message || 'Maqolalar ma\'lumotlarini yuklashda xatolik. Iltimos, keyinroq urinib ko\'ring.');
         } finally {
             setLoading(false);
         }
@@ -514,9 +513,9 @@ const Articles: React.FC = () => {
     
     if (error) {
         return (
-            <Card title="Error">
+            <Card title="Xatolik">
                 <p className="text-red-400">{error}</p>
-                <Button onClick={() => window.location.reload()} className="mt-4">Retry</Button>
+                <Button onClick={() => { setError(null); fetchData(); }} className="mt-4">Qayta urinish</Button>
             </Card>
         );
     }

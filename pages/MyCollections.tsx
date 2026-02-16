@@ -27,10 +27,11 @@ const MyCollections: React.FC = () => {
                     apiService.journals.list(),
                     apiService.articles.list()
                 ]);
-                
-                setIssues(issuesData.results || issuesData);
-                setJournals(journalsData.results || journalsData);
-                setArticles(articlesData.results || articlesData);
+                const toArray = (data: any): any[] =>
+                    Array.isArray(data) ? data : (data?.results || data?.data || []);
+                setIssues(toArray(issuesData));
+                setJournals(toArray(journalsData));
+                setArticles(toArray(articlesData));
             } catch (err: any) {
                 console.error('Failed to fetch data:', err);
                 setError('Ma\'lumotlarni yuklashda xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));

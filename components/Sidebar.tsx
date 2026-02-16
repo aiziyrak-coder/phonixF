@@ -39,7 +39,9 @@ const sidebarLinks: Record<Role, NavLinkItem[]> = {
         { to: '/users', icon: Users, label: 'Foydalanuvchilar' },
         { to: '/articles', icon: FileText, label: 'Barcha maqolalar' },
         { to: '/journal-management', icon: BookMarked, label: 'Jurnallar' },
+        { to: '/financials', icon: DollarSign, label: 'Moliya' },
         { to: '/udk-requests', icon: Library, label: 'UDK so\'rovlari' },
+        { to: '/profile', icon: UserCircle, label: 'Profilim' },
     ],
     [Role.Accountant]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },

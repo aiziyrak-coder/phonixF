@@ -18,12 +18,9 @@ const MEDIA_URL = isProduction
   ? 'https://api.ilmiyfaoliyat.uz/media/'
   : (import.meta.env.VITE_MEDIA_URL || 'http://127.0.0.1:8000/media/');
 
-// Debug: API URL'ni console'da ko'rsatish (production'da ham)
-if (typeof window !== 'undefined') {
+// Debug: API URL only in development (production'da log chiqarilmaydi)
+if (typeof window !== 'undefined' && !isProduction) {
   console.log(`[API] API_BASE_URL: ${API_BASE_URL}`);
-  console.log(`[API] Hostname: ${window.location.hostname}`);
-  console.log(`[API] Environment: ${isProduction ? 'production' : 'development'}`);
-  console.log(`[API] VITE_API_BASE_URL: ${import.meta.env.VITE_API_BASE_URL || 'not set'}`);
 }
 
 // Get token from localStorage
@@ -58,8 +55,9 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
 
   try {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
-    console.log(`[API] Request: ${options.method || 'GET'} ${fullUrl}`);
-    
+    if (!isProduction) {
+      console.log(`[API] Request: ${options.method || 'GET'} ${fullUrl}`);
+    }
     const response = await fetch(fullUrl, config);
 
     // Handle 401 Unauthorized - token expired
@@ -114,19 +112,9 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     }
   } catch (error: any) {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
-    console.error(`[API] Request failed:`, {
-      url: fullUrl,
-      endpoint,
-      method: options.method || 'GET',
-      error: error?.message || error,
-      name: error?.name,
-      code: error?.code,
-      stack: error?.stack
-    });
-    
-    // API URL'ni console'da ko'rsatish (debug uchun)
-    console.error(`[API] API_BASE_URL: ${API_BASE_URL}`);
-    console.error(`[API] Full URL: ${fullUrl}`);
+    if (!isProduction) {
+      console.error(`[API] Request failed:`, fullUrl, error?.message || error);
+    }
     
     // Network error handling - agar fetch xatolik bersa
     if (error?.name === 'TypeError' && (error?.message?.includes('fetch') || error?.message?.includes('Failed'))) {
