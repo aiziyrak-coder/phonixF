@@ -4,7 +4,7 @@ import Button from '../components/ui/Button';
 import { useAuth, useNotifications } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
 import { ArticleStatus, Role, Issue } from '../types';
-import { Archive, UploadCloud, Send, Link as LinkIcon, Loader2 } from 'lucide-react';
+import { Archive, UploadCloud, Send, Link as LinkIcon, Loader2, Share2 } from 'lucide-react';
 
 const MONTH_NAMES = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
 const currentYear = new Date().getFullYear();
@@ -19,18 +19,17 @@ const PublishedArticles: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [users, setUsers] = useState<any[]>([]);
+    const [selectedJournalId, setSelectedJournalId] = useState('');
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+    const [collectionUrl, setCollectionUrl] = useState('');
+    const [collectionPdf, setCollectionPdf] = useState<File | null>(null);
+    const [copiedArticleId, setCopiedArticleId] = useState<string | null>(null);
 
     const managedJournals = useMemo(() => {
         if (user?.role !== Role.JournalAdmin) return [];
         return journals.filter(j => j.journal_admin === user.id);
     }, [user, journals]);
-
-    const [selectedJournalId, setSelectedJournalId] = useState('');
-    const [selectedYear, setSelectedYear] = useState(currentYear);
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-    
-    const [collectionUrl, setCollectionUrl] = useState('');
-    const [collectionPdf, setCollectionPdf] = useState<File | null>(null);
 
     // Set initial selected journal
     useEffect(() => {
@@ -81,11 +80,33 @@ const PublishedArticles: React.FC = () => {
     const articlesForNewIssue = useMemo(() => {
         return articles.filter(article => 
             article.journal === selectedJournalId &&
-            article.status === 'published' && // Published status in API
+            (article.status === 'Published' || article.status === 'published') &&
             new Date(article.submission_date).getFullYear() === selectedYear &&
             new Date(article.submission_date).getMonth() === selectedMonth
         );
     }, [selectedJournalId, selectedYear, selectedMonth, articles]);
+
+    const getPublicShareLink = (articleId: string) => {
+        // HashRouter uchun to'g'ri URL format
+        return `${window.location.origin}${window.location.pathname}#/public/article/${articleId}`;
+    };
+
+    const handleShareArticle = async (articleId: string) => {
+        const shareUrl = getPublicShareLink(articleId);
+
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(shareUrl);
+            } else {
+                throw new Error('Clipboard API not available');
+            }
+
+            setCopiedArticleId(articleId);
+            setTimeout(() => setCopiedArticleId(null), 2000);
+        } catch (err) {
+            window.prompt('Havolani nusxalang:', shareUrl);
+        }
+    };
 
     if (!user || user.role !== Role.JournalAdmin) {
         return <Card title="Ruxsat Rad Etildi"><p>Ushbu sahifani ko'rish uchun sizda yetarli ruxsat yo'q.</p></Card>;
@@ -120,7 +141,7 @@ const PublishedArticles: React.FC = () => {
 
     const handleCreateOrUpdateIssue = async () => {
         if (!collectionPdf && !collectionUrl) {
-            alert("Iltimos, oylik to'plamning PDF faylini yuklang yoki havola kiriting.");
+            alert("Iltimos, oylik to'plamning faylini (DOC/DOCX/PDF) yuklang yoki havola kiriting.");
             return;
         }
 
@@ -238,24 +259,52 @@ const PublishedArticles: React.FC = () => {
             <div className="mt-6 space-y-6">
                 <h3 className="text-lg font-semibold text-white">{activeIssue ? "Ma'lumotlarni Yangilash" : "Yangi Son Yaratish"}</h3>
                 <p className="text-sm text-gray-400">Tanlangan oy uchun <strong className="text-white">{Array.isArray(articlesForNewIssue) ? articlesForNewIssue.length : 0}</strong> ta nashr etilgan maqola mavjud.</p>
-                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">To'plam PDF fayli</label>
+
+                <div className="space-y-3">
+                    {Array.isArray(articlesForNewIssue) && articlesForNewIssue.length > 0 ? (
+                        articlesForNewIssue.map((article) => (
+                            <div key={article.id} className="p-4 bg-white/5 border border-white/10 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                <div>
+                                    <h4 className="text-white font-medium">{article.title}</h4>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        {new Date(article.submission_date).toLocaleDateString()}
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={() => handleShareArticle(article.id)}
+                                    variant="secondary"
+                                    className="w-full md:w-auto"
+                                >
+                                    <Share2 className="mr-2 h-4 w-4" />
+                                    {copiedArticleId === article.id ? 'Havola nusxalandi' : 'Maqolani ulashish'}
+                                </Button>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-400">
+                            Tanlangan oy uchun nashr etilgan maqolalar topilmadi.
+                        </div>
+                    )}
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">To'plam fayli (DOC/DOCX/PDF)</label>
                     <label htmlFor="collection-pdf-upload" className="cursor-pointer">
                         <div className="p-8 border-2 border-dashed rounded-lg border-gray-600 text-center bg-white/5 hover:bg-white/10 transition-colors">
                             <UploadCloud className="mx-auto h-10 w-10 text-gray-400" />
-                            <p className="mt-2 text-sm text-gray-400">{collectionPdf ? `Tanlangan: ${collectionPdf.name}` : 'PDF faylni tanlang'}</p>
+                            <p className="mt-2 text-sm text-gray-400">{collectionPdf ? `Tanlangan: ${collectionPdf.name}` : 'DOC, DOCX yoki PDF faylni tanlang'}</p>
                         </div>
                         <input 
                             id="collection-pdf-upload" 
                             type="file" 
                             className="sr-only" 
                             onChange={(e) => setCollectionPdf(e.target.files ? e.target.files[0] : null)} 
-                            accept=".pdf" 
+                            accept=".pdf,.doc,.docx" 
                             disabled={loading}
                         />
                     </label>
                 </div>
-                 <div>
+                <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">To'plam havolasi (ixtiyoriy)</label>
                     <div className="relative">
                         <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18}/>

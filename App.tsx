@@ -26,6 +26,7 @@ import MyTranslations from './pages/MyTranslations';
 import TranslationDetail from './pages/TranslationDetail';
 import PaymentTest from './pages/PaymentTest';
 import JournalAdminPanel from './pages/JournalAdminPanel';
+import PublicArticleShare from './pages/PublicArticleShare';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth();
@@ -56,6 +57,7 @@ const AppContent: React.FC = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/payment/click" element={<ClickPayment />} />
+            <Route path="/public/article/:id" element={<PublicArticleShare />} />
             
             <Route path="/" element={
                 <ProtectedRoute>

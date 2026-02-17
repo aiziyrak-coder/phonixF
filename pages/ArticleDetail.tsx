@@ -15,6 +15,10 @@ interface ArticleApiResponse {
     abstract: string;
     keywords: string[];
     status: ArticleStatus;
+    status_label?: string;
+    workflow_stage?: string;
+    workflow_steps?: { name: string; done: boolean; current: boolean }[];
+    status_timeline?: { status: string; date: string; comment?: string; responsible?: string }[];
     author: string;
     author_name?: string;
     journal: string;
@@ -24,6 +28,7 @@ interface ArticleApiResponse {
     file_url?: string;
     views: number;
     downloads: number;
+    activity_logs?: ActivityLogEvent[];
 }
 
 const ArticleDetail: React.FC = () => {
@@ -50,17 +55,9 @@ const ArticleDetail: React.FC = () => {
                 const articleData = articleResponse.data || articleResponse;
                 setArticle(articleData);
                 
-                // Fetch activity logs
-                // This would typically come from the backend, but for now we'll use mock data
-                setActivityLogs([
-                    {
-                        id: '1',
-                        articleId: id,
-                        timestamp: new Date().toISOString(),
-                        action: 'Maqola yaratildi',
-                        details: 'Muallif tomonidan yangi maqola yaratildi'
-                    }
-                ]);
+                // Fetch activity logs from backend response
+                const logs = Array.isArray(articleData.activity_logs) ? articleData.activity_logs : [];
+                setActivityLogs(logs);
                 
                 // Set certificate data
                 setCertificateData({
@@ -71,7 +68,7 @@ const ArticleDetail: React.FC = () => {
                     articleTitle: articleData.title,
                     journalName: articleData.journal_name || 'Noma\'lum jurnal',
                     submissionDate: articleData.submission_date || new Date().toISOString(),
-                    currentStatus: articleData.status,
+                    currentStatus: articleData.status_label || articleData.status,
                     articleId: articleData.id
                 });
             } catch (err: any) {
@@ -156,22 +153,27 @@ const ArticleDetail: React.FC = () => {
 
     const getStatusDisplayData = (status: string): { text: string; color: string; icon: React.ElementType } => {
         const map: Record<string, { text: string; color: string; icon: React.ElementType }> = {
-            'Qoralama': { text: 'Qoralama', color: 'bg-gray-500/20 text-gray-300', icon: FileText },
-            'Yangi': { text: 'Yangi', color: 'bg-blue-500/20 text-blue-300', icon: Inbox },
-            'Redaktorda': { text: 'Redaktorda', color: 'bg-indigo-500/20 text-indigo-300', icon: Edit },
-            'Qabul Qilingan': { text: 'Qabul Qilingan', color: 'bg-yellow-500/20 text-yellow-300', icon: CheckCircle },
-            'Yozish jarayonida': { text: 'Yozilmoqda', color: 'bg-cyan-500/20 text-cyan-300', icon: Edit },
-            'Nashrga Yuborilgan': { text: 'Nashrga Yuborilgan', color: 'bg-purple-500/20 text-purple-300', icon: Send },
-            'Tahrirga qaytarilgan': { text: 'Tahrirga qaytarilgan', color: 'bg-orange-500/20 text-orange-300', icon: Edit },
-            'Qabul qilingan': { text: 'Ma\'qullangan', color: 'bg-teal-500/20 text-teal-300', icon: Check },
-            'Nashr etilgan': { text: 'Nashr etilgan', color: 'bg-green-500/20 text-green-300', icon: BookOpen },
-            'Rad etilgan': { text: 'Rad etilgan', color: 'bg-red-500/20 text-red-300', icon: XCircle },
+            'Draft': { text: 'Yangi topshirildi', color: 'bg-gray-500/20 text-gray-300', icon: FileText },
+            'Yangi': { text: 'Yangi topshirildi', color: 'bg-blue-500/20 text-blue-300', icon: Inbox },
+            'WithEditor': { text: 'Tekshiruvda', color: 'bg-indigo-500/20 text-indigo-300', icon: Edit },
+            'QabulQilingan': { text: 'Ko\'rib chiqilmoqda', color: 'bg-yellow-500/20 text-yellow-300', icon: CheckCircle },
+            'WritingInProgress': { text: 'Tuzatish kiritilmoqda', color: 'bg-cyan-500/20 text-cyan-300', icon: Edit },
+            'NashrgaYuborilgan': { text: 'Nashrga tayyorlanmoqda', color: 'bg-purple-500/20 text-purple-300', icon: Send },
+            'Revision': { text: 'To\'ldirish talab qilinadi', color: 'bg-orange-500/20 text-orange-300', icon: Edit },
+            'Accepted': { text: 'Qabul qilindi', color: 'bg-teal-500/20 text-teal-300', icon: Check },
+            'Published': { text: 'Nashr etildi', color: 'bg-green-500/20 text-green-300', icon: BookOpen },
+            'Rejected': { text: 'Jarayon to\'xtatildi', color: 'bg-red-500/20 text-red-300', icon: XCircle },
         };
         return map[status] || { text: status, color: 'bg-gray-500/20 text-gray-300', icon: FileText };
     };
 
     const statusData = getStatusDisplayData(article.status);
     const StatusIcon = statusData.icon;
+    const workflowSteps = Array.isArray(article.workflow_steps) ? article.workflow_steps : [];
+    const workflowProgress = workflowSteps.length > 0
+        ? Math.round((workflowSteps.filter(s => s.done || s.current).length / workflowSteps.length) * 100)
+        : 0;
+    const statusTimeline = Array.isArray(article.status_timeline) ? article.status_timeline : [];
 
     return (
         <div className="space-y-6">
@@ -185,8 +187,9 @@ const ArticleDetail: React.FC = () => {
                 <div className="flex items-center gap-2">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${statusData.color}`}>
                         <StatusIcon size={16} />
-                        {statusData.text}
+                        {article.status_label || statusData.text}
                     </span>
+
                     {article.fast_track && (
                         <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-300 flex items-center gap-2">
                             <Award size={16} />
@@ -198,6 +201,51 @@ const ArticleDetail: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
+                    <Card title="Jarayon holati">
+                        <div className="space-y-4">
+                            <div>
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span className="text-gray-300">Joriy bosqich: {article.workflow_stage || 'Topshirildi'}</span>
+                                    <span className="text-blue-300 font-semibold">{workflowProgress}%</span>
+                                </div>
+                                <div className="w-full bg-white/10 rounded-full h-2.5">
+                                    <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${workflowProgress}%` }} />
+                                </div>
+                            </div>
+
+                            {workflowSteps.length > 0 && (
+                                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+                                    {workflowSteps.map((step) => (
+                                        <div
+                                            key={step.name}
+                                            className={`p-2 rounded text-center border ${step.current ? 'border-blue-400 text-blue-300 bg-blue-500/10' : step.done ? 'border-green-500/30 text-green-300 bg-green-500/10' : 'border-white/10 text-gray-400 bg-white/5'}`}
+                                        >
+                                            {step.name}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <h4 className="text-sm font-semibold text-white">Status tarixi</h4>
+                                {statusTimeline.length > 0 ? (
+                                    statusTimeline.map((item, index) => (
+                                        <div key={`${item.status}-${item.date}-${index}`} className="p-3 bg-white/5 rounded-lg border border-white/10">
+                                            <p className="text-white font-medium">{item.status}</p>
+                                            <p className="text-xs text-gray-400 mt-1">{item.date ? new Date(item.date).toLocaleString() : 'Sana yo\'q'}</p>
+                                            {item.comment ? <p className="text-sm text-gray-300 mt-1">Izoh: {item.comment}</p> : null}
+                                            {item.responsible ? <p className="text-xs text-gray-500 mt-1">Mas'ul: {item.responsible}</p> : null}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="p-3 bg-white/5 rounded-lg border border-white/10 text-sm text-gray-400">
+                                        Status tarixi hali mavjud emas.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </Card>
+
                     <Card title="Asosiy ma'lumotlar">
                         <div className="space-y-4">
                             <div>

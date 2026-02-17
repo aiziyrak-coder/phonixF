@@ -41,6 +41,7 @@ const PlagiarismCheck: React.FC = () => {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
   const [file, setFile] = useState<File | null>(null);
+  const [availableJournals, setAvailableJournals] = useState<any[]>([]);
   const [isChecking, setIsChecking] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<PlagiarismResult | null>(null);
@@ -61,6 +62,57 @@ const PlagiarismCheck: React.FC = () => {
           }
       };
   }, []);
+
+  React.useEffect(() => {
+      const fetchJournals = async () => {
+          if (!user) return;
+          try {
+              const journalsData = await apiService.journals.list();
+              const journalsArray = Array.isArray(journalsData)
+                  ? journalsData
+                  : (journalsData?.results || journalsData?.data || []);
+              setAvailableJournals(journalsArray);
+          } catch (err) {
+              console.error('Failed to fetch journals for plagiarism check:', err);
+          }
+      };
+
+      fetchJournals();
+  }, [user]);
+
+  const ensureArticleForPlagiarism = async (): Promise<string> => {
+      if (!file || !user) {
+          throw new Error('Fayl yoki foydalanuvchi topilmadi.');
+      }
+
+      if (articleId) {
+          return articleId;
+      }
+
+      const selectedJournal = availableJournals[0];
+      if (!selectedJournal?.id) {
+          throw new Error('Jurnal topilmadi. Iltimos, avval jurnal yarating yoki administratorga murojaat qiling.');
+      }
+
+      const articleData = {
+          title: `Plagiarism Check - ${file.name}`,
+          abstract: 'Document submitted for plagiarism check',
+          keywords: ['plagiarism', 'check', 'document'],
+          journal: selectedJournal.id,
+          page_count: 1,
+          fast_track: false,
+      };
+
+      const articleResponse = await apiService.articles.create(articleData, { mainFile: file });
+      const createdArticle = articleResponse?.data || articleResponse;
+
+      if (!createdArticle?.id) {
+          throw new Error('Antiplagiat uchun maqola yaratilmadi.');
+      }
+
+      setArticleId(createdArticle.id);
+      return createdArticle.id;
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files) {
@@ -91,40 +143,30 @@ const PlagiarismCheck: React.FC = () => {
       if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
 
       try {
+          const linkedArticleId = await ensureArticleForPlagiarism();
+
           // Create transaction and process payment via Click
           const result = await paymentService.createTransactionAndPay(
               PLAGIARISM_CHECK_PRICE,
               'UZS',
               'language_editing', // Using language_editing as service type for plagiarism check
-              articleId || undefined
+              linkedArticleId
           );
           
           console.log('Payment result:', result);
           
           if (result && result.success === true && result.payment_url) {
-              // Close modal first
-              setIsPaymentModalOpen(false);
+              setPaymentStatus('success');
               
               // Show notification
               addNotification({ 
-                  message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
+                  message: 'To\'lov oynasi yangi tabda ochildi. To\'lovdan so\'ng "Tekshirishni davom ettirish" tugmasini bosing.',
               });
-              
-              // Redirect to Click payment page after short delay
-              setTimeout(() => {
-                  if (result.payment_url) {
-                      console.log('Redirecting to payment URL:', result.payment_url);
-                      paymentService.redirectToPayment(result.payment_url);
-                  } else {
-                      console.error('Payment URL is missing');
-                      setPaymentStatus('failed');
-                      setPaymentError("To'lov URL topilmadi. Iltimos, qayta urinib ko'ring.");
-                      setIsPaymentModalOpen(true);
-                  }
-              }, 500);
+
+              window.open(result.payment_url, '_blank', 'noopener,noreferrer');
           } else {
               // Payment preparation failed
-              const errorMsg = result?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
+              const errorMsg = (result as any)?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
               setPaymentStatus('failed');
               setPaymentError(errorMsg);
               addNotification({ 
@@ -161,28 +203,10 @@ const PlagiarismCheck: React.FC = () => {
       setProgress(0);
 
       try {
-          // First, create an article with the uploaded file for plagiarism check
-          const articleData = {
-              title: `Plagiarism Check - ${file.name}`,
-              abstract: 'Document submitted for plagiarism check',
-              keywords: ['plagiarism', 'check', 'document'],
-              status: 'Yangi', // New
-              authorId: user.id,
-              journalId: null, // No journal for plagiarism check service
-              submissionDate: new Date().toISOString(),
-          };
-
-          // Create article with file
-          const articleResponse = await apiService.articles.create(
-              articleData,
-              { mainFile: file }
-          );
-
-          // Save article ID for payment
-          setArticleId(articleResponse.id);
+          const targetArticleId = await ensureArticleForPlagiarism();
 
           // Now trigger the plagiarism check on this article
-          const plagiarismResult = await apiService.articles.checkPlagiarism(articleResponse.id);
+          const plagiarismResult = await apiService.articles.checkPlagiarism(targetArticleId);
           
           // Update UI with the results
           const plagiarismPercentage = plagiarismResult.plagiarism || 0;

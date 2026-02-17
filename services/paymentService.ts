@@ -5,6 +5,7 @@ import { apiService } from './apiService';
 
 interface ProcessPaymentResponse {
   success: boolean;
+  transaction_id?: string;
   payment_url?: string;
   invoice_id?: number;
   merchant_trans_id?: string;
@@ -13,6 +14,13 @@ interface ProcessPaymentResponse {
   error_code?: number;
   error?: string;
   error_note?: string;
+  user_message?: string;
+  details?: {
+    user_message?: string;
+    error_note?: string;
+    error?: string;
+    error_code?: number;
+  };
 }
 
 interface PaymentStatusResponse {
@@ -234,8 +242,11 @@ class PaymentService {
       // Process payment for the created transaction
       const paymentResult = await this.processPayment(transaction.id, provider);
       console.log('Payment processing result:', paymentResult);
-      
-      return paymentResult;
+
+      return {
+        ...paymentResult,
+        transaction_id: transaction.id,
+      };
     } catch (error: any) {
       console.error('Error creating transaction and processing payment:', error);
       

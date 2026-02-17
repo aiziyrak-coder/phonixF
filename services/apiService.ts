@@ -38,14 +38,17 @@ const removeToken = () => {
 // Base fetch with authentication
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const token = getToken();
-  
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  const isFormDataBody = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const headers = new Headers(options.headers || {});
+
+  // Let browser set multipart boundary for FormData requests
+  if (!isFormDataBody && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const config: RequestInit = {
@@ -220,6 +223,8 @@ export const apiService = {
     },
 
     get: (id: string) => apiFetch(`/articles/${id}/`),
+
+    getPublic: (id: string) => apiFetch(`/articles/public/${id}/`),
 
     create: async (articleData: any, files?: { mainFile?: File, additionalFile?: File }) => {
       if (files && (files.mainFile || files.additionalFile)) {

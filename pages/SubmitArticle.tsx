@@ -26,6 +26,10 @@ const SubmitArticle: React.FC = () => {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
     const [paymentError, setPaymentError] = useState<string | null>(null);
+    const [transactionId, setTransactionId] = useState<string | null>(null);
+    const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
+    const [processPaymentStatus, setProcessPaymentStatus] = useState<'pending' | 'completed' | 'failed' | null>(null);
+    const [isRefreshingProcess, setIsRefreshingProcess] = useState(false);
     const [totalAmount, setTotalAmount] = useState(0);
     const [pageCount, setPageCount] = useState(0);
     const [submissionType, setSubmissionType] = useState<SubmissionType | null>(null);
@@ -357,6 +361,28 @@ const SubmitArticle: React.FC = () => {
         if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
     };
 
+    const closeProcessModal = () => setIsProcessModalOpen(false);
+
+    const refreshProcessStatus = async () => {
+        if (!transactionId) return;
+
+        setIsRefreshingProcess(true);
+        try {
+            const statusResult = await paymentService.checkPaymentStatus(transactionId);
+            if (statusResult.payment_status === 2) {
+                setProcessPaymentStatus('completed');
+            } else if (statusResult.payment_status === -1) {
+                setProcessPaymentStatus('failed');
+            } else {
+                setProcessPaymentStatus('pending');
+            }
+        } catch (err) {
+            setProcessPaymentStatus('pending');
+        } finally {
+            setIsRefreshingProcess(false);
+        }
+    };
+
     const handlePay = async (e?: React.MouseEvent<HTMLButtonElement>) => {
         // Prevent default button behavior
         if (e) {
@@ -408,33 +434,19 @@ const SubmitArticle: React.FC = () => {
             console.log('Payment result:', result);
             
             if (result && result.success === true && result.payment_url) {
-                // Close modal first if it's open
-                setIsPaymentModalOpen(false);
+                setPaymentStatus('success');
+                setTransactionId(result.transaction_id || null);
+                setProcessPaymentStatus('pending');
                 
                 // Show notification
                 addNotification({ 
-                    message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
+                    message: 'To\'lov oynasi yangi tabda ochildi. To\'lovni yakunlab, jarayon holatini tekshiring.',
                 });
-                
-                // Redirect to Click payment page after short delay
-                setTimeout(() => {
-                    if (result.payment_url) {
-                        console.log('Redirecting to payment URL:', result.payment_url);
-                        paymentService.redirectToPayment(result.payment_url);
-                    } else {
-                        console.error('Payment URL is missing');
-                        setPaymentStatus('failed');
-                        setPaymentError("To'lov URL topilmadi. Iltimos, qayta urinib ko'ring.");
-                        setIsPaymentModalOpen(true);
-                    }
-                }, 500);
-                
-                // Note: After payment is completed via Click callback,
-                // the article status will be updated automatically
-                // For now, we redirect to payment page
+
+                window.open(result.payment_url, '_blank', 'noopener,noreferrer');
             } else {
                 // Payment preparation failed
-                const errorMsg = result?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
+                const errorMsg = (result as any)?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
                 setPaymentStatus('failed');
                 setPaymentError(errorMsg);
                 addNotification({ 
@@ -745,14 +757,14 @@ const SubmitArticle: React.FC = () => {
                                         onClick={() => fileInputRef.current?.click()}
                                     >
                                         <UploadCloud className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                                        <h4 className="text-lg font-medium text-white mb-2">PDF fayl yuklang</h4>
-                                        <p className="text-gray-400 mb-4">Maqolani PDF formatda yuklang</p>
+                                        <h4 className="text-lg font-medium text-white mb-2">Fayl yuklang</h4>
+                                        <p className="text-gray-400 mb-4">Maqolani DOC, DOCX yoki PDF formatda yuklang</p>
                                         <Button variant="secondary">Fayl tanlash</Button>
                                         <input
                                             type="file"
                                             ref={fileInputRef}
                                             onChange={handleFileChange}
-                                            accept=".pdf"
+                                            accept=".pdf,.doc,.docx"
                                             className="hidden"
                                         />
                                     </div>
@@ -1148,8 +1160,16 @@ const SubmitArticle: React.FC = () => {
                         {paymentStatus === 'success' && (
                             <div className="text-center py-8">
                                 <div className="text-green-500 text-4xl mb-4">✓</div>
-                                <p className="text-lg font-medium text-gray-200">To'lov muvaffaqiyatli!</p>
-                                <p className="text-sm text-gray-400 mt-2">To'lov sahifasiga yo'naltirilmoqdasiz</p>
+                                <p className="text-lg font-medium text-gray-200">To'lov oynasi ochildi</p>
+                                <p className="text-sm text-gray-400 mt-2">Click sahifasi yangi tabda ochildi. To'lovni yakunlab, jarayon holatini tekshiring.</p>
+                                <div className="flex gap-3 mt-5">
+                                    <Button onClick={() => { setIsProcessModalOpen(true); refreshProcessStatus(); }} className="flex-1">
+                                        Jarayonni ko'rish
+                                    </Button>
+                                    <Button variant="secondary" onClick={closePaymentModal} className="flex-1">
+                                        Yopish
+                                    </Button>
+                                </div>
                             </div>
                         )}
                         {paymentStatus === 'failed' && (
@@ -1163,6 +1183,46 @@ const SubmitArticle: React.FC = () => {
                                 </div>
                             </div>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {isProcessModalOpen && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-900 rounded-lg p-6 max-w-xl w-full border border-white/10">
+                        <h3 className="text-xl font-semibold text-white mb-4">Maqola yuborish jarayoni</h3>
+
+                        <div className="space-y-3">
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">1. Maqola yuborildi</span>
+                                <CheckCircle className="h-5 w-5 text-green-500" />
+                            </div>
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">2. To'lov holati</span>
+                                {processPaymentStatus === 'completed' && <CheckCircle className="h-5 w-5 text-green-500" />}
+                                {processPaymentStatus === 'failed' && <XCircle className="h-5 w-5 text-red-500" />}
+                                {(processPaymentStatus === 'pending' || processPaymentStatus === null) && <Loader2 className="h-5 w-5 text-yellow-400 animate-spin" />}
+                            </div>
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">3. Redaktorga yuborildi</span>
+                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            </div>
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">4. Ko'rib chiqish / taqriz</span>
+                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            </div>
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">5. Yakuniy qaror</span>
+                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 mt-6">
+                            <Button onClick={refreshProcessStatus} variant="secondary" className="flex-1" disabled={isRefreshingProcess || !transactionId}>
+                                {isRefreshingProcess ? 'Yangilanmoqda...' : 'Holatni yangilash'}
+                            </Button>
+                            <Button onClick={closeProcessModal} className="flex-1">Yopish</Button>
+                        </div>
                     </div>
                 </div>
             )}

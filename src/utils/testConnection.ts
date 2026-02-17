@@ -1,4 +1,4 @@
-import apiService from '../services/apiService';
+import { apiService } from '@/services/apiService';
 
 interface LoginResponse {
   access: string;
@@ -49,10 +49,7 @@ export async function testConnection(phone: string, password: string): Promise<T
   try {
     console.log('Testing login with:', { phone });
     
-    const loginResponse = await apiService.auth.login({
-      phone,
-      password
-    });
+    const loginResponse = await apiService.auth.login(phone, password);
     
     console.log('Login response received:', loginResponse);
     

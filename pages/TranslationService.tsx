@@ -109,7 +109,7 @@ const TranslationService: React.FC = () => {
         }, 500);
       } else {
         // Payment preparation failed
-        const errorMsg = result?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
+        const errorMsg = (result as any)?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
         setPaymentStatus('failed');
         setPaymentError(errorMsg);
         addNotification({ 
@@ -278,10 +278,11 @@ const TranslationService: React.FC = () => {
               <select
                 value={sourceLang}
                 onChange={(e) => setSourceLang(e.target.value)}
-                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-[#1f1630] border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{ colorScheme: 'dark' }}
               >
                 {languages.map(lang => (
-                  <option key={lang.code} value={lang.code}>
+                  <option key={lang.code} value={lang.code} className="bg-[#1f1630] text-white">
                     {lang.name}
                   </option>
                 ))}
@@ -294,10 +295,11 @@ const TranslationService: React.FC = () => {
               <select
                 value={targetLang}
                 onChange={(e) => setTargetLang(e.target.value)}
-                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-[#1f1630] border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{ colorScheme: 'dark' }}
               >
                 {languages.map(lang => (
-                  <option key={lang.code} value={lang.code}>
+                  <option key={lang.code} value={lang.code} className="bg-[#1f1630] text-white">
                     {lang.name}
                   </option>
                 ))}

@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { UploadCloud, CheckCircle, Loader2, XCircle, BookText, Book, BookCopy, ChevronDown, Check, Info, Minus, Plus } from 'lucide-react';
@@ -124,7 +123,6 @@ const ClickLogo = () => (
 
 
 const SubmitBook: React.FC = () => {
-    const navigate = useNavigate();
     const { user } = useAuth();
     const { addNotification } = useNotifications();
 
@@ -145,6 +143,10 @@ const SubmitBook: React.FC = () => {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
     const [paymentError, setPaymentError] = useState<string | null>(null);
+    const [transactionId, setTransactionId] = useState<string | null>(null);
+    const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
+    const [processPaymentStatus, setProcessPaymentStatus] = useState<'pending' | 'completed' | 'failed' | null>(null);
+    const [isRefreshingProcess, setIsRefreshingProcess] = useState(false);
     const paymentTimerRef = useRef<number | null>(null);
 
     useEffect(() => {
@@ -269,29 +271,19 @@ const SubmitBook: React.FC = () => {
             console.log('Payment result:', result);
             
             if (result && result.success === true && result.payment_url) {
-                // Close modal first
-                setIsPaymentModalOpen(false);
+                setPaymentStatus('success');
+                setTransactionId(result.transaction_id || null);
+                setProcessPaymentStatus('pending');
                 
                 // Show notification
                 addNotification({ 
-                    message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
+                    message: 'To\'lov oynasi yangi tabda ochildi. To\'lovni shu oynada davom ettiring.',
                 });
-                
-                // Redirect to Click payment page after short delay
-                setTimeout(() => {
-                    if (result.payment_url) {
-                        console.log('Redirecting to payment URL:', result.payment_url);
-                        paymentService.redirectToPayment(result.payment_url);
-                    } else {
-                        console.error('Payment URL is missing');
-                        setPaymentStatus('failed');
-                        setPaymentError("To'lov URL topilmadi. Iltimos, qayta urinib ko'ring.");
-                        setIsPaymentModalOpen(true);
-                    }
-                }, 500);
+
+                window.open(result.payment_url, '_blank', 'noopener,noreferrer');
             } else {
                 // Payment preparation failed
-                const errorMsg = result?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
+                const errorMsg = (result as any)?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
                 setPaymentStatus('failed');
                 setPaymentError(errorMsg);
                 addNotification({ 
@@ -310,6 +302,28 @@ const SubmitBook: React.FC = () => {
     };
     
     const closePaymentModal = () => setIsPaymentModalOpen(false);
+
+    const closeProcessModal = () => setIsProcessModalOpen(false);
+
+    const refreshProcessStatus = async () => {
+        if (!transactionId) return;
+
+        setIsRefreshingProcess(true);
+        try {
+            const statusResult = await paymentService.checkPaymentStatus(transactionId);
+            if (statusResult.payment_status === 2) {
+                setProcessPaymentStatus('completed');
+            } else if (statusResult.payment_status === -1) {
+                setProcessPaymentStatus('failed');
+            } else {
+                setProcessPaymentStatus('pending');
+            }
+        } catch (err) {
+            setProcessPaymentStatus('pending');
+        } finally {
+            setIsRefreshingProcess(false);
+        }
+    };
     
     const formatCurrency = (amount: number) => `${new Intl.NumberFormat('uz-UZ').format(amount)} so'm`;
 
@@ -435,11 +449,16 @@ const SubmitBook: React.FC = () => {
                         {paymentStatus === 'success' && (
                            <div className="py-8">
                                 <CheckCircle className="mx-auto h-16 w-16 text-green-500"/>
-                                <p className="mt-4 text-lg font-medium text-gray-200">To'lov muvaffaqiyatli!</p>
-                                <p className="text-sm text-gray-400">Kitobingiz ko'rib chiqish uchun yuborildi.</p>
-                                <Button onClick={() => { closePaymentModal(); navigate('/articles'); }} className="w-full mt-6">
-                                    Yopish
-                                </Button>
+                                <p className="mt-4 text-lg font-medium text-gray-200">To'lov oynasi ochildi</p>
+                                <p className="text-sm text-gray-400">Click sahifasi yangi tabda ochildi. To'lovni yakunlagach ushbu oynaga qayting.</p>
+                                <div className="space-y-2 mt-6">
+                                    <Button onClick={() => { setIsProcessModalOpen(true); refreshProcessStatus(); }} className="w-full">
+                                        Jarayonni ko'rish
+                                    </Button>
+                                    <Button onClick={closePaymentModal} variant="secondary" className="w-full">
+                                        Yopish
+                                    </Button>
+                                </div>
                            </div>
                         )}
                         {paymentStatus === 'failed' && (
@@ -466,6 +485,46 @@ const SubmitBook: React.FC = () => {
                                 </div>
                            </div>
                         )}
+                    </Card>
+                </div>
+            )}
+
+            {isProcessModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <Card className="w-full max-w-xl">
+                        <h3 className="text-xl font-semibold text-white mb-4">Kitob nashri jarayoni</h3>
+
+                        <div className="space-y-3">
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">1. Buyurtma qabul qilindi</span>
+                                <CheckCircle className="h-5 w-5 text-green-500" />
+                            </div>
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">2. To'lov holati</span>
+                                {processPaymentStatus === 'completed' && <CheckCircle className="h-5 w-5 text-green-500" />}
+                                {processPaymentStatus === 'failed' && <XCircle className="h-5 w-5 text-red-500" />}
+                                {(processPaymentStatus === 'pending' || processPaymentStatus === null) && <Loader2 className="h-5 w-5 text-yellow-400 animate-spin" />}
+                            </div>
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">3. Muharrir ko'rib chiqadi</span>
+                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            </div>
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">4. Nashrga tayyorlash</span>
+                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            </div>
+                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
+                                <span className="text-gray-200">5. Yakuniy natija</span>
+                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 mt-6">
+                            <Button onClick={refreshProcessStatus} variant="secondary" className="w-full" disabled={isRefreshingProcess || !transactionId}>
+                                {isRefreshingProcess ? 'Yangilanmoqda...' : 'Holatni yangilash'}
+                            </Button>
+                            <Button onClick={closeProcessModal} className="w-full">Yopish</Button>
+                        </div>
                     </Card>
                 </div>
             )}
