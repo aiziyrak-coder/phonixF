@@ -14,6 +14,7 @@ const JournalManagement: React.FC = () => {
     
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -210,7 +211,7 @@ const JournalManagement: React.FC = () => {
     };
 
     const handleDeleteCategory = async (categoryId: string) => {
-        const isCategoryInUse = journals.some(j => j.categoryId === categoryId);
+        const isCategoryInUse = journals.some(j => (j.categoryId || (j as any).category) === categoryId);
         if (isCategoryInUse) {
             alert("Ushbu kategoriya jurnallar tomonidan ishlatilmoqda va o'chirib bo'lmaydi.");
             return;
@@ -230,6 +231,29 @@ const JournalManagement: React.FC = () => {
             }
         }
     };
+
+    const getJournalCategoryId = (journal: Journal) => journal.categoryId || (journal as any).category || 'uncategorized';
+
+    const filteredJournals = selectedCategoryFilter === 'all'
+        ? journals
+        : journals.filter(journal => getJournalCategoryId(journal) === selectedCategoryFilter);
+
+    const groupedJournals = filteredJournals.reduce<Record<string, Journal[]>>((acc, journal) => {
+        const categoryId = getJournalCategoryId(journal);
+        if (!acc[categoryId]) {
+            acc[categoryId] = [];
+        }
+        acc[categoryId].push(journal);
+        return acc;
+    }, {});
+
+    const orderedCategoryIds = Object.keys(groupedJournals).sort((a, b) => {
+        if (a === 'uncategorized') return 1;
+        if (b === 'uncategorized') return -1;
+        const aName = categories.find(c => c.id === a)?.name || '';
+        const bName = categories.find(c => c.id === b)?.name || '';
+        return aName.localeCompare(bName);
+    });
 
     const handleSaveJournal = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -359,11 +383,40 @@ const JournalManagement: React.FC = () => {
     return (
         <>
             <Card title="Jurnallarni Boshqarish">
-                <div className="flex justify-end mb-6">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                    <div className="flex items-center gap-3">
+                        <label className="text-sm text-gray-300">Kategoriya bo'yicha:</label>
+                        <select
+                            value={selectedCategoryFilter}
+                            onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                            className="min-w-[220px]"
+                        >
+                            <option value="all">Barcha kategoriyalar</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                        </select>
+                    </div>
                     <Button onClick={() => handleOpenModal()}><PlusCircle className="mr-2 h-4 w-4"/> Yangi Jurnal Qo'shish</Button>
                 </div>
                 <div className="space-y-4">
-                    {journals.map(journal => {
+                    {orderedCategoryIds.length === 0 && (
+                        <div className="p-6 rounded-lg bg-white/5 text-center text-gray-400">
+                            Tanlangan kategoriya bo'yicha jurnal topilmadi.
+                        </div>
+                    )}
+                    {orderedCategoryIds.map(categoryId => {
+                        const categoryName = categoryId === 'uncategorized'
+                            ? "Kategoriyasiz"
+                            : (categories.find(c => c.id === categoryId)?.name || "Noma'lum kategoriya");
+
+                        return (
+                            <div key={categoryId} className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-300">{categoryName}</h4>
+                                    <span className="text-xs text-gray-400">{groupedJournals[categoryId].length} ta jurnal</span>
+                                </div>
+                                {groupedJournals[categoryId].map(journal => {
                         // Handle both field name formats (camelCase from frontend, snake_case from backend)
                         const adminId = journal.journalAdminId || (journal as any).journal_admin;
                         const categoryId = journal.categoryId || (journal as any).category;
@@ -373,8 +426,6 @@ const JournalManagement: React.FC = () => {
                         
                         const admin = users.find(u => u.id === adminId);
                         const category = categories.find(c => c.id === categoryId);
-                        
-
                         
                         const priceText = pricingType === JournalPricingType.Fixed
                             ? `${(publicationFee || 0).toLocaleString()} so'm`
@@ -413,6 +464,9 @@ const JournalManagement: React.FC = () => {
                                     <button onClick={() => handleOpenModal(journal)} className="text-indigo-400 hover:text-indigo-200 p-2 rounded-md hover:bg-white/10 transition-colors" aria-label="Tahrirlash"><Edit size={18}/></button>
                                     <button onClick={() => handleDeleteClick(journal)} className="text-red-400 hover:text-red-200 p-2 rounded-md hover:bg-white/10 transition-colors" aria-label="O'chirish"><Trash2 size={18}/></button>
                                 </div>
+                            </div>
+                        );
+                                })}
                             </div>
                         );
                     })}

@@ -4,7 +4,8 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { Role, ArticleStatus, ActivityLogEvent, SubmissionCertificateData } from '../types';
-import { Check, X, Award, UploadCloud, BookOpen, Download, Edit, Send, GitCommit, UserCheck, FileCheck2, BookUp, XCircle, Clock, FileInput, CheckCircle, Shield, Bot, ExternalLink, Printer, Eye, FileText, Inbox } from 'lucide-react';
+import { Check, X, Award, UploadCloud, BookOpen, Download, Edit, Send, GitCommit, UserCheck, FileCheck2, BookUp, XCircle, Clock, FileInput, CheckCircle, Shield, Bot, ExternalLink, Printer, Eye, FileText, Inbox, RefreshCw } from 'lucide-react';
+import PlagiarismReport, { PlagiarismReportData } from '../components/PlagiarismReport';
 import SubmissionCertificate from '../components/SubmissionCertificate';
 import { apiService } from '../services/apiService';
 
@@ -29,6 +30,10 @@ interface ArticleApiResponse {
     views: number;
     downloads: number;
     activity_logs?: ActivityLogEvent[];
+    plagiarism_percentage?: number;
+    ai_content_percentage?: number;
+    plagiarism_checked_at?: string | null;
+    plagiarism_report?: PlagiarismReportData | null;
 }
 
 const ArticleDetail: React.FC = () => {
@@ -41,6 +46,7 @@ const ArticleDetail: React.FC = () => {
     const [activityLogs, setActivityLogs] = useState<ActivityLogEvent[]>([]);
     const [showCertificate, setShowCertificate] = useState(false);
     const [certificateData, setCertificateData] = useState<SubmissionCertificateData | null>(null);
+    const [showPdfPreview, setShowPdfPreview] = useState(false);
 
     useEffect(() => {
         const fetchArticleData = async () => {
@@ -177,19 +183,19 @@ const ArticleDetail: React.FC = () => {
 
     return (
         <div className="space-y-6">
+            {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <Link to="/articles" className="text-blue-400 hover:text-blue-300 flex items-center gap-2 mb-2">
+                <div className="min-w-0">
+                    <Link to="/articles" className="text-blue-400 hover:text-blue-300 flex items-center gap-2 mb-2 text-sm">
                         <span>←</span> Maqolalar ro'yxati
                     </Link>
-                    <h1 className="text-3xl font-bold text-white">{article.title}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white break-words">{article.title}</h1>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${statusData.color}`}>
                         <StatusIcon size={16} />
                         {article.status_label || statusData.text}
                     </span>
-
                     {article.fast_track && (
                         <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-300 flex items-center gap-2">
                             <Award size={16} />
@@ -199,8 +205,11 @@ const ArticleDetail: React.FC = () => {
                 </div>
             </div>
 
+            {/* Main content grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left column - 2/3 width */}
                 <div className="lg:col-span-2 space-y-6">
+                    {/* Workflow status */}
                     <Card title="Jarayon holati">
                         <div className="space-y-4">
                             <div>
@@ -214,7 +223,7 @@ const ArticleDetail: React.FC = () => {
                             </div>
 
                             {workflowSteps.length > 0 && (
-                                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
                                     {workflowSteps.map((step) => (
                                         <div
                                             key={step.name}
@@ -246,18 +255,27 @@ const ArticleDetail: React.FC = () => {
                         </div>
                     </Card>
 
+                    {/* Plagiarism Report */}
+                    <Card title="Antiplagiat & AI Detektor">
+                        <PlagiarismReport
+                            plagiarismPercentage={article.plagiarism_percentage ?? 0}
+                            aiContentPercentage={article.ai_content_percentage ?? 0}
+                            checkedAt={article.plagiarism_checked_at || null}
+                            report={article.plagiarism_report || null}
+                        />
+                    </Card>
+
+                    {/* Basic info */}
                     <Card title="Asosiy ma'lumotlar">
                         <div className="space-y-4">
                             <div>
                                 <h3 className="text-sm font-medium text-gray-400 mb-1">Muallif(lar)</h3>
                                 <p className="text-white">{article.author_name || 'Noma\'lum'}</p>
                             </div>
-                            
                             <div>
                                 <h3 className="text-sm font-medium text-gray-400 mb-1">Annotatsiya</h3>
-                                <p className="text-gray-300">{article.abstract || 'Annotatsiya mavjud emas'}</p>
+                                <p className="text-gray-300 leading-relaxed">{article.abstract || 'Annotatsiya mavjud emas'}</p>
                             </div>
-                            
                             <div>
                                 <h3 className="text-sm font-medium text-gray-400 mb-1">Kalit so'zlar</h3>
                                 <div className="flex flex-wrap gap-2">
@@ -271,106 +289,99 @@ const ArticleDetail: React.FC = () => {
                         </div>
                     </Card>
 
+                    {/* Files with PDF preview */}
                     <Card title="Fayllar">
                         <div className="space-y-4">
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <Button 
-                                    onClick={handleView}
-                                    variant="secondary"
-                                    className="flex items-center justify-center gap-2 flex-1"
-                                >
-                                    <Eye size={18} />
-                                    Ko'rish
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <Button onClick={handleView} variant="secondary" className="flex items-center justify-center gap-2 flex-1">
+                                    <Eye size={18} /> Ko'rish
                                 </Button>
-                                <Button 
-                                    onClick={handleDownload}
-                                    variant="secondary"
-                                    className="flex items-center justify-center gap-2 flex-1"
-                                >
-                                    <Download size={18} />
-                                    Yuklab olish
+                                <Button onClick={handleDownload} variant="secondary" className="flex items-center justify-center gap-2 flex-1">
+                                    <Download size={18} /> Yuklab olish
                                 </Button>
+                                {article.file_url && article.file_url.toLowerCase().endsWith('.pdf') && (
+                                    <Button onClick={() => setShowPdfPreview(!showPdfPreview)} variant="secondary" className="flex items-center justify-center gap-2 flex-1">
+                                        <FileText size={18} /> {showPdfPreview ? 'Yopish' : 'PDF ko\'rish'}
+                                    </Button>
+                                )}
                             </div>
+                            {showPdfPreview && article.file_url && (
+                                <div className="rounded-xl overflow-hidden border border-white/10 bg-gray-900">
+                                    <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
+                                        <span className="text-sm text-gray-300 font-medium">PDF ko'rinishi</span>
+                                        <button onClick={() => setShowPdfPreview(false)} className="text-gray-400 hover:text-white transition-colors">
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                    <iframe
+                                        src={article.file_url}
+                                        className="w-full border-0"
+                                        style={{ height: '70vh', minHeight: '400px' }}
+                                        title="PDF Preview"
+                                    />
+                                </div>
+                            )}
                         </div>
                     </Card>
 
+                    {/* Activity log */}
                     <Card title="Faoliyat jurnali">
                         <div className="space-y-4">
-                            {activityLogs.map(log => (
-                                <div key={log.id} className="flex gap-4 p-4 bg-white/5 rounded-lg">
-                                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                                        <GitCommit className="h-5 w-5 text-blue-400" />
-                                    </div>
-                                    <div>
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <span className="font-medium text-white">{log.action}</span>
-                                            <span className="text-xs text-gray-400">{new Date(log.timestamp).toLocaleString()}</span>
+                            {activityLogs.length > 0 ? (
+                                activityLogs.map(log => (
+                                    <div key={log.id} className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 rounded-lg">
+                                        <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                            <GitCommit className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
                                         </div>
-                                        <p className="text-sm text-gray-300 mt-1">{log.details || ''}</p>
-                                        {log.userId && (
-                                            <span className="text-xs text-gray-500">Foydalanuvchi ID: {log.userId}</span>
-                                        )}
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className="font-medium text-white text-sm sm:text-base">{log.action}</span>
+                                                <span className="text-xs text-gray-400">{new Date(log.timestamp).toLocaleString()}</span>
+                                            </div>
+                                            <p className="text-sm text-gray-300 mt-1">{log.details || ''}</p>
+                                            {log.userId && (
+                                                <span className="text-xs text-gray-500">Foydalanuvchi ID: {log.userId}</span>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p className="text-center text-gray-400 py-4">Faoliyat jurnali hali mavjud emas.</p>
+                            )}
                         </div>
                     </Card>
                 </div>
 
+                {/* Right sidebar - 1/3 width */}
                 <div className="space-y-6">
+                    {/* Management actions */}
                     <Card title="Boshqaruv">
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             {user?.role === Role.Author && (
-                                <Button 
-                                    onClick={() => navigate(`/submit/${id}`)}
-                                    variant="secondary"
-                                    className="w-full flex items-center justify-center gap-2"
-                                >
-                                    <Edit size={18} />
-                                    Tahrirlash
+                                <Button onClick={() => navigate(`/submit/${id}`)} variant="secondary" className="w-full flex items-center justify-center gap-2">
+                                    <Edit size={18} /> Tahrirlash
                                 </Button>
                             )}
-                            
                             {user?.role === Role.JournalAdmin && (
                                 <>
-                                    <Button 
-                                        onClick={() => handleStatusUpdate(ArticleStatus.Accepted)}
-                                        variant="primary"
-                                        className="w-full flex items-center justify-center gap-2"
-                                    >
-                                        <Check size={18} />
-                                        Qabul qilish
+                                    <Button onClick={() => handleStatusUpdate(ArticleStatus.Accepted)} variant="primary" className="w-full flex items-center justify-center gap-2">
+                                        <Check size={18} /> Qabul qilish
                                     </Button>
-                                    <Button 
-                                        onClick={() => handleStatusUpdate(ArticleStatus.Revision)}
-                                        variant="secondary"
-                                        className="w-full flex items-center justify-center gap-2"
-                                    >
-                                        <Edit size={18} />
-                                        Tahrirga qaytarish
+                                    <Button onClick={() => handleStatusUpdate(ArticleStatus.Revision)} variant="secondary" className="w-full flex items-center justify-center gap-2">
+                                        <Edit size={18} /> Tahrirga qaytarish
                                     </Button>
-                                    <Button 
-                                        onClick={() => handleStatusUpdate(ArticleStatus.Rejected)}
-                                        variant="danger"
-                                        className="w-full flex items-center justify-center gap-2"
-                                    >
-                                        <X size={18} />
-                                        Rad etish
+                                    <Button onClick={() => handleStatusUpdate(ArticleStatus.Rejected)} variant="danger" className="w-full flex items-center justify-center gap-2">
+                                        <X size={18} /> Rad etish
                                     </Button>
                                 </>
                             )}
-                            
-                            <Button 
-                                onClick={() => setShowCertificate(true)}
-                                variant="secondary"
-                                className="w-full flex items-center justify-center gap-2"
-                            >
-                                <Printer size={18} />
-                                Sertifikat chop etish
+                            <Button onClick={() => setShowCertificate(true)} variant="secondary" className="w-full flex items-center justify-center gap-2">
+                                <Printer size={18} /> Sertifikat chop etish
                             </Button>
                         </div>
                     </Card>
 
+                    {/* Statistics */}
                     <Card title="Statistika">
                         <div className="space-y-4">
                             <div className="flex justify-between">
@@ -392,6 +403,7 @@ const ArticleDetail: React.FC = () => {
                 </div>
             </div>
 
+            {/* Certificate modal */}
             {showCertificate && certificateData && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
                     <div className="w-full max-w-4xl bg-white rounded-lg shadow-2xl">

@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Article, ArticleStatus, Role, TranslationRequest, TranslationStatus, User } from '../types';
 import Card from '../components/ui/Card';
-import { Search, Rocket, Languages, ArrowRight, FileText, Printer, Loader2, ChevronDown, Check } from 'lucide-react';
+import { Search, Rocket, Languages, ArrowRight, FileText, Printer, Loader2, ChevronDown, Check, Filter, X } from 'lucide-react';
 import Button from '../components/ui/Button';
 import AuthorArticleReport from '../components/AuthorArticleReport';
+import { PlagiarismBadges } from '../components/PlagiarismReport';
 import { apiService } from '../services/apiService';
 
 // Type for the API response which has different field names
@@ -24,6 +25,9 @@ interface ArticleApiResponse {
     file_url?: string;
     views: number;
     downloads: number;
+    plagiarism_percentage?: number;
+    ai_content_percentage?: number;
+    plagiarism_checked_at?: string | null;
 }
 
 interface TranslationRequestApiResponse {
@@ -171,11 +175,11 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
 
     return (
         <div 
-            className="p-5 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-white/10"
+            className="p-4 sm:p-5 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-white/10"
             onClick={() => navigate(`/articles/${article.id}`)}
         >
-            <div className="flex justify-between items-start gap-4">
-                <h4 className="text-lg font-semibold text-blue-400">{article.title}</h4>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+                <h4 className="text-base sm:text-lg font-semibold text-blue-400 leading-snug">{article.title}</h4>
                 <div className="flex items-center gap-2 shrink-0">
                     {article.fast_track && (
                         <span className="text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap bg-yellow-500/20 text-yellow-300 flex items-center gap-1.5">
@@ -231,8 +235,15 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                 </div>
             </div>
             <p className="text-sm text-gray-400 mt-2 line-clamp-2">{article.abstract}</p>
-            <div className="flex justify-between items-center mt-4 text-xs text-gray-500">
-                <span>{article.author_name || 'Noma\'lum muallif'}</span>
+            <div className="mt-3">
+                <PlagiarismBadges
+                    plagiarism={Number(article.plagiarism_percentage ?? 0)}
+                    ai={Number(article.ai_content_percentage ?? 0)}
+                    checkedAt={article.plagiarism_checked_at || null}
+                />
+            </div>
+            <div className="flex flex-wrap justify-between items-center mt-4 text-xs text-gray-500 gap-1">
+                <span className="truncate max-w-[60%]">{article.author_name || 'Noma\'lum muallif'}</span>
                 <span>{new Date(article.submission_date).toLocaleDateString()}</span>
             </div>
         </div>
@@ -245,11 +256,11 @@ const TranslationItem: React.FC<{ request: TranslationRequestApiResponse }> = ({
 
     return (
         <div 
-            className="p-5 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-white/10"
+            className="p-4 sm:p-5 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-white/10"
             onClick={() => navigate(`/translations/${request.id}`)}
         >
-            <div className="flex justify-between items-start gap-4">
-                <h4 className="text-lg font-semibold text-indigo-400 flex items-center gap-2"><Languages size={20}/> {request.title}</h4>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+                <h4 className="text-base sm:text-lg font-semibold text-indigo-400 flex items-center gap-2 min-w-0"><Languages size={18} className="shrink-0"/> <span className="truncate">{request.title}</span></h4>
                 <span className={`text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap ${statusData.color}`}>
                     {statusData.text}
                 </span>
@@ -273,7 +284,6 @@ const TranslationItem: React.FC<{ request: TranslationRequestApiResponse }> = ({
 
 const Articles: React.FC = () => {
     const { user } = useAuth();
-    
     // Handle both string and enum role values
     const userRole = typeof user?.role === 'string' ? user.role.toLowerCase() : user?.role;
     const isJournalAdmin = userRole === Role.JournalAdmin || userRole === 'journal_admin' || userRole === 'journaladmin';
@@ -281,11 +291,18 @@ const Articles: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState(user?.role === Role.Reviewer ? 'reviews' : isJournalAdmin ? 'new' : 'all');
     const [showReportModal, setShowReportModal] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+    const [filterJournal, setFilterJournal] = useState('');
+    const [filterPlagiarism, setFilterPlagiarism] = useState('');
+    const [filterDateFrom, setFilterDateFrom] = useState('');
+    const [filterDateTo, setFilterDateTo] = useState('');
     const [articles, setArticles] = useState<ArticleApiResponse[]>([]);
     const [translations, setTranslations] = useState<TranslationRequestApiResponse[]>([]);
     const [journals, setJournals] = useState<JournalApiResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const hasActiveFilters = !!(filterJournal || filterPlagiarism || filterDateFrom || filterDateTo);
+    const clearFilters = () => { setFilterJournal(''); setFilterPlagiarism(''); setFilterDateFrom(''); setFilterDateTo(''); };
 
     // Different tabs for different roles
     const authorTabs = []; // No tabs for author view on this page
@@ -380,15 +397,6 @@ const Articles: React.FC = () => {
         );
     }, [user, activeTab, translations]);
 
-    const filteredArticles = useMemo(() => {
-        if (!searchQuery) return articlesToShow;
-        const lowercasedQuery = searchQuery.toLowerCase();
-        return articlesToShow.filter(article =>
-            article.title.toLowerCase().includes(lowercasedQuery) ||
-            (article.keywords && article.keywords.join(' ').toLowerCase().includes(lowercasedQuery))
-        );
-    }, [searchQuery, articlesToShow]);
-    
     const filteredTranslations = useMemo(() => {
         if (!searchQuery) return translationsToShow;
         const lowercasedQuery = searchQuery.toLowerCase();
@@ -397,6 +405,44 @@ const Articles: React.FC = () => {
         );
     }, [searchQuery, translationsToShow]);
 
+    const filteredArticles = useMemo(() => {
+        let result = articlesToShow;
+
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            result = result.filter(a =>
+                a.title.toLowerCase().includes(q) ||
+                (a.keywords && a.keywords.join(' ').toLowerCase().includes(q)) ||
+                (a.author_name && a.author_name.toLowerCase().includes(q))
+            );
+        }
+
+        if (filterJournal) {
+            result = result.filter(a => a.journal === filterJournal);
+        }
+
+        if (filterPlagiarism) {
+            result = result.filter(a => {
+                const p = Number(a.plagiarism_percentage ?? 0);
+                if (filterPlagiarism === 'low') return p < 20;
+                if (filterPlagiarism === 'medium') return p >= 20 && p < 50;
+                if (filterPlagiarism === 'high') return p >= 50;
+                return true;
+            });
+        }
+
+        if (filterDateFrom) {
+            const from = new Date(filterDateFrom);
+            result = result.filter(a => new Date(a.submission_date) >= from);
+        }
+        if (filterDateTo) {
+            const to = new Date(filterDateTo);
+            to.setHours(23, 59, 59);
+            result = result.filter(a => new Date(a.submission_date) <= to);
+        }
+
+        return result;
+    }, [searchQuery, articlesToShow, filterJournal, filterPlagiarism, filterDateFrom, filterDateTo]);
 
     // Calculate tab counts using useMemo to ensure hooks are always called
     const reviewerTabCounts = useMemo(() => {
@@ -604,7 +650,6 @@ const Articles: React.FC = () => {
         );
     }
 
-
     return (
         <>
             <Card title={title}>
@@ -618,19 +663,66 @@ const Articles: React.FC = () => {
                 {user.role === Role.Reviewer && renderTabs(reviewerTabs, reviewerTabCounts)}
                 {isJournalAdmin && renderTabs(journalAdminTabs, journalAdminTabCounts)}
 
-                <div className="flex items-center bg-white/5 border border-white/10 rounded-xl mb-6 focus-within:border-accent-color focus-within:ring-2 focus-within:ring-accent-color-glow transition-all">
-                    <Search className="text-gray-400 mx-4 shrink-0" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Sarlavha bo'yicha qidirish..."
-                        className="w-full !bg-transparent !border-none !py-3 !pr-4 !pl-0 !shadow-none !ring-0"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="flex-1 flex items-center bg-white/5 border border-white/10 rounded-xl focus-within:border-accent-color focus-within:ring-2 focus-within:ring-accent-color-glow transition-all">
+                        <Search className="text-gray-400 mx-4 shrink-0" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Sarlavha, muallif yoki kalit so'z bo'yicha qidirish..."
+                            className="w-full !bg-transparent !border-none !py-3 !pr-4 !pl-0 !shadow-none !ring-0"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`p-3 rounded-xl border transition-all ${hasActiveFilters ? 'bg-blue-500/20 border-blue-500/40 text-blue-300' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'}`}
+                    >
+                        <Filter size={20} />
+                    </button>
+                    {hasActiveFilters && (
+                        <button onClick={clearFilters} className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 hover:text-red-300 transition-all">
+                            <X size={20} />
+                        </button>
+                    )}
                 </div>
+
+                {showFilters && (
+                    <div className="mb-6 p-4 bg-white/5 border border-white/10 rounded-xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div>
+                            <label className="text-xs text-gray-400 mb-1 block">Jurnal</label>
+                            <select value={filterJournal} onChange={(e) => setFilterJournal(e.target.value)} className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+                                <option value="">Barchasi</option>
+                                {journals.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-xs text-gray-400 mb-1 block">Plagiat darajasi</label>
+                            <select value={filterPlagiarism} onChange={(e) => setFilterPlagiarism(e.target.value)} className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+                                <option value="">Barchasi</option>
+                                <option value="low">Past (&lt;20%)</option>
+                                <option value="medium">O'rtacha (20-50%)</option>
+                                <option value="high">Yuqori (&gt;50%)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-xs text-gray-400 mb-1 block">Sanadan</label>
+                            <input type="date" value={filterDateFrom} onChange={(e) => setFilterDateFrom(e.target.value)} className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
+                        </div>
+                        <div>
+                            <label className="text-xs text-gray-400 mb-1 block">Sanagacha</label>
+                            <input type="date" value={filterDateTo} onChange={(e) => setFilterDateTo(e.target.value)} className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
+                        </div>
+                    </div>
+                )}
+
+                {hasActiveFilters && (
+                    <p className="text-xs text-gray-400 mb-4">Natijalar: {filteredArticles.length} ta maqola topildi</p>
+                )}
+
                 {renderContent()}
             </Card>
-            
+
             {showReportModal && user && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 no-print">
                     <div className="w-full max-w-4xl h-[90vh] bg-gray-800 rounded-lg shadow-2xl flex flex-col">

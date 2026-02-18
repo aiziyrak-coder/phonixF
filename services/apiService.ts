@@ -803,6 +803,18 @@ export const apiService = {
       apiFetch(`/reviews/${id}/`, {
         method: 'DELETE',
       }),
+
+    acceptReview: (id: string) =>
+      apiFetch(`/reviews/${id}/accept_review/`, { method: 'POST' }),
+
+    declineReview: (id: string) =>
+      apiFetch(`/reviews/${id}/decline_review/`, { method: 'POST' }),
+
+    submitReview: (id: string, reviewData: any) =>
+      apiFetch(`/reviews/${id}/submit_review/`, {
+        method: 'POST',
+        body: JSON.stringify(reviewData),
+      }),
   },
 
   // Notifications

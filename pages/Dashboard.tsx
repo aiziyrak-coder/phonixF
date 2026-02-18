@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Role, ArticleStatus } from '../types';
 import Card from '../components/ui/Card';
-import { FileText, Edit3, UserCheck, CheckCircle, Users, Inbox, Clock, XCircle, DollarSign, User as UserIcon, Timer, ArrowRight, Wallet, Rocket } from 'lucide-react';
+import { FileText, Edit3, UserCheck, CheckCircle, Users, Inbox, Clock, XCircle, DollarSign, User as UserIcon, Timer, ArrowRight, Wallet, Rocket, Shield, Bot, Eye, Download, TrendingUp } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiService } from '../services/apiService';
@@ -11,13 +11,13 @@ const StatCard: React.FC<{icon: React.ElementType, title: string, value: string 
     const cardContent = (
         <Card className="!p-0 overflow-hidden relative h-full transition-transform transform hover:scale-105 hover:shadow-xl">
             <div className={`absolute -top-4 -right-4 w-20 h-20 opacity-10 ${gradient} rounded-full blur-2xl`}></div>
-            <div className="p-6 flex items-center">
-                <div className={`p-3 rounded-xl mr-5 bg-white/10`}>
-                    <Icon className={`h-7 w-7 text-white`} />
+            <div className="p-4 sm:p-6 flex items-center">
+                <div className={`p-2.5 sm:p-3 rounded-xl mr-3 sm:mr-5 bg-white/10 shrink-0`}>
+                    <Icon className={`h-5 w-5 sm:h-7 sm:w-7 text-white`} />
                 </div>
-                <div>
-                    <p className="text-3xl font-bold text-white">{value}</p>
-                    <p className="text-sm text-gray-400 capitalize">{title}</p>
+                <div className="min-w-0">
+                    <p className="text-2xl sm:text-3xl font-bold text-white truncate">{value}</p>
+                    <p className="text-xs sm:text-sm text-gray-400 capitalize truncate">{title}</p>
                 </div>
             </div>
             <div className={`h-1.5 ${gradient}`}></div>
@@ -240,6 +240,15 @@ const Dashboard: React.FC = () => {
             .filter(t => t.service_type !== 'top_up' && t.status === 'completed')
             .reduce((sum, t) => sum + Math.abs(t.amount), 0);
         
+        const bookTransactions = validTransactions.filter(t => t.service_type === 'book_publication');
+        const bookOrdersTotal = stats?.finance?.book_orders_total ?? bookTransactions.length;
+        const bookOrdersCompleted = stats?.finance?.book_orders_completed ?? bookTransactions.filter(t => t.status === 'completed').length;
+        const bookOrdersPending = stats?.finance?.book_orders_pending ?? bookTransactions.filter(t => t.status === 'pending').length;
+        const bookOrdersFailed = stats?.finance?.book_orders_failed ?? bookTransactions.filter(t => t.status === 'failed').length;
+        const bookTotalRevenue = stats?.finance?.book_total_revenue ?? bookTransactions
+            .filter(t => t.status === 'completed')
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        
         const totalUsersCount = stats?.users?.total || users.length;
         const totalAuthors = stats?.users?.authors || users.filter(u => u.role === Role.Author || u.role === 'author').length;
         const totalReviewers = stats?.users?.reviewers || users.filter(u => u.role === Role.Reviewer || u.role === 'reviewer').length;
@@ -272,29 +281,74 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div>
+                    <h3 className="text-xl font-semibold text-white mb-4">Kitob nashri buyurtmalari</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6">
+                        <StatCard icon={FileText} title="Jami buyurtmalar" value={bookOrdersTotal} gradient="bg-gradient-to-r from-cyan-500 to-blue-400" to="/financials" />
+                        <StatCard icon={CheckCircle} title="Muvaffaqiyatli" value={bookOrdersCompleted} gradient="bg-gradient-to-r from-green-500 to-emerald-400" to="/financials" />
+                        <StatCard icon={Clock} title="Kutilmoqda" value={bookOrdersPending} gradient="bg-gradient-to-r from-yellow-500 to-orange-400" to="/financials" />
+                        <StatCard icon={XCircle} title="Muvaffaqiyatsiz" value={bookOrdersFailed} gradient="bg-gradient-to-r from-red-500 to-rose-400" to="/financials" />
+                        <StatCard icon={DollarSign} title="Kitob tushumi" value={`${(bookTotalRevenue / 1000).toFixed(0)}k so'm`} gradient="bg-gradient-to-r from-indigo-500 to-violet-400" to="/financials" />
+                    </div>
+                </div>
+
+                <div>
                     <h3 className="text-xl font-semibold text-white mb-4">Foydalanuvchilar taqsimoti</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <StatCard icon={UserIcon} title="Mualliflar" value={totalAuthors} gradient="bg-gradient-to-r from-gray-500 to-gray-400" to="/users" />
                         <StatCard icon={UserCheck} title="Taqrizchilar" value={totalReviewers} gradient="bg-gradient-to-r from-gray-500 to-gray-400" to="/users" />
                     </div>
                 </div>
+
+                <div>
+                    <h3 className="text-xl font-semibold text-white mb-4">Antiplagiat va AI tahlili</h3>
+                    {(() => {
+                        const checked = validArticles.filter((a: any) => a.plagiarism_percentage != null && Number(a.plagiarism_percentage) > 0);
+                        const avgPlag = checked.length > 0 ? (checked.reduce((s: number, a: any) => s + Number(a.plagiarism_percentage || 0), 0) / checked.length).toFixed(1) : '0';
+                        const avgAi = checked.length > 0 ? (checked.reduce((s: number, a: any) => s + Number(a.ai_content_percentage || 0), 0) / checked.length).toFixed(1) : '0';
+                        const highPlag = checked.filter((a: any) => Number(a.plagiarism_percentage) >= 50).length;
+                        return (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                                <StatCard icon={Shield} title="O'rtacha plagiat" value={`${avgPlag}%`} gradient="bg-gradient-to-r from-orange-500 to-red-400" />
+                                <StatCard icon={Bot} title="O'rtacha AI" value={`${avgAi}%`} gradient="bg-gradient-to-r from-purple-500 to-pink-400" />
+                                <StatCard icon={Eye} title="Tekshirilgan" value={checked.length} gradient="bg-gradient-to-r from-cyan-500 to-blue-400" />
+                                <StatCard icon={TrendingUp} title="Yuqori plagiat" value={highPlag} gradient="bg-gradient-to-r from-red-500 to-rose-400" />
+                            </div>
+                        );
+                    })()}
+                </div>
+
+                <div>
+                    <h3 className="text-xl font-semibold text-white mb-4">Eng ko'p ko'rilgan maqolalar</h3>
+                    <div className="space-y-3">
+                        {[...validArticles].sort((a: any, b: any) => (b.views_count || 0) - (a.views_count || 0)).slice(0, 5).map((a: any, i: number) => (
+                            <Link key={a.id} to={`/articles/${a.id}`} className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <span className="text-lg font-bold text-gray-500 w-6">{i + 1}</span>
+                                    <span className="text-sm text-white truncate">{a.title}</span>
+                                </div>
+                                <span className="flex items-center gap-1 text-sm text-blue-400 shrink-0 ml-2"><Eye size={14}/> {a.views_count || 0}</span>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+
                 <div>
                     <h3 className="text-xl font-semibold text-white mb-4">Jurnal administratorlari statistikasi</h3>
                     <div className="space-y-4">
-                        {users.filter(u => u.role === Role.JournalAdmin || u.role === 'journal_admin').map(admin => {
-                            const managedJournalIds = journals.filter(j => j.journal_admin === admin.id || j.journalAdminId === admin.id).map(j=>j.id);
-                            const publishedCount = validArticles.filter(a => managedJournalIds.includes(a.journal) && a.status === 'Published').length;
+                        {users.filter((u: any) => u.role === Role.JournalAdmin || u.role === 'journal_admin').map((admin: any) => {
+                            const mJournalIds = journals.filter((j: any) => j.journal_admin === admin.id || j.journalAdminId === admin.id).map((j: any) => j.id);
+                            const pubCount = validArticles.filter((a: any) => mJournalIds.includes(a.journal) && a.status === 'Published').length;
                             return (
                                 <Card key={admin.id}>
                                     <div className="flex items-center">
                                         <img src={admin.avatar_url || admin.avatarUrl} className="h-12 w-12 rounded-full object-cover" alt={`${admin.firstName || admin.first_name} avatar`}/>
                                         <div className="ml-4">
-                                             <p className="font-semibold text-white">{admin.firstName || admin.first_name} {admin.lastName || admin.last_name}</p>
-                                             <p className="text-sm text-gray-400">Nashrlar soni: <span className="font-bold text-white">{publishedCount}</span></p>
+                                            <p className="font-semibold text-white">{admin.firstName || admin.first_name} {admin.lastName || admin.last_name}</p>
+                                            <p className="text-sm text-gray-400">Nashrlar soni: <span className="font-bold text-white">{pubCount}</span></p>
                                         </div>
                                     </div>
                                 </Card>
-                            )
+                            );
                         })}
                     </div>
                 </div>
