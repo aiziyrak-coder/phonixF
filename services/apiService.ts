@@ -871,6 +871,75 @@ export const apiService = {
     if (path.startsWith('http')) return path;
     return `${MEDIA_URL}${path}`;
   },
+
+  // Scientific Fields
+  scientificFields: {
+    list: () => apiFetch('/journals/scientific-fields/'),
+    get: (id: string) => apiFetch(`/journals/scientific-fields/${id}/`),
+    create: (fieldData: any) =>
+      apiFetch('/journals/scientific-fields/', {
+        method: 'POST',
+        body: JSON.stringify(fieldData),
+      }),
+    update: (id: string, fieldData: any) =>
+      apiFetch(`/journals/scientific-fields/${id}/`, {
+        method: 'PUT',
+        body: JSON.stringify(fieldData),
+      }),
+    delete: (id: string) =>
+      apiFetch(`/journals/scientific-fields/${id}/`, {
+        method: 'DELETE',
+      }),
+  },
+
+  // Conferences
+  conferences: {
+    list: (params?: any) => {
+      const query = params ? `?${new URLSearchParams(params)}` : '';
+      return apiFetch(`/journals/conferences/${query}`);
+    },
+    get: (id: string) => apiFetch(`/journals/conferences/${id}/`),
+    create: (conferenceData: any) =>
+      apiFetch('/journals/conferences/', {
+        method: 'POST',
+        body: JSON.stringify(conferenceData),
+      }),
+    update: (id: string, conferenceData: any) =>
+      apiFetch(`/journals/conferences/${id}/`, {
+        method: 'PUT',
+        body: JSON.stringify(conferenceData),
+      }),
+    delete: (id: string) =>
+      apiFetch(`/journals/conferences/${id}/`, {
+        method: 'DELETE',
+      }),
+  },
+
+  // Author Publications
+  authorPublications: {
+    list: (params?: any) => {
+      const query = params ? `?${new URLSearchParams(params)}` : '';
+      return apiFetch(`/journals/author-publications/${query}`);
+    },
+    get: (id: string) => apiFetch(`/journals/author-publications/${id}/`),
+    create: (publicationData: any) =>
+      apiFetch('/journals/author-publications/', {
+        method: 'POST',
+        body: JSON.stringify(publicationData),
+      }),
+    update: (id: string, publicationData: any) =>
+      apiFetch(`/journals/author-publications/${id}/`, {
+        method: 'PUT',
+        body: JSON.stringify(publicationData),
+      }),
+    delete: (id: string) =>
+      apiFetch(`/journals/author-publications/${id}/`, {
+        method: 'DELETE',
+      }),
+    myPublications: () => apiFetch('/journals/author-publications/my_publications/'),
+    publicationTypes: () => apiFetch('/journals/author-publications/publication_types/'),
+    statistics: () => apiFetch('/journals/author-publications/statistics/'),
+  },
 };
 
 export default apiService;

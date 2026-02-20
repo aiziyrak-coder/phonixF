@@ -110,6 +110,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
     onStatusUpdate
 }) => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
     const [currentStatus, setCurrentStatus] = useState(article.status);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -235,13 +236,16 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                 </div>
             </div>
             <p className="text-sm text-gray-400 mt-2 line-clamp-2">{article.abstract}</p>
-            <div className="mt-3">
-                <PlagiarismBadges
-                    plagiarism={Number(article.plagiarism_percentage ?? 0)}
-                    ai={Number(article.ai_content_percentage ?? 0)}
-                    checkedAt={article.plagiarism_checked_at || null}
-                />
-            </div>
+            {/* Hide plagiarism badges for authors */}
+            {user?.role !== 'author' && (
+                <div className="mt-3">
+                    <PlagiarismBadges
+                        plagiarism={Number(article.plagiarism_percentage ?? 0)}
+                        ai={Number(article.ai_content_percentage ?? 0)}
+                        checkedAt={article.plagiarism_checked_at || null}
+                    />
+                </div>
+            )}
             <div className="flex flex-wrap justify-between items-center mt-4 text-xs text-gray-500 gap-1">
                 <span className="truncate max-w-[60%]">{article.author_name || 'Noma\'lum muallif'}</span>
                 <span>{new Date(article.submission_date).toLocaleDateString()}</span>

@@ -5,7 +5,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Role } from '../types';
 // FIX: Import DollarSign icon and add Accountant role to sidebar links.
-import { LayoutDashboard, FileText, Upload, Users, Library, UserCircle, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages } from 'lucide-react';
+import { LayoutDashboard, FileText, Upload, Users, Library, UserCircle, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages, BookOpen, FilePlus } from 'lucide-react';
 
 type NavLinkItem = {
     to: string;
@@ -17,7 +17,7 @@ const sidebarLinks: Record<Role, NavLinkItem[]> = {
     [Role.Author]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
         { to: '/articles', icon: FileText, label: 'Maqolalarim' },
-        { to: '/submit', icon: Upload, label: 'Maqola yuborish' },
+        { to: '/author-publications', icon: BookOpen, label: 'Muallif nashrlari' },
         { to: '/my-collections', icon: Archive, label: 'To\'plamlarim' },
         { to: '/my-translations', icon: Languages, label: 'Tarjimalarim' },
         { to: '/services', icon: Sparkles, label: 'Xizmatlar' },
@@ -26,6 +26,7 @@ const sidebarLinks: Record<Role, NavLinkItem[]> = {
     [Role.Reviewer]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
         { to: '/articles', icon: FileText, label: 'Taqrizga kelganlar' },
+        { to: '/author-publications', icon: BookOpen, label: 'Muallif nashrlari' },
         { to: '/profile', icon: UserCircle, label: 'Profilim' },
     ],
     [Role.JournalAdmin]: [
@@ -33,12 +34,14 @@ const sidebarLinks: Record<Role, NavLinkItem[]> = {
         { to: '/journal-admin-panel', icon: FileText, label: 'Jurnal maqolalari' },
         { to: '/articles', icon: FileText, label: 'Nashrga tayyorlar' },
         { to: '/published-articles', icon: CheckCircle, label: 'Nashr etilganlar' },
+        { to: '/author-publications', icon: BookOpen, label: 'Muallif nashrlari' },
     ],
     [Role.SuperAdmin]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
         { to: '/users', icon: Users, label: 'Foydalanuvchilar' },
         { to: '/articles', icon: FileText, label: 'Barcha maqolalar' },
         { to: '/journal-management', icon: BookMarked, label: 'Jurnallar' },
+        { to: '/author-publications', icon: BookOpen, label: 'Muallif nashrlari' },
         { to: '/financials', icon: DollarSign, label: 'Moliya' },
         { to: '/udk-requests', icon: Library, label: 'UDK so\'rovlari' },
         { to: '/profile', icon: UserCircle, label: 'Profilim' },

@@ -1,10 +1,16 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../components/ui/Card';
-import { ShieldCheck, Library, Languages, SpellCheck, BarChart3, Microscope, FileText, Compass, Bot, Presentation, Lock, ArrowRight, ClipboardEdit, Users2, BookUp } from 'lucide-react';
+import { ShieldCheck, Library, Languages, SpellCheck, BarChart3, Microscope, FileText, Compass, Bot, Presentation, Lock, ArrowRight, ClipboardEdit, Users2, BookUp, FilePlus } from 'lucide-react';
 
 const services = [
+    {
+        title: 'Maqola Namuna Olish',
+        description: 'Turli jurnallar uchun standart maqola namunalarini oling va ular asosida maqola yozing.',
+        icon: FilePlus,
+        link: '/maqola-namuna-olish',
+        isAvailable: true,
+    },
     {
         title: 'Kitob Nashr Etish',
         description: 'Tayyor qo\'lyozmangizni professional kitob shaklida nashr eting va ISBN oling.',

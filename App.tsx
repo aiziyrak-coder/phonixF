@@ -27,6 +27,9 @@ import TranslationDetail from './pages/TranslationDetail';
 import PaymentTest from './pages/PaymentTest';
 import JournalAdminPanel from './pages/JournalAdminPanel';
 import PublicArticleShare from './pages/PublicArticleShare';
+import AuthorPublications from './pages/AuthorPublicationsNew';
+import AuthorPublicationDetail from './pages/AuthorPublicationDetail';
+import MaqolaNamunaOlish from './pages/MaqolaNamunaOlish';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, loading } = useAuth();
@@ -79,11 +82,14 @@ const AppContent: React.FC = () => {
                 <Route path="journal-admin-panel" element={<JournalAdminPanel />} />
                 <Route path="udk-requests" element={<UdkRequests />} />
                 <Route path="services" element={<Services />} />
+                <Route path="maqola-namuna-olish" element={<MaqolaNamunaOlish />} />
                 <Route path="translation-service" element={<TranslationService />} />
                 <Route path="plagiarism-check" element={<PlagiarismCheck />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="financials" element={<Financials />} />
                 <Route path="payment-test" element={<PaymentTest />} />
+                <Route path="author-publications" element={<AuthorPublications />} />
+                <Route path="author-publications/:id" element={<AuthorPublicationDetail />} />
             </Route>
 
             <Route path="*" element={
