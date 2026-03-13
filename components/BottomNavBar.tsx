@@ -4,7 +4,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Role } from '../types';
-import { LayoutDashboard, FileText, Upload, Users, UserCircle, Library, BookMarked, CheckCircle, DollarSign, Archive, Languages } from 'lucide-react';
+import { LayoutDashboard, FileText, Upload, Users, UserCircle, Library, BookMarked, CheckCircle, DollarSign, Archive, Languages, Sparkles } from 'lucide-react';
 
 
 const BottomNavBar: React.FC = () => {
@@ -21,7 +21,7 @@ const BottomNavBar: React.FC = () => {
         { to: '/profile', icon: UserCircle, label: 'Profilim' },
       ],
       [Role.Reviewer]: [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Asosiy' },
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Ishchi stol' },
         { to: '/articles', icon: FileText, label: 'Taqrizlar' },
         { to: '/profile', icon: UserCircle, label: 'Profilim' },
       ],
@@ -35,6 +35,7 @@ const BottomNavBar: React.FC = () => {
         { to: '/articles', icon: FileText, label: 'Maqolalar' },
         { to: '/users', icon: Users, label: 'Foydalanuvchilar' },
         { to: '/journal-management', icon: BookMarked, label: 'Jurnallar' },
+        { to: '/prices', icon: DollarSign, label: 'Narxlar' },
       ],
       [Role.Accountant]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Asosiy' },

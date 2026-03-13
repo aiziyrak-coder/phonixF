@@ -98,19 +98,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             setNotifications(mappedNotifications);
           } catch (notificationsError) {
-            console.error('Failed to fetch notifications:', notificationsError);
             // Continue without notifications if fetch fails
           }
-        } catch (profileError) {
-          console.error('Failed to fetch user profile:', profileError);
-          // If we can't get the profile, clear auth and redirect to login
+        } catch (profileError: any) {
+          const msg = profileError?.message ?? '';
+          const isSessionExpired = msg.includes('sessiya') || profileError?.status === 401;
+          const isNetwork = msg.includes('Serverga ulanib') || profileError?.code === 'NETWORK_ERROR' || profileError?.name === 'TypeError';
+          if (isNetwork) {
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+          if (!isSessionExpired) {
+            console.error('Failed to fetch user profile:', profileError);
+          }
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           navigate('/login');
         }
-      } catch (error) {
-        console.error('Error in loadUser:', error);
-        // On any error, clear auth state
+      } catch (error: any) {
+        const msg = error?.message ?? '';
+        const isSessionExpired = msg.includes('sessiya') || error?.status === 401;
+        const isNetwork = msg.includes('Serverga ulanib') || error?.code === 'NETWORK_ERROR' || error?.name === 'TypeError';
+        if (isNetwork) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        if (!isSessionExpired) {
+          console.error('Error in loadUser:', error);
+        }
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         navigate('/login');
@@ -225,7 +242,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError('Server response did not include access token');
       return false;
     } catch (error: any) {
-      let errorMessage = 'Login failed. Please check your credentials.';
+      let errorMessage = 'Kirishda xatolik. Telefon raqam va parolni tekshiring.';
       
       if (error?.response?.data) {
         // Handle Axios error response

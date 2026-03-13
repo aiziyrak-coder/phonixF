@@ -1,145 +1,305 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../components/ui/Card';
-import { useAuth } from '../contexts/AuthContext';
-import { ArticleStatus, Role } from '../types';
 import Button from '../components/ui/Button';
-import { useNotifications } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
+import { Library, ExternalLink, Loader2, Check, X, FileText } from 'lucide-react';
+import { toast } from 'react-toastify';
+
+interface UdkRequestItem {
+  id: string;
+  author_first_name: string;
+  author_last_name: string;
+  author_middle_name: string;
+  author_short: string;
+  title: string;
+  abstract: string;
+  file_url: string | null;
+  udk_code: string;
+  udk_description: string;
+  status: string;
+  reject_reason: string;
+  created_at: string;
+  completed_at: string | null;
+}
 
 const UdkRequests: React.FC = () => {
-    const { user } = useAuth();
-    const { addNotification } = useNotifications();
-    
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [requests, setRequests] = useState<any[]>([]);
-    const [udkCodes, setUdkCodes] = useState<Record<string, string>>({});
-    const [users, setUsers] = useState<any[]>([]);
+  const { user } = useAuth();
+  const [list, setList] = useState<UdkRequestItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [udkInputs, setUdkInputs] = useState<Record<string, { code: string; description: string }>>({});
+  const [rejectInputs, setRejectInputs] = useState<Record<string, string>>({});
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [showRejectModal, setShowRejectModal] = useState<string | null>(null);
 
-    // Fetch data from API
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!user || user.role !== Role.SuperAdmin) return;
-            
-            try {
-                setLoading(true);
-                setError(null);
-                
-                // Fetch articles and users in parallel
-                const [articlesData, usersData] = await Promise.all([
-                    apiService.articles.list(),
-                    apiService.users.list()
-                ]);
-                
-                const articles = Array.isArray(articlesData) ? articlesData : [];
-                const usersList = Array.isArray(usersData) ? usersData : [];
-                
-                setUsers(usersList);
-                
-                // Filter articles with "Yangi" status for UDK requests
-                const udkRequests = articles
-                    .filter(a => a.status === ArticleStatus.Yangi)
-                    .slice(0, 2)
-                    .map(a => {
-                        const author = usersList.find(u => u.id === a.author);
-                        return {
-                            id: a.id,
-                            author: author ? `${author.firstName} ${author.lastName}` : 'Noma\'lum',
-                            title: a.title
-                        };
-                    });
-                
-                setRequests(udkRequests);
-            } catch (err: any) {
-                console.error('Failed to fetch UDK requests:', err);
-                setError('UDK so\'rovlarni yuklashda xatolik yuz berdi.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        
-        fetchData();
-    }, [user]);
-
-    if (user?.role !== Role.SuperAdmin) {
-        return <Card title="Ruxsat Rad Etildi"><p>Ushbu sahifani ko'rish uchun sizda yetarli ruxsat yo'q.</p></Card>;
-    }
-    
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            </div>
-        );
-    }
-    
-    if (error) {
-        return (
-            <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
-                <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
-            </Card>
-        );
-    }
-    
-    const handleUdkChange = (articleId: string, value: string) => {
-        setUdkCodes(prev => ({ ...prev, [articleId]: value }));
+  useEffect(() => {
+    if (!user) return;
+    const fetchList = async () => {
+      try {
+        const res = await apiService.udc.requests.list();
+        const data = Array.isArray(res) ? res : (res?.results ?? res?.data ?? []);
+        setList(Array.isArray(data) ? data : []);
+      } catch {
+        setList([]);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchList();
+  }, [user]);
 
-    const handleSendUdk = async (articleId: string) => {
-        const udkCode = udkCodes[articleId];
-        if (!udkCode || !udkCode.trim()) {
-            alert("Iltimos, UDK kodini kiriting.");
-            return;
-        }
+  const handleComplete = async (id: string) => {
+    const input = udkInputs[id] || { code: '', description: '' };
+    const code = (input.code || '').trim();
+    if (!code) {
+      toast.warning('UDK kodini kiriting.');
+      return;
+    }
+    setSavingId(id);
+    try {
+      await apiService.udc.requests.complete(id, code, input.description?.trim());
+      toast.success('UDK so\'rovi yakunlandi. Muallifga xabar yuborildi.');
+      setUdkInputs((prev) => ({ ...prev, [id]: { code: '', description: '' } }));
+      const res = await apiService.udc.requests.list();
+      const data = Array.isArray(res) ? res : (res?.results ?? res?.data ?? []);
+      setList(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      toast.error(err?.message || 'Saqlashda xatolik.');
+    } finally {
+      setSavingId(null);
+    }
+  };
 
-        try {
-            // In a real app, we would make an API call to save the UDK code to the article
-            // For now, we'll just simulate the behavior
-            
-            const article = requests.find(a => a.id === articleId);
-            if (article) {
-                // In a real app, we would save this UDK to the article object via API
-                addNotification({
-                    message: `Sizning "${article.title.substring(0,30)}..." maqolangiz uchun UDK kodi tasdiqlandi: ${udkCode}`,
-                    link: `/articles/${articleId}`
-                });
-            }
+  const handleReject = async (id: string) => {
+    const reason = (rejectInputs[id] || '').trim();
+    setRejectingId(id);
+    try {
+      await apiService.udc.requests.reject(id, reason);
+      toast.success('UDK so\'rovi rad etildi.');
+      setShowRejectModal(null);
+      setRejectInputs((prev) => ({ ...prev, [id]: '' }));
+      const res = await apiService.udc.requests.list();
+      const data = Array.isArray(res) ? res : (res?.results ?? res?.data ?? []);
+      setList(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      toast.error(err?.message || 'Rad etishda xatolik.');
+    } finally {
+      setRejectingId(null);
+    }
+  };
 
-            setRequests(prev => prev.filter(req => req.id !== articleId));
-            addNotification({ message: "UDK kodi muallifga muvaffaqiyatli yuborildi." });
-        } catch (err) {
-            console.error('Failed to send UDK code:', err);
-            alert('UDK kodini yuborishda xatolik yuz berdi.');
-        }
-    };
+  if (!user) return null;
 
-    return (
-        <Card title="UDK Kod So'rovlarini Boshqarish">
-             <div className="space-y-4">
-                {requests.length > 0 ? requests.map(req => (
-                    <div key={req.id} className="p-4 border rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 dark:border-gray-700">
-                        <div className="flex-1">
-                            <p className="font-semibold">{req.title}</p>
-                            <p className="text-sm text-gray-500">{req.author}</p>
+  const isReviewer = user.role === 'reviewer' || user.role === 'super_admin';
+  const submittedList = list.filter((r) => r.status === 'submitted');
+  const completedList = list.filter((r) => r.status === 'completed');
+  const rejectedList = list.filter((r) => r.status === 'rejected');
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending_payment': return 'To\'lov kutilmoqda';
+      case 'submitted': return 'Taqrizchida';
+      case 'completed': return 'Yakunlangan';
+      case 'rejected': return 'Rad etilgan';
+      default: return status;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'submitted': return 'text-yellow-400';
+      case 'completed': return 'text-green-400';
+      case 'rejected': return 'text-red-400';
+      default: return 'text-gray-400';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2.5 rounded-xl bg-indigo-500/20">
+            <Library className="h-6 w-6 text-indigo-400" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white">UDK so'rovlari</h1>
+            <p className="text-sm text-gray-400">
+              {isReviewer
+                ? "Mualliflar UDK raqami olish uchun yuborgan so'rovlar. Mavzu va annotatsiyani o'qib, mos UDK kodini kiriting."
+                : "Sizning UDK so'rovlaringiz. Taqrizchi UDK kodini kiritgach bu yerda ko'rinadi."}
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
+          </div>
+        ) : list.length === 0 ? (
+          <p className="text-gray-400 py-4">UDK so'rovlari yo'q.</p>
+        ) : (
+          <div className="space-y-4">
+            {/* Kutilayotgan so'rovlar (submitted) */}
+            {isReviewer && submittedList.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-yellow-400 mb-3">Kutilayotgan so'rovlar ({submittedList.length})</h3>
+                <div className="space-y-4">
+                  {submittedList.map((req) => (
+                    <div
+                      key={req.id}
+                      className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20"
+                    >
+                      <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white">{req.author_short}</p>
+                          <p className="text-sm text-indigo-300 mt-1 font-medium">{req.title}</p>
+                          {req.abstract && (
+                            <p className="text-xs text-gray-400 mt-2 line-clamp-3">{req.abstract}</p>
+                          )}
+                          <p className="text-xs text-gray-500 mt-2">
+                            {new Date(req.created_at).toLocaleDateString('uz-UZ')}
+                          </p>
+                          {req.file_url && (
+                            <a
+                              href={req.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:underline mt-2"
+                            >
+                              <FileText size={14} /> Faylni yuklab olish
+                            </a>
+                          )}
                         </div>
-                        <div className="flex items-center space-x-2 w-full sm:w-auto">
-                             <input 
-                                type="text" 
-                                placeholder="UDK kodini kiriting..." 
-                                className="w-full sm:w-48"
-                                value={udkCodes[req.id] || ''}
-                                onChange={(e) => handleUdkChange(req.id, e.target.value)}
-                             />
-                             <Button onClick={() => handleSendUdk(req.id)}>Yuborish</Button>
+                        <div className="flex flex-col gap-2 lg:min-w-[300px]">
+                          <input
+                            type="text"
+                            value={udkInputs[req.id]?.code ?? ''}
+                            onChange={(e) => setUdkInputs((prev) => ({
+                              ...prev,
+                              [req.id]: { ...prev[req.id], code: e.target.value }
+                            }))}
+                            placeholder="UDK kodi (masalan: 332.055.2)"
+                            className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500"
+                          />
+                          <input
+                            type="text"
+                            value={udkInputs[req.id]?.description ?? ''}
+                            onChange={(e) => setUdkInputs((prev) => ({
+                              ...prev,
+                              [req.id]: { ...prev[req.id], description: e.target.value }
+                            }))}
+                            placeholder="UDK tavsifi (ixtiyoriy)"
+                            className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500"
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => handleComplete(req.id)}
+                              disabled={savingId === req.id || !(udkInputs[req.id]?.code || '').trim()}
+                              className="flex-1 flex items-center justify-center gap-2"
+                            >
+                              {savingId === req.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                              Tasdiqlash
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              onClick={() => setShowRejectModal(req.id)}
+                              className="flex items-center gap-2"
+                            >
+                              <X className="h-4 w-4" />
+                              Rad etish
+                            </Button>
+                          </div>
                         </div>
+                      </div>
                     </div>
-                )) : (
-                    <p className="text-center text-gray-400 py-8">Yangi UDK so'rovlari mavjud emas.</p>
-                )}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Barcha so'rovlar ro'yxati */}
+            <h3 className="text-lg font-semibold text-white mb-3">
+              {isReviewer ? 'Barcha so\'rovlar' : 'Mening so\'rovlarim'}
+            </h3>
+            {list.map((req) => (
+              <div
+                key={req.id}
+                className="p-4 rounded-xl bg-white/5 border border-white/10"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-white">{req.author_short}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(req.status)} bg-white/5`}>
+                        {getStatusLabel(req.status)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-indigo-300 mt-1">{req.title}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(req.created_at).toLocaleDateString('uz-UZ')}
+                    </p>
+                    {req.status === 'completed' && req.udk_code && (
+                      <p className="text-sm text-green-400 mt-2">
+                        UDK: {req.udk_code} {req.udk_description && `— ${req.udk_description}`}
+                      </p>
+                    )}
+                    {req.status === 'rejected' && req.reject_reason && (
+                      <p className="text-sm text-red-400 mt-2">
+                        Sabab: {req.reject_reason}
+                      </p>
+                    )}
+                    {req.file_url && (
+                      <a
+                        href={req.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:underline mt-2"
+                      >
+                        <ExternalLink size={14} /> Fayl
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-xl p-6 max-w-md w-full border border-white/10">
+            <h3 className="text-lg font-semibold text-white mb-4">UDK so'rovini rad etish</h3>
+            <textarea
+              value={rejectInputs[showRejectModal] ?? ''}
+              onChange={(e) => setRejectInputs((prev) => ({ ...prev, [showRejectModal]: e.target.value }))}
+              placeholder="Rad etish sababi (ixtiyoriy)"
+              rows={3}
+              className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500 resize-none"
+            />
+            <div className="flex gap-3 mt-4">
+              <Button
+                variant="secondary"
+                onClick={() => setShowRejectModal(null)}
+                className="flex-1"
+              >
+                Bekor qilish
+              </Button>
+              <Button
+                onClick={() => handleReject(showRejectModal)}
+                disabled={rejectingId === showRejectModal}
+                className="flex-1 bg-red-600 hover:bg-red-700"
+              >
+                {rejectingId === showRejectModal ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Rad etish'}
+              </Button>
             </div>
-        </Card>
-    );
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default UdkRequests;

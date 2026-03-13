@@ -1,38 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Role, ArticleStatus } from '../types';
+import { Role, ArticleStatus, ARTICLE_STATUS_LABELS } from '../types';
 import Card from '../components/ui/Card';
-import { FileText, Edit3, UserCheck, CheckCircle, Users, Inbox, Clock, XCircle, DollarSign, User as UserIcon, Timer, ArrowRight, Wallet, Rocket, Shield, Bot, Eye, Download, TrendingUp } from 'lucide-react';
+import { FileText, Edit3, UserCheck, CheckCircle, Users, Inbox, Clock, XCircle, DollarSign, User as UserIcon, Timer, ArrowRight, Wallet, Rocket, Shield, Bot, Eye, Download, TrendingUp, BarChart3, PieChart as PieChartIcon, Upload, BookOpen, Archive, ChevronRight, Languages, ExternalLink } from 'lucide-react';
+import { toast } from 'react-toastify';
 import Button from '../components/ui/Button';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiService } from '../services/apiService';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-const StatCard: React.FC<{icon: React.ElementType, title: string, value: string | number, gradient: string, to?: string}> = ({ icon: Icon, title, value, gradient, to }) => {
-    const cardContent = (
-        <Card className="!p-0 overflow-hidden relative h-full transition-transform transform hover:scale-105 hover:shadow-xl">
-            <div className={`absolute -top-4 -right-4 w-20 h-20 opacity-10 ${gradient} rounded-full blur-2xl`}></div>
-            <div className="p-4 sm:p-6 flex items-center">
-                <div className={`p-2.5 sm:p-3 rounded-xl mr-3 sm:mr-5 bg-white/10 shrink-0`}>
-                    <Icon className={`h-5 w-5 sm:h-7 sm:w-7 text-white`} />
-                </div>
-                <div className="min-w-0">
-                    <p className="text-2xl sm:text-3xl font-bold text-white truncate">{value}</p>
-                    <p className="text-xs sm:text-sm text-gray-400 capitalize truncate">{title}</p>
-                </div>
-            </div>
-            <div className={`h-1.5 ${gradient}`}></div>
-        </Card>
-    );
+const CHART_COLORS = ['#3b82f6', '#eab308', '#22c55e', '#ef4444', '#8b5cf6', '#06b6d4'];
 
-    if (to) {
-        return (
-            <Link to={to} className="block">
-                {cardContent}
-            </Link>
-        );
-    }
+const StatCard: React.FC<{
+  icon: React.ElementType;
+  title: string;
+  value: string | number;
+  gradient: string;
+  to?: string;
+  animationDelay?: string;
+}> = ({ icon: Icon, title, value, gradient, to, animationDelay = '0s' }) => {
+  const cardContent = (
+    <div
+      className="dashboard-card-hover relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 h-full"
+      style={{ animationDelay }}
+    >
+      <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-30 blur-3xl ${gradient}`} />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-transparent via-transparent to-white/[0.03]" />
+      <div className="relative flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 truncate">{title}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2 tracking-tight truncate tabular-nums">{value}</p>
+        </div>
+        <div className={`p-3.5 rounded-2xl shrink-0 ${gradient} shadow-lg`}>
+          <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white drop-shadow-sm" strokeWidth={2.5} />
+        </div>
+      </div>
+      <div className={`relative mt-5 h-1.5 rounded-full ${gradient} opacity-90 shadow-sm`} />
+    </div>
+  );
 
-    return cardContent;
+  if (to) {
+    return <Link to={to} className="block h-full">{cardContent}</Link>;
+  }
+  return <div className="h-full">{cardContent}</div>;
 };
 
 const Dashboard: React.FC = () => {
@@ -45,6 +55,13 @@ const Dashboard: React.FC = () => {
     const [stats, setStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    /** Taqrizchi ishchi stoli: DOI, maqola namuna, tarjima, kitob buyurtmalari */
+    const [doiRequests, setDoiRequests] = useState<any[]>([]);
+    const [udkRequests, setUdkRequests] = useState<any[]>([]);
+    const [articleSampleRequests, setArticleSampleRequests] = useState<any[]>([]);
+    const [translationRequests, setTranslationRequests] = useState<any[]>([]);
+    const [doiSavingId, setDoiSavingId] = useState<string | null>(null);
+    const [doiLinkInputs, setDoiLinkInputs] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -96,6 +113,26 @@ const Dashboard: React.FC = () => {
                 setJournals(journalsArray);
                 setUsers(usersArray);
                 setTransactions(transactionsArray);
+
+                if (user.role === Role.Reviewer || user.role === 'reviewer') {
+                    try {
+                        const [doiRes, sampleRes, transRes, udkRes] = await Promise.all([
+                            apiService.doi.list(),
+                            apiService.articleSample.list(),
+                            apiService.translations.list(),
+                            apiService.udc.requests.list()
+                        ]);
+                        setDoiRequests(processApiResponse(doiRes));
+                        setArticleSampleRequests(processApiResponse(sampleRes));
+                        setTranslationRequests(processApiResponse(transRes));
+                        setUdkRequests(processApiResponse(udkRes));
+                    } catch {
+                        setDoiRequests([]);
+                        setArticleSampleRequests([]);
+                        setTranslationRequests([]);
+                        setUdkRequests([]);
+                    }
+                }
                 
                 // Fetch stats for super admin
                 if (user.role === Role.SuperAdmin) {
@@ -120,8 +157,9 @@ const Dashboard: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <div className="flex flex-col justify-center items-center min-h-[320px] gap-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-2 border-blue-500 border-t-transparent" />
+                <p className="text-gray-400 text-sm">Yuklanmoqda...</p>
             </div>
         );
     }
@@ -137,20 +175,197 @@ const Dashboard: React.FC = () => {
 
     const renderAuthorDashboard = () => {
         const validArticles = Array.isArray(articles) ? articles : [];
-        const myArticles = validArticles.filter(a => a.author === user.id);
-        const inReviewCount = myArticles.filter(a => a.status === 'QabulQilingan').length;
-        const publishedCount = myArticles.filter(a => a.status === 'Published').length;
+        const myArticles = validArticles.filter((a: any) => a.author === user.id);
+        const inReviewCount = myArticles.filter((a: any) => a.status === ArticleStatus.QabulQilingan || a.status === 'QabulQilingan').length;
+        const publishedCount = myArticles.filter((a: any) => a.status === ArticleStatus.Published || a.status === 'Published').length;
+        const inEditorCount = myArticles.filter((a: any) => a.status === ArticleStatus.WithEditor || a.status === 'WithEditor').length;
+        const revisionCount = myArticles.filter((a: any) => a.status === ArticleStatus.Revision || a.status === 'Revision').length;
+        const recentArticles = [...myArticles]
+            .sort((a: any, b: any) => new Date(b.submission_date || 0).getTime() - new Date(a.submission_date || 0).getTime())
+            .slice(0, 5);
+        const getStatusLabel = (status: string) => ARTICLE_STATUS_LABELS[status] || status;
+        const getStatusColor = (status: string) => {
+            if (status === ArticleStatus.Published || status === 'Published') return 'bg-green-500/20 text-green-300';
+            if (status === ArticleStatus.QabulQilingan || status === 'QabulQilingan') return 'bg-yellow-500/20 text-yellow-300';
+            if (status === ArticleStatus.Revision || status === 'Revision') return 'bg-orange-500/20 text-orange-300';
+            if (status === ArticleStatus.WithEditor || status === 'WithEditor') return 'bg-indigo-500/20 text-indigo-300';
+            if (status === ArticleStatus.Rejected || status === 'Rejected') return 'bg-red-500/20 text-red-300';
+            return 'bg-gray-500/20 text-gray-300';
+        };
+
         return (
-            <div className="space-y-8">
-                <h2 className="text-3xl font-bold text-white">Xush kelibsiz, {user.firstName}!</h2>
-                <p className="text-gray-300 -mt-6">Bu yerdan o'z faoliyatingizni kuzatib borishingiz mumkin.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                   <StatCard icon={FileText} title="Jami maqolalar" value={myArticles.length} gradient="bg-gradient-to-r from-blue-500 to-cyan-400" to="/articles" />
-                   <StatCard icon={Edit3} title="Ko'rib chiqilmoqda" value={inReviewCount} gradient="bg-gradient-to-r from-yellow-500 to-orange-400" to="/articles" />
-                   <StatCard icon={CheckCircle} title="Nashr etilgan" value={publishedCount} gradient="bg-gradient-to-r from-green-500 to-emerald-400" to="/articles" />
+            <div className="space-y-10">
+                {/* Sarlavha va tushuntirish */}
+                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/5 p-6 sm:p-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                        Xush kelibsiz, {user.firstName} {user.lastName ? user.lastName : ''}!
+                    </h1>
+                    <p className="text-gray-400 mt-2 max-w-2xl">
+                        Boshqaruv paneli orqali maqolalar yuborishingiz, UDK ma&apos;lumotnoma olishingiz, maqolalar holatini kuzatishingiz va barcha hujjatlaringizni bitta joyda ko&apos;rishingiz mumkin.
+                    </p>
                 </div>
+
+                {/* Tezkor harakatlar */}
+                <div>
+                    <h2 className="text-lg font-semibold text-white mb-4">Tezkor harakatlar</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <Link
+                            to="/submit"
+                            className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/10 hover:border-blue-500/30 transition-all duration-200"
+                        >
+                            <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400 group-hover:bg-blue-500/30 transition-colors">
+                                <Upload className="h-6 w-6" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">Maqola yuborish</h3>
+                                <p className="text-sm text-gray-400 mt-0.5">Jurnal tanlab maqolani topshiring</p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-gray-500 group-hover:text-blue-400 shrink-0 mt-1" />
+                        </Link>
+                        <Link
+                            to="/udk-olish"
+                            className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/10 hover:border-cyan-500/30 transition-all duration-200"
+                        >
+                            <div className="p-3 rounded-xl bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30 transition-colors">
+                                <BookOpen className="h-6 w-6" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="font-semibold text-white group-hover:text-cyan-300 transition-colors">UDK ma&apos;lumotnoma</h3>
+                                <p className="text-sm text-gray-400 mt-0.5">Ilmiy ish uchun UDK kodi oling</p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-gray-500 group-hover:text-cyan-400 shrink-0 mt-1" />
+                        </Link>
+                        <Link
+                            to="/articles"
+                            className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/10 hover:border-emerald-500/30 transition-all duration-200"
+                        >
+                            <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 transition-colors">
+                                <FileText className="h-6 w-6" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="font-semibold text-white group-hover:text-emerald-300 transition-colors">Mening maqolalarim</h3>
+                                <p className="text-sm text-gray-400 mt-0.5">Barcha maqolalar va holatlari</p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-gray-500 group-hover:text-emerald-400 shrink-0 mt-1" />
+                        </Link>
+                        <Link
+                            to="/profile"
+                            className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/10 hover:border-violet-500/30 transition-all duration-200"
+                        >
+                            <div className="p-3 rounded-xl bg-violet-500/20 text-violet-400 group-hover:bg-violet-500/30 transition-colors">
+                                <Archive className="h-6 w-6" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h3 className="font-semibold text-white group-hover:text-violet-300 transition-colors">Arxiv hujjatlar</h3>
+                                <p className="text-sm text-gray-400 mt-0.5">PDF, UDK, sertifikatlar, taqrizlar</p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-gray-500 group-hover:text-violet-400 shrink-0 mt-1" />
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Maqolalar statistikasi */}
+                <div>
+                    <h2 className="text-lg font-semibold text-white mb-4">Maqolalarim statistikasi</h2>
+                    <p className="text-gray-400 text-sm mb-4">Yuborilgan maqolalar holati bo&apos;yicha qisqacha ko&apos;rinish.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <StatCard
+                            icon={FileText}
+                            title="Jami maqolalar"
+                            value={myArticles.length}
+                            gradient="bg-gradient-to-r from-blue-500 to-cyan-400"
+                            to="/articles"
+                        />
+                        <StatCard
+                            icon={Edit3}
+                            title="Taqrizda / Redaktorda"
+                            value={inReviewCount + inEditorCount}
+                            gradient="bg-gradient-to-r from-yellow-500 to-orange-400"
+                            to="/articles"
+                        />
+                        <StatCard
+                            icon={Clock}
+                            title="Tahrirga qaytarilgan"
+                            value={revisionCount}
+                            gradient="bg-gradient-to-r from-amber-500 to-orange-400"
+                            to="/articles"
+                        />
+                        <StatCard
+                            icon={CheckCircle}
+                            title="Nashr etilgan"
+                            value={publishedCount}
+                            gradient="bg-gradient-to-r from-green-500 to-emerald-400"
+                            to="/articles"
+                        />
+                    </div>
+                </div>
+
+                {/* So'nggi maqolalar */}
+                <Card title="So'nggi maqolalar">
+                    <p className="text-gray-400 text-sm mb-4">Oxirgi yuborilgan maqolalar ro'yxati. Batafsil ko'rish uchun maqolaga bosing.</p>
+                    {recentArticles.length === 0 ? (
+                        <div className="text-center py-10 text-gray-400">
+                            <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                            <p>Hozircha maqolalar yo&apos;q.</p>
+                            <p className="text-sm mt-1">«Maqola yuborish» orqali birinchi maqolangizni topshiring.</p>
+                            <Button onClick={() => navigate('/submit')} className="mt-4">
+                                <Upload className="mr-2 h-4 w-4" /> Maqola yuborish
+                            </Button>
+                        </div>
+                    ) : (
+                        <ul className="space-y-3">
+                            {recentArticles.map((art: any) => (
+                                <li key={art.id}>
+                                    <Link
+                                        to={`/articles/${art.id}`}
+                                        className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/8 hover:border-white/20 transition-all"
+                                    >
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-medium text-white truncate">{art.title || 'Sarlavhasiz'}</p>
+                                            <p className="text-sm text-gray-400 mt-0.5">
+                                                {art.journal_name || 'Jurnal'} · {art.submission_date ? new Date(art.submission_date).toLocaleDateString('uz-UZ') : '—'}
+                                            </p>
+                                        </div>
+                                        <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(art.status)}`}>
+                                            {getStatusLabel(art.status)}
+                                        </span>
+                                        <ChevronRight className="h-5 w-5 text-gray-500 shrink-0" />
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    {recentArticles.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-white/10">
+                            <Link to="/articles" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">
+                                Barcha maqolalar <ArrowRight className="h-4 w-4" />
+                            </Link>
+                        </div>
+                    )}
+                </Card>
             </div>
         );
+    };
+
+    const handleDoiSaveLink = async (id: string) => {
+        const link = (doiLinkInputs[id] || '').trim();
+        if (!link || !link.startsWith('http')) {
+            toast.warning('To\'g\'ri DOI link (URL) kiriting.');
+            return;
+        }
+        setDoiSavingId(id);
+        try {
+            await apiService.doi.updateLink(id, link);
+            toast.success('DOI link saqlandi. Muallifga bildirishnoma yuborildi.');
+            setDoiLinkInputs((prev) => ({ ...prev, [id]: '' }));
+            const res = await apiService.doi.list();
+            const data = Array.isArray(res) ? res : (res?.results ?? res?.data ?? []);
+            setDoiRequests(Array.isArray(data) ? data : []);
+        } catch (err: any) {
+            toast.error(err?.message || 'Saqlashda xatolik.');
+        } finally {
+            setDoiSavingId(null);
+        }
     };
 
     const renderReviewerDashboard = () => {
@@ -159,25 +374,32 @@ const Dashboard: React.FC = () => {
             .filter(a => a.status === 'QabulQilingan')
             .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
         const articlesInProgress = validArticles.filter(a => a.status === 'QabulQilingan');
+        const doiSubmitted = (doiRequests || []).filter((r: any) => r.status === 'submitted');
+        const bookOrders = (transactions || []).filter((t: any) => t.service_type === 'book_publication' && (t.status === 'pending' || t.status === 'submitted'));
+        const translationsPending = (translationRequests || []).filter((t: any) => t.status === 'Yangi' || t.status === 'Jarayonda');
+        const qualityLabels: Record<string, string> = { quyi: 'Quyi', orta: "O'rta", yuqori: 'Yuqori' };
 
         return (
             <div className="space-y-8">
-                <h2 className="text-3xl font-bold text-white">Xush kelibsiz, {user.firstName}!</h2>
-                <p className="text-gray-300 -mt-6">Taqrizchi sifatida faoliyatingizni boshqaring.</p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard icon={Inbox} title="Yangi so'rovlar" value={articlesForReview.length} gradient="bg-gradient-to-r from-blue-500 to-cyan-400" to="/articles" />
-                    <StatCard icon={Clock} title="Jarayonda" value={articlesInProgress.length} gradient="bg-gradient-to-r from-yellow-500 to-orange-400" to="/articles" />
-                    <StatCard icon={CheckCircle} title="Bajarilgan" value={user.reviewsCompleted || 0} gradient="bg-gradient-to-r from-green-500 to-emerald-400" to="/profile" />
-                    <StatCard icon={Timer} title="O'rtacha vaqt" value={`${user.averageReviewTime || 0} kun`} gradient="bg-gradient-to-r from-purple-500 to-indigo-400" to="/profile" />
+                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/5 p-6 sm:p-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">Ishchi stol — {user.firstName}!</h1>
+                    <p className="text-gray-400 mt-2">Barcha buyurtmalar shu yerda: taqriz, DOI, maqola namuna, tarjima va kitob nashr.</p>
                 </div>
 
-                <Card title="Yangi so'rovlar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard icon={Inbox} title="Taqrizga kelganlar" value={articlesForReview.length} gradient="bg-gradient-to-r from-blue-500 to-cyan-400" to="/articles" />
+                    <StatCard icon={Bot} title="DOI so'rovlari" value={doiSubmitted.length} gradient="bg-gradient-to-r from-cyan-500 to-teal-400" />
+                    <StatCard icon={Languages} title="Tarjima buyurtmalari" value={translationsPending.length} gradient="bg-gradient-to-r from-violet-500 to-purple-400" />
+                    <StatCard icon={BookOpen} title="Kitob nashr buyurtmalari" value={bookOrders.length} gradient="bg-gradient-to-r from-amber-500 to-orange-400" />
+                </div>
+
+                {/* Taqrizga kelgan maqolalar */}
+                <Card title="Taqrizga kelgan maqolalar">
                     <div className="space-y-4">
                         {articlesForReview.length > 0 ? (
-                            articlesForReview.map(article => {
-                                const author = users.find(u => u.id === article.author);
-                                const journal = journals.find(j => j.id === article.journal);
+                            articlesForReview.slice(0, 5).map((article: any) => {
+                                const author = users.find((u: any) => u.id === article.author);
+                                const journal = journals.find((j: any) => j.id === article.journal);
                                 return (
                                     <div key={article.id} className="p-4 bg-white/5 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                         <div>
@@ -198,25 +420,139 @@ const Dashboard: React.FC = () => {
                                 );
                             })
                         ) : (
-                            <p className="text-center text-gray-400 py-8">Hozircha ko'rib chiqish uchun yangi so'rovlar yo'q.</p>
+                            <p className="text-center text-gray-400 py-6">Hozircha taqriz uchun yangi so'rovlar yo'q.</p>
+                        )}
+                        {articlesForReview.length > 0 && (
+                            <div className="pt-2 border-t border-white/10">
+                                <Link to="/articles" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">Barchasi <ArrowRight className="h-4 w-4" /></Link>
+                            </div>
                         )}
                     </div>
+                </Card>
+
+                {/* DOI so'rovlari */}
+                <Card title="DOI raqami olish — taqrizchida">
+                    <p className="text-gray-400 text-sm mb-4">Mualliflar DOI so'rovi yuborgan. Link kiriting va saqlang — muallifga xabar ketadi.</p>
+                    {doiSubmitted.length === 0 ? (
+                        <p className="text-gray-400 py-4">Kutilayotgan DOI so'rovlari yo'q.</p>
+                    ) : (
+                        <div className="space-y-4">
+                            {doiSubmitted.map((req: any) => (
+                                <div key={req.id} className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-white">{req.author_short}</p>
+                                        <p className="text-xs text-gray-500">{new Date(req.created_at).toLocaleDateString('uz-UZ')}</p>
+                                        {req.file_url && (
+                                            <a href={req.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:underline mt-1">
+                                                <ExternalLink size={14} /> Fayl
+                                            </a>
+                                        )}
+                                    </div>
+                                    <div className="flex gap-2 flex-wrap">
+                                        <input
+                                            type="url"
+                                            placeholder="DOI link (https://...)"
+                                            value={doiLinkInputs[req.id] || ''}
+                                            onChange={(e) => setDoiLinkInputs((p) => ({ ...p, [req.id]: e.target.value }))}
+                                            className="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder-gray-500"
+                                        />
+                                        <Button
+                                            onClick={() => handleDoiSaveLink(req.id)}
+                                            disabled={doiSavingId === req.id}
+                                            variant="secondary"
+                                            className="shrink-0"
+                                        >
+                                            {doiSavingId === req.id ? 'Saqlanmoqda...' : 'Saqlash'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Card>
+
+                {/* Maqola namuna so'rovlari */}
+                <Card title="Maqola namuna olish buyurtmalari">
+                    <p className="text-gray-400 text-sm mb-4">Mualliflar maqola namunasi uchun buyurtma bergan.</p>
+                    {(!articleSampleRequests || articleSampleRequests.length === 0) ? (
+                        <p className="text-gray-400 py-4">So'rovlar yo'q.</p>
+                    ) : (
+                        <ul className="space-y-3">
+                            {articleSampleRequests.slice(0, 5).map((req: any) => (
+                                <li key={req.id} className="p-4 rounded-xl bg-white/5 border border-white/10">
+                                    <p className="font-medium text-white">{req.author_short}</p>
+                                    <p className="text-sm text-gray-300 line-clamp-2">{req.topic}</p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        {new Date(req.created_at).toLocaleDateString('uz-UZ')} · {qualityLabels[req.quality_level] || req.quality_level} · {req.pages} sahifa
+                                    </p>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </Card>
+
+                {/* Ilmiy tarjima buyurtmalari */}
+                <Card title="Ilmiy tarjima buyurtmalari">
+                    <p className="text-gray-400 text-sm mb-4">Tarjima qilish uchun kelgan buyurtmalar.</p>
+                    {translationsPending.length === 0 ? (
+                        <p className="text-gray-400 py-4">Kutilayotgan tarjima buyurtmalari yo'q.</p>
+                    ) : (
+                        <ul className="space-y-3">
+                            {translationsPending.slice(0, 5).map((tr: any) => (
+                                <li key={tr.id}>
+                                    <Link
+                                        to={`/translations/${tr.id}`}
+                                        className="flex items-center justify-between gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8"
+                                    >
+                                        <div>
+                                            <p className="font-medium text-white">{tr.title}</p>
+                                            <p className="text-sm text-gray-400">{tr.source_language} → {tr.target_language} · {tr.status}</p>
+                                        </div>
+                                        <ChevronRight className="h-5 w-5 text-gray-500 shrink-0" />
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    {translationsPending.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-white/10">
+                            <Link to="/my-translations" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">Barcha tarjimalar <ArrowRight className="h-4 w-4" /></Link>
+                        </div>
+                    )}
+                </Card>
+
+                {/* Kitob nashr etish buyurtmalari */}
+                <Card title="Kitob nashr etish buyurtmalari">
+                    <p className="text-gray-400 text-sm mb-4">Kitob chop etish bo'yicha buyurtmalar.</p>
+                    {bookOrders.length === 0 ? (
+                        <p className="text-gray-400 py-4">Hozircha buyurtmalar yo'q.</p>
+                    ) : (
+                        <ul className="space-y-3">
+                            {bookOrders.slice(0, 5).map((t: any) => (
+                                <li key={t.id} className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                                    <span className="text-white">Tranzaksiya #{String(t.id).slice(0, 8)}</span>
+                                    <span className="text-gray-400 text-sm">{t.status}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </Card>
             </div>
         );
     };
     
     const renderJournalAdminDashboard = () => {
-        const managedJournals = journals.filter(j => j.journal_admin === user.id);
+        const journalAdminId = (j: any) => j.journal_admin ?? j.journalAdminId ?? j.journal_admin_id;
+        const managedJournals = journals.filter(j => journalAdminId(j) === user.id);
         const managedJournalIds = managedJournals.map(j => j.id);
         const validArticles = Array.isArray(articles) ? articles : [];
 
-        const pendingPublicationCount = validArticles.filter(a => 
+        const pendingPublicationCount = validArticles.filter(a =>
             managedJournalIds.includes(a.journal) && a.status === 'NashrgaYuborilgan'
         ).length;
-        
-        const newSubmissionsCount = validArticles.filter(a => 
-            managedJournalIds.includes(a.journal) && a.status === 'Yangi'
+        // Yangi kelganlar: status 'Yangi' (muallif yuborgan maqolalar)
+        const newSubmissionsCount = validArticles.filter(a =>
+            managedJournalIds.includes(a.journal) && (a.status === 'Yangi' || a.status === 'Draft')
         ).length;
 
         const totalPublishedCount = validArticles.filter(a => managedJournalIds.includes(a.journal) && a.status === 'Published').length;
@@ -234,12 +570,10 @@ const Dashboard: React.FC = () => {
     };
 
     const renderSuperAdminDashboard = () => {
-        // Use stats data if available, otherwise fall back to computed values
         const validTransactions = Array.isArray(transactions) ? transactions : [];
         const totalRevenue = stats?.finance?.total_revenue || validTransactions
             .filter(t => t.service_type !== 'top_up' && t.status === 'completed')
             .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-        
         const bookTransactions = validTransactions.filter(t => t.service_type === 'book_publication');
         const bookOrdersTotal = stats?.finance?.book_orders_total ?? bookTransactions.length;
         const bookOrdersCompleted = stats?.finance?.book_orders_completed ?? bookTransactions.filter(t => t.status === 'completed').length;
@@ -248,108 +582,257 @@ const Dashboard: React.FC = () => {
         const bookTotalRevenue = stats?.finance?.book_total_revenue ?? bookTransactions
             .filter(t => t.status === 'completed')
             .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-        
         const totalUsersCount = stats?.users?.total || users.length;
         const totalAuthors = stats?.users?.authors || users.filter(u => u.role === Role.Author || u.role === 'author').length;
         const totalReviewers = stats?.users?.reviewers || users.filter(u => u.role === Role.Reviewer || u.role === 'reviewer').length;
         const validArticles = Array.isArray(articles) ? articles : [];
-
         const totalArticlesCount = stats?.articles?.total || validArticles.length;
         const newSubmissions = stats?.articles?.new_submissions || validArticles.filter(a => a.status === 'Yangi' || a.status === 'WithEditor').length;
         const inReview = stats?.articles?.in_review || validArticles.filter(a => a.status === 'QabulQilingan').length;
         const published = stats?.articles?.published || validArticles.filter(a => a.status === 'Published').length;
         const rejected = stats?.articles?.rejected || validArticles.filter(a => a.status === 'Rejected').length;
+        const checked = validArticles.filter((a: any) => a.plagiarism_percentage != null && Number(a.plagiarism_percentage) > 0);
+        const avgPlag = checked.length > 0 ? (checked.reduce((s: number, a: any) => s + Number(a.plagiarism_percentage || 0), 0) / checked.length).toFixed(1) : '0';
+        const avgAi = checked.length > 0 ? (checked.reduce((s: number, a: any) => s + Number(a.ai_content_percentage || 0), 0) / checked.length).toFixed(1) : '0';
+        const highPlag = checked.filter((a: any) => Number(a.plagiarism_percentage) >= 50).length;
+        const journalAdmins = users.filter((u: any) => u.role === Role.JournalAdmin || u.role === 'journal_admin');
+        const topArticles = [...validArticles].sort((a: any, b: any) => (b.views_count || 0) - (a.views_count || 0)).slice(0, 5);
+
+        const articleStatusData = [
+            { name: 'Yangi', value: newSubmissions, color: CHART_COLORS[0] },
+            { name: 'Taqrizda', value: inReview, color: CHART_COLORS[1] },
+            { name: 'Nashr etilgan', value: published, color: CHART_COLORS[2] },
+            { name: 'Rad etilgan', value: rejected, color: CHART_COLORS[3] },
+        ].filter(d => d.value > 0);
+        if (articleStatusData.length === 0) articleStatusData.push({ name: 'Maqolalar yo\'q', value: 1, color: '#6b7280' });
+
+        const bookOrdersData = [
+            { name: 'Muvaffaqiyatli', soni: bookOrdersCompleted, fill: '#22c55e' },
+            { name: 'Kutilmoqda', soni: bookOrdersPending, fill: '#eab308' },
+            { name: 'Muvaffaqiyatsiz', soni: bookOrdersFailed, fill: '#ef4444' },
+        ];
+
+        const serviceLabels: Record<string, string> = {
+            'fast-track': 'Tezkor', 'publication_fee': 'Nashr', 'language_editing': 'Tahrir',
+            'top_up': 'To\'ldirish', 'book_publication': 'Kitob', 'translation': 'Tarjima',
+        };
+        const recentTx = [...validTransactions].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 5);
+        const hour = new Date().getHours();
+        const greeting = hour < 12 ? 'Hayrli tong' : hour < 18 ? 'Hayrli kun' : 'Hayrli kech';
 
         return (
-            <div className="space-y-8">
-                <h2 className="text-3xl font-bold text-white">Umumiy platforma statistikasi</h2>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <StatCard icon={DollarSign} title="Jami tushum" value={`${(totalRevenue / 1000).toFixed(0)}k so'm`} gradient="bg-gradient-to-r from-green-500 to-emerald-400" to="/financials" />
-                    <StatCard icon={Users} title="Jami foydalanuvchilar" value={totalUsersCount} gradient="bg-gradient-to-r from-indigo-500 to-violet-400" to="/users" />
-                    <StatCard icon={FileText} title="Jami maqolalar" value={totalArticlesCount} gradient="bg-gradient-to-r from-purple-500 to-pink-400" to="/articles" />
-                </div>
-
-                <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Maqolalar holati bo'yicha statistika</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-                       <StatCard icon={Inbox} title="Yangi kelganlar" value={newSubmissions} gradient="bg-gradient-to-r from-blue-500 to-cyan-400" to="/articles" />
-                       <StatCard icon={Clock} title="Taqrizda" value={inReview} gradient="bg-gradient-to-r from-yellow-500 to-orange-400" to="/articles" />
-                       <StatCard icon={CheckCircle} title="Nashr etilgan" value={published} gradient="bg-gradient-to-r from-green-500 to-emerald-400" to="/articles" />
-                       <StatCard icon={XCircle} title="Rad etilgan" value={rejected} gradient="bg-gradient-to-r from-red-500 to-rose-400" to="/articles" />
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Kitob nashri buyurtmalari</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6">
-                        <StatCard icon={FileText} title="Jami buyurtmalar" value={bookOrdersTotal} gradient="bg-gradient-to-r from-cyan-500 to-blue-400" to="/financials" />
-                        <StatCard icon={CheckCircle} title="Muvaffaqiyatli" value={bookOrdersCompleted} gradient="bg-gradient-to-r from-green-500 to-emerald-400" to="/financials" />
-                        <StatCard icon={Clock} title="Kutilmoqda" value={bookOrdersPending} gradient="bg-gradient-to-r from-yellow-500 to-orange-400" to="/financials" />
-                        <StatCard icon={XCircle} title="Muvaffaqiyatsiz" value={bookOrdersFailed} gradient="bg-gradient-to-r from-red-500 to-rose-400" to="/financials" />
-                        <StatCard icon={DollarSign} title="Kitob tushumi" value={`${(bookTotalRevenue / 1000).toFixed(0)}k so'm`} gradient="bg-gradient-to-r from-indigo-500 to-violet-400" to="/financials" />
-                    </div>
-                </div>
-
-                <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Foydalanuvchilar taqsimoti</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <StatCard icon={UserIcon} title="Mualliflar" value={totalAuthors} gradient="bg-gradient-to-r from-gray-500 to-gray-400" to="/users" />
-                        <StatCard icon={UserCheck} title="Taqrizchilar" value={totalReviewers} gradient="bg-gradient-to-r from-gray-500 to-gray-400" to="/users" />
-                    </div>
-                </div>
-
-                <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Antiplagiat va AI tahlili</h3>
-                    {(() => {
-                        const checked = validArticles.filter((a: any) => a.plagiarism_percentage != null && Number(a.plagiarism_percentage) > 0);
-                        const avgPlag = checked.length > 0 ? (checked.reduce((s: number, a: any) => s + Number(a.plagiarism_percentage || 0), 0) / checked.length).toFixed(1) : '0';
-                        const avgAi = checked.length > 0 ? (checked.reduce((s: number, a: any) => s + Number(a.ai_content_percentage || 0), 0) / checked.length).toFixed(1) : '0';
-                        const highPlag = checked.filter((a: any) => Number(a.plagiarism_percentage) >= 50).length;
-                        return (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-                                <StatCard icon={Shield} title="O'rtacha plagiat" value={`${avgPlag}%`} gradient="bg-gradient-to-r from-orange-500 to-red-400" />
-                                <StatCard icon={Bot} title="O'rtacha AI" value={`${avgAi}%`} gradient="bg-gradient-to-r from-purple-500 to-pink-400" />
-                                <StatCard icon={Eye} title="Tekshirilgan" value={checked.length} gradient="bg-gradient-to-r from-cyan-500 to-blue-400" />
-                                <StatCard icon={TrendingUp} title="Yuqori plagiat" value={highPlag} gradient="bg-gradient-to-r from-red-500 to-rose-400" />
-                            </div>
-                        );
-                    })()}
-                </div>
-
-                <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Eng ko'p ko'rilgan maqolalar</h3>
-                    <div className="space-y-3">
-                        {[...validArticles].sort((a: any, b: any) => (b.views_count || 0) - (a.views_count || 0)).slice(0, 5).map((a: any, i: number) => (
-                            <Link key={a.id} to={`/articles/${a.id}`} className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                                <div className="flex items-center gap-3 min-w-0">
-                                    <span className="text-lg font-bold text-gray-500 w-6">{i + 1}</span>
-                                    <span className="text-sm text-white truncate">{a.title}</span>
-                                </div>
-                                <span className="flex items-center gap-1 text-sm text-blue-400 shrink-0 ml-2"><Eye size={14}/> {a.views_count || 0}</span>
+            <div className="space-y-8 pb-10">
+                {/* Hero */}
+                <div className="dashboard-animate-in relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600/25 via-indigo-600/15 to-violet-600/25 px-6 sm:px-8 py-8 sm:py-10">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.2),transparent)]" />
+                    <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+                    <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                        <div>
+                            <p className="text-sm font-medium text-blue-300/90 uppercase tracking-widest">{greeting}</p>
+                            <h1 className="text-2xl sm:text-4xl font-extrabold text-white mt-1 tracking-tight">Platforma boshqaruvi</h1>
+                            <p className="text-gray-400 mt-2 max-w-xl">Statistika, maqolalar va moliya bo‘yicha barcha ko‘rsatkichlar bir joyda.</p>
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                            <Link to="/articles" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105">
+                                <FileText size={18} /> Maqolalar
                             </Link>
-                        ))}
+                            <Link to="/users" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105">
+                                <Users size={18} /> Foydalanuvchilar
+                            </Link>
+                            <Link to="/financials" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105">
+                                <DollarSign size={18} /> Moliya
+                            </Link>
+                            <Link to="/journal-management" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105">
+                                <BarChart3 size={18} /> Jurnallar
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <h3 className="text-xl font-semibold text-white mb-4">Jurnal administratorlari statistikasi</h3>
-                    <div className="space-y-4">
-                        {users.filter((u: any) => u.role === Role.JournalAdmin || u.role === 'journal_admin').map((admin: any) => {
-                            const mJournalIds = journals.filter((j: any) => j.journal_admin === admin.id || j.journalAdminId === admin.id).map((j: any) => j.id);
-                            const pubCount = validArticles.filter((a: any) => mJournalIds.includes(a.journal) && a.status === 'Published').length;
-                            return (
-                                <Card key={admin.id}>
-                                    <div className="flex items-center">
-                                        <img src={admin.avatar_url || admin.avatarUrl} className="h-12 w-12 rounded-full object-cover" alt={`${admin.firstName || admin.first_name} avatar`}/>
-                                        <div className="ml-4">
-                                            <p className="font-semibold text-white">{admin.firstName || admin.first_name} {admin.lastName || admin.last_name}</p>
-                                            <p className="text-sm text-gray-400">Nashrlar soni: <span className="font-bold text-white">{pubCount}</span></p>
+                {/* KPI */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                    {[
+                        { icon: DollarSign, title: 'Jami tushum', value: `${(totalRevenue / 1000).toFixed(0)}k so'm`, gradient: 'bg-gradient-to-r from-green-500 to-emerald-400', to: '/financials', delay: '0.05s' },
+                        { icon: Users, title: 'Foydalanuvchilar', value: totalUsersCount, gradient: 'bg-gradient-to-r from-indigo-500 to-violet-400', to: '/users', delay: '0.1s' },
+                        { icon: FileText, title: 'Jami maqolalar', value: totalArticlesCount, gradient: 'bg-gradient-to-r from-purple-500 to-pink-400', to: '/articles', delay: '0.15s' },
+                        { icon: CheckCircle, title: 'Nashr etilgan', value: published, gradient: 'bg-gradient-to-r from-cyan-500 to-blue-400', to: '/articles', delay: '0.2s' },
+                    ].map((item, i) => (
+                        <div key={i} className={`dashboard-animate-in dashboard-animate-in-${i + 1}`}>
+                            <StatCard icon={item.icon} title={item.title} value={item.value} gradient={item.gradient} to={item.to} />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="dashboard-animate-in dashboard-animate-in-3 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl shadow-xl">
+                        <div className="h-1.5 bg-gradient-to-r from-blue-500 to-cyan-400" />
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 mb-5">
+                                <div className="p-2.5 rounded-xl bg-blue-500/20">
+                                    <PieChartIcon className="h-6 w-6 text-blue-400" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white">Maqolalar holati</h3>
+                            </div>
+                            <div className="w-full" style={{ minHeight: 256, height: 256 }}>
+                                <ResponsiveContainer width="100%" height={256}>
+                                    <PieChart>
+                                        <Pie data={articleStatusData} cx="50%" cy="50%" innerRadius={58} outerRadius={88} paddingAngle={3} dataKey="value" nameKey="name"
+                                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                                            {articleStatusData.map((entry, index) => (
+                                                <Cell key={index} fill={entry.color} stroke="rgba(0,0,0,0.25)" strokeWidth={2} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value: number) => [value, 'ta']} contentStyle={{ backgroundColor: 'rgba(17,24,39,0.98)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '12px 16px' }} labelStyle={{ color: '#e5e7eb' }} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="flex flex-wrap gap-4 justify-center pt-4 border-t border-white/10">
+                                {[{ l: 'Yangi', c: 'bg-blue-500', v: newSubmissions }, { l: 'Taqrizda', c: 'bg-amber-500', v: inReview }, { l: 'Nashr', c: 'bg-green-500', v: published }, { l: 'Rad', c: 'bg-red-500', v: rejected }].map(({ l, c, v }) => (
+                                    <span key={l} className="inline-flex items-center gap-2 text-sm text-gray-400"><span className={`w-2.5 h-2.5 rounded-full ${c} shadow-sm`} /> {l}: <span className="font-semibold text-white">{v}</span></span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="dashboard-animate-in dashboard-animate-in-4 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl shadow-xl">
+                        <div className="h-1.5 bg-gradient-to-r from-cyan-500 to-blue-500" />
+                        <div className="p-6">
+                            <div className="flex items-center gap-3 mb-5">
+                                <div className="p-2.5 rounded-xl bg-cyan-500/20">
+                                    <BarChart3 className="h-6 w-6 text-cyan-400" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white">Kitob buyurtmalari</h3>
+                            </div>
+                            <div className="w-full" style={{ minHeight: 256, height: 256 }}>
+                                <ResponsiveContainer width="100%" height={256}>
+                                    <BarChart data={bookOrdersData} layout="vertical" margin={{ top: 5, right: 24, left: 0, bottom: 5 }}>
+                                        <XAxis type="number" tick={{ fill: '#9ca3af', fontSize: 11 }} />
+                                        <YAxis type="category" dataKey="name" width={90} tick={{ fill: '#d1d5db', fontSize: 12 }} />
+                                        <Tooltip contentStyle={{ backgroundColor: 'rgba(17,24,39,0.98)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px' }} />
+                                        <Bar dataKey="soni" name="Soni" radius={[0, 6, 6, 0]}>{bookOrdersData.map((entry, index) => (<Cell key={index} fill={entry.fill} />))}</Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <div className="flex justify-between items-center text-sm pt-4 border-t border-white/10">
+                                <span className="text-gray-400">Jami: <span className="font-semibold text-white">{bookOrdersTotal}</span></span>
+                                <span className="font-semibold text-green-400">Tushum: {(bookTotalRevenue / 1000).toFixed(0)}k so'm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Secondary stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    {[
+                        { icon: Inbox, title: 'Yangi kelganlar', value: newSubmissions, gradient: 'bg-gradient-to-r from-blue-500 to-cyan-400', to: '/articles' },
+                        { icon: Clock, title: 'Taqrizda', value: inReview, gradient: 'bg-gradient-to-r from-amber-500 to-orange-400', to: '/articles' },
+                        { icon: Shield, title: 'O‘rtacha plagiat', value: `${avgPlag}%`, gradient: 'bg-gradient-to-r from-orange-500 to-red-400' },
+                        { icon: Bot, title: 'O‘rtacha AI', value: `${avgAi}%`, gradient: 'bg-gradient-to-r from-purple-500 to-pink-400' },
+                    ].map((item, i) => (
+                        <div key={i} className="dashboard-animate-in"><StatCard icon={item.icon} title={item.title} value={item.value} gradient={item.gradient} to={(item as any).to} /></div>
+                    ))}
+                </div>
+
+                {/* Two columns + Recent */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 dashboard-animate-in overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-xl bg-blue-500/20"><Eye className="h-5 w-5 text-blue-400" /></div>
+                            <h3 className="text-lg font-bold text-white">Eng ko‘p ko‘rilgan maqolalar</h3>
+                        </div>
+                        <div className="space-y-2">
+                            {topArticles.length > 0 ? topArticles.map((a: any, i: number) => {
+                                const rankStyle = i === 0 ? 'bg-amber-500/30 text-amber-300 border-amber-500/50' : i === 1 ? 'bg-gray-400/30 text-gray-300 border-gray-400/50' : i === 2 ? 'bg-orange-600/30 text-orange-300 border-orange-500/50' : 'bg-white/10 text-gray-400 border-white/10';
+                                return (
+                                    <Link key={a.id} to={`/articles/${a.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-200 group">
+                                        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold ${rankStyle}`}>{i + 1}</span>
+                                        <span className="flex-1 text-sm text-white truncate group-hover:text-blue-300">{a.title}</span>
+                                        <span className="flex items-center gap-1 text-sm font-medium text-blue-400 shrink-0"><Eye size={14} /> {a.views_count || 0}</span>
+                                    </Link>
+                                );
+                            }) : (
+                                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                                    <FileText className="h-12 w-12 mb-3 opacity-50" />
+                                    <p className="text-sm">Hozircha maqolalar yo‘q</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="dashboard-animate-in overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-xl bg-indigo-500/20"><UserCheck className="h-5 w-5 text-indigo-400" /></div>
+                            <h3 className="text-lg font-bold text-white">Jurnal adminlari</h3>
+                        </div>
+                        <div className="space-y-3">
+                            {journalAdmins.length > 0 ? journalAdmins.map((admin: any) => {
+                                const mJournalIds = journals.filter((j: any) => j.journal_admin === admin.id || j.journalAdminId === admin.id).map((j: any) => j.id);
+                                const pubCount = validArticles.filter((a: any) => mJournalIds.includes(a.journal) && a.status === 'Published').length;
+                                return (
+                                    <div key={admin.id} className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all">
+                                        {admin.avatar_url || admin.avatarUrl ? (
+                                            <img src={admin.avatar_url || admin.avatarUrl} alt="" className="h-11 w-11 rounded-full object-cover ring-2 ring-white/10 hover:ring-indigo-400/50 transition-all" />
+                                        ) : (
+                                            <div className="h-11 w-11 rounded-full bg-indigo-500/30 ring-2 ring-white/10 flex items-center justify-center text-white font-bold text-sm">
+                                                {(admin.first_name || admin.firstName || '?')[0]}{(admin.last_name || admin.lastName || '')[0]}
+                                            </div>
+                                        )}
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-semibold text-white truncate">{admin.first_name || admin.firstName} {admin.last_name || admin.lastName}</p>
+                                            <p className="text-xs text-gray-400">Nashrlar: <span className="text-indigo-300 font-semibold">{pubCount}</span></p>
                                         </div>
                                     </div>
-                                </Card>
-                            );
-                        })}
+                                );
+                            }) : (
+                                <div className="flex flex-col items-center justify-center py-10 text-gray-500">
+                                    <Users className="h-10 w-10 mb-2 opacity-50" />
+                                    <p className="text-sm">Ro‘yxat bo‘sh</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recent transactions + User stats */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="dashboard-animate-in overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-xl bg-emerald-500/20"><Wallet className="h-5 w-5 text-emerald-400" /></div>
+                            <h3 className="text-lg font-bold text-white">So‘ngi to‘lovlar</h3>
+                            <Link to="/financials" className="ml-auto text-sm text-blue-400 hover:text-blue-300 font-medium">Barchasi →</Link>
+                        </div>
+                        <div className="space-y-2">
+                            {recentTx.length > 0 ? recentTx.map((t: any) => {
+                                const isCompleted = t.status === 'completed';
+                                const isFailed = t.status === 'failed' || t.status === 'cancelled';
+                                const isPending = t.status === 'pending';
+                                const amountStr = `${isFailed ? '' : '+'}${Number(t.amount || 0).toLocaleString()} so'm`;
+                                return (
+                                    <div key={t.id} className="flex flex-col gap-1 p-3 rounded-xl bg-white/5">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm text-gray-400">{serviceLabels[t.service_type] || t.service_type}</span>
+                                            <span className={`text-sm font-semibold ${
+                                                isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400'
+                                            }`}>
+                                                {amountStr}
+                                                {isPending && <span className="text-xs font-normal text-gray-500 ml-1">(kutilmoqda)</span>}
+                                            </span>
+                                        </div>
+                                        {isFailed && (
+                                            <p className="text-xs text-red-300/90">Sabab: {t.error_note || 'To\'lov bekor qilindi'}</p>
+                                        )}
+                                    </div>
+                                );
+                            }) : (
+                                <p className="text-center text-gray-500 py-6 text-sm">Tranzaksiyalar yo‘q</p>
+                            )}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <StatCard icon={UserIcon} title="Mualliflar" value={totalAuthors} gradient="bg-gradient-to-r from-blue-500 to-cyan-400" to="/users" />
+                        <StatCard icon={UserCheck} title="Taqrizchilar" value={totalReviewers} gradient="bg-gradient-to-r from-violet-500 to-purple-400" to="/users" />
+                        <StatCard icon={TrendingUp} title="Yuqori plagiat ≥50%" value={highPlag} gradient="bg-gradient-to-r from-red-500 to-rose-400" />
                     </div>
                 </div>
             </div>
@@ -403,23 +886,32 @@ const Dashboard: React.FC = () => {
                             {validTransactions.slice(0, 5).map(transaction => {
                                 const user = users.find(u => u.id === transaction.user);
                                 const userName = user ? `${user.first_name} ${user.last_name}` : 'Noma\'lum foydalanuvchi';
-                                
+                                const isCompleted = transaction.status === 'completed';
+                                const isFailed = transaction.status === 'failed' || transaction.status === 'cancelled';
+                                const isPending = transaction.status === 'pending';
+                                const amountStr = `${isFailed ? '' : '+'}${Number(transaction.amount || 0).toLocaleString()} so'm`;
                                 return (
-                                    <div key={transaction.id} className="p-4 bg-white/5 rounded-lg flex justify-between items-center">
-                                        <div>
-                                            <p className="font-medium text-white">{userName}</p>
-                                            <p className="text-sm text-gray-400">
-                                                {serviceTypeNames[transaction.service_type] || transaction.service_type || 'Noma\'lum xizmat'}
-                                            </p>
+                                    <div key={transaction.id} className="p-4 bg-white/5 rounded-lg">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="font-medium text-white">{userName}</p>
+                                                <p className="text-sm text-gray-400">
+                                                    {serviceTypeNames[transaction.service_type] || transaction.service_type || 'Noma\'lum xizmat'}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className={`font-medium ${isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400'}`}>
+                                                    {amountStr}
+                                                    {isPending && <span className="text-xs font-normal text-gray-500 ml-1">(kutilmoqda)</span>}
+                                                </p>
+                                                <p className="text-xs text-gray-400">
+                                                    {new Date(transaction.created_at).toLocaleDateString()}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className={`font-medium ${transaction.amount >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                                {transaction.amount >= 0 ? '+' : ''}{transaction.amount.toLocaleString()} so'm
-                                            </p>
-                                            <p className="text-xs text-gray-400">
-                                                {new Date(transaction.created_at).toLocaleDateString()}
-                                            </p>
-                                        </div>
+                                        {isFailed && (
+                                            <p className="text-xs text-red-300/90 mt-1">Sabab: {transaction.error_note || 'To\'lov bekor qilindi'}</p>
+                                        )}
                                     </div>
                                 );
                             })}
@@ -462,9 +954,12 @@ const Dashboard: React.FC = () => {
                 
                 <Card title="Tezkor Amallar">
                     <div className="flex flex-wrap gap-4 justify-center">
-                        <Button onClick={() => navigate('/financials')} variant="secondary">
+                        <Link
+                            to="/financials"
+                            className="inline-flex items-center justify-center px-6 py-3 font-semibold rounded-full bg-white/10 text-white hover:bg-white/20 border border-white/10 focus:ring-4 focus:ring-white/30 transition-all duration-200"
+                        >
                             Batafsil Moliyaviy Hisobot <ArrowRight className="ml-2 h-4 w-4"/>
-                        </Button>
+                        </Link>
                     </div>
                 </Card>
             </div>

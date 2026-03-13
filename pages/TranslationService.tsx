@@ -86,27 +86,22 @@ const TranslationService: React.FC = () => {
       
       console.log('Payment result:', result);
       
-      if (result && result.success === true && result.payment_url) {
-        // Close modal first
+      if (result && result.success === true && result.transaction_id) {
         setIsPaymentModalOpen(false);
-        
-        // Show notification
-        addNotification({ 
+        addNotification({
+          message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. QR kodni skanerlang yoki tugmani bosing.',
+        });
+        paymentService.redirectToPaymentPage(result.transaction_id);
+      } else if (result && result.success === true && result.payment_url) {
+        setIsPaymentModalOpen(false);
+        addNotification({
           message: 'To\'lov sahifasiga yo\'naltirilmoqdasiz. To\'lovni tugallang.',
         });
-        
-        // Redirect to Click payment page after short delay
-        setTimeout(() => {
-          if (result.payment_url) {
-            console.log('Redirecting to payment URL:', result.payment_url);
-            paymentService.redirectToPayment(result.payment_url);
-          } else {
-            console.error('Payment URL is missing');
-            setPaymentStatus('failed');
-            setPaymentError("To'lov URL topilmadi. Iltimos, qayta urinib ko'ring.");
-            setIsPaymentModalOpen(true);
-          }
-        }, 500);
+        if (result.transaction_id) {
+          paymentService.redirectToPaymentPage(result.transaction_id);
+        } else {
+          setTimeout(() => paymentService.redirectToPayment(result.payment_url!), 500);
+        }
       } else {
         // Payment preparation failed
         const errorMsg = (result as any)?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";

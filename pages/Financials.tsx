@@ -348,7 +348,10 @@ const Financials: React.FC = () => {
                                 filteredTransactions.map(transaction => {
                                     const user = users.find(u => u.id === transaction.user);
                                     const userName = user ? `${user.first_name} ${user.last_name}` : 'Noma\'lum foydalanuvchi';
-                                    
+                                    const isCompleted = transaction.status === 'completed';
+                                    const isFailed = transaction.status === 'failed' || transaction.status === 'cancelled';
+                                    const amountPrefix = isFailed ? '' : '+';
+                                    const amountColor = isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400';
                                     return (
                                         <tr key={transaction.id} className="hover:bg-white/5 transition-colors">
                                             <td className="px-4 py-4 text-sm text-gray-300">{userName}</td>
@@ -356,8 +359,8 @@ const Financials: React.FC = () => {
                                                 {serviceTypeNames[transaction.service_type] || transaction.service_type || 'Noma\'lum'}
                                             </td>
                                             <td className="px-4 py-4 text-sm font-medium">
-                                                <span className={transaction.amount >= 0 ? 'text-green-400' : 'text-red-400'}>
-                                                    {transaction.amount >= 0 ? '+' : ''}{transaction.amount.toLocaleString()} {transaction.currency}
+                                                <span className={amountColor}>
+                                                    {amountPrefix}{Number(transaction.amount || 0).toLocaleString()} {transaction.currency}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-4 text-sm text-gray-300">
@@ -365,8 +368,11 @@ const Financials: React.FC = () => {
                                             </td>
                                             <td className="px-4 py-4 text-sm">
                                                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[transaction.status] || 'bg-gray-500/20 text-gray-300'}`}>
-                                                    {transaction.status}
+                                                    {transaction.status === 'completed' ? 'Tugallangan' : transaction.status === 'failed' ? 'Bekor qilindi' : transaction.status === 'cancelled' ? 'Bekor qilindi' : transaction.status === 'pending' ? 'Kutilmoqda' : transaction.status}
                                                 </span>
+                                                {isFailed && (transaction.error_note || '') && (
+                                                    <p className="text-xs text-red-300/90 mt-1 max-w-xs truncate" title={transaction.error_note}>Sabab: {transaction.error_note}</p>
+                                                )}
                                             </td>
                                         </tr>
                                     );

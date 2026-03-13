@@ -1,5 +1,6 @@
 // paymentService.ts
-// Click to'lov tizimi integratsiyasi
+// Barcha to'lovlar Click orqali (Ilmiyfaoliyat.uz — bir xil payment sahifa va callback).
+// createTransactionAndPay + redirectToPaymentPage → #/payment/click (QR + tugma).
 
 import { apiService } from './apiService';
 
@@ -128,8 +129,22 @@ class PaymentService {
   }
 
   /**
-   * Redirect user to Click payment page
-   * Uses window.location.replace() to avoid CSP issues and prevent back navigation
+   * Redirect user to our payment page (with QR code + button).
+   * Use this so user can scan QR with phone or click to open Click in browser.
+   */
+  redirectToPaymentPage(transactionId: string): void {
+    if (!transactionId) {
+      console.error('Transaction ID is not available');
+      throw new Error('To\'lov ID topilmadi');
+    }
+    const hash = `#/payment/click?transaction_id=${encodeURIComponent(transactionId)}`;
+    window.location.hash = hash;
+  }
+
+  /**
+   * Redirect user to Click payment page (direct external link).
+   * Uses window.location.replace() to avoid CSP issues and prevent back navigation.
+   * Prefer redirectToPaymentPage(transactionId) so user sees QR code.
    */
   redirectToPayment(paymentUrl: string): void {
     if (!paymentUrl) {
@@ -156,12 +171,6 @@ class PaymentService {
     // 3. Better handling of external redirects
     try {
       console.log('Redirecting to payment URL:', paymentUrl);
-      
-      // Clear any potential CSP-violating content before redirect
-      // This helps avoid CSP errors during redirect
-      if (document.body) {
-        document.body.innerHTML = '';
-      }
       
       // Use replace instead of href to avoid history issues
       // This also helps with CSP compliance
@@ -192,7 +201,8 @@ class PaymentService {
   /**
    * Create transaction and process payment
    * Helper method that creates transaction first, then processes payment
-   * 
+   *
+   * @param extraData - Optional payload (e.g. book_publication: bosma nashr + yetkazib berish manzili)
    * @param provider - Payment provider ('click' or 'payme'), default 'click'
    */
   async createTransactionAndPay(
@@ -201,10 +211,11 @@ class PaymentService {
     serviceType: string,
     articleId?: string,
     translationRequestId?: string,
-    provider: 'click' | 'payme' = 'click'
+    provider: 'click' | 'payme' = 'click',
+    extraData?: Record<string, unknown>
   ): Promise<ProcessPaymentResponse> {
     try {
-      console.log('Creating transaction with data:', { amount, currency, serviceType, articleId, translationRequestId });
+      console.log('Creating transaction with data:', { amount, currency, serviceType, articleId, translationRequestId, extraData });
       
       // Create transaction first - only include defined fields
       const transactionData: any = {
@@ -219,6 +230,9 @@ class PaymentService {
       }
       if (translationRequestId && translationRequestId.trim() !== '') {
         transactionData.translation_request = translationRequestId;
+      }
+      if (extraData && Object.keys(extraData).length > 0) {
+        transactionData.extra_data = extraData;
       }
 
       console.log('Transaction data to send:', transactionData);

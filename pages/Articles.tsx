@@ -1,13 +1,16 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Article, ArticleStatus, Role, TranslationRequest, TranslationStatus, User } from '../types';
+import { Article, ArticleStatus, ARTICLE_STATUS_LABELS, Role, TranslationRequest, TranslationStatus, User } from '../types';
 import Card from '../components/ui/Card';
-import { Search, Rocket, Languages, ArrowRight, FileText, Printer, Loader2, ChevronDown, Check, Filter, X } from 'lucide-react';
+import { Search, Rocket, Languages, ArrowRight, FileText, Printer, Loader2, ChevronDown, Check, Filter, X, Share2, BookOpen, FileDown } from 'lucide-react';
 import Button from '../components/ui/Button';
 import AuthorArticleReport from '../components/AuthorArticleReport';
+import NashrHisobotCertificate, { NashrHisobotData, PublishedArticle } from '../components/NashrHisobotCertificate';
 import { PlagiarismBadges } from '../components/PlagiarismReport';
+import { downloadNashrHisobotDocx } from '../utils/exportNashrHisobotDocx';
 import { apiService } from '../services/apiService';
+import { toast } from 'react-toastify';
 
 // Type for the API response which has different field names
 interface ArticleApiResponse {
@@ -60,6 +63,14 @@ interface JournalApiResponse {
     admin?: { id: string };
 }
 
+/** Get article's journal ID whether API returns string or nested object */
+function getArticleJournalId(a: ArticleApiResponse): string {
+    const j = (a as any).journal;
+    if (typeof j === 'string') return j;
+    if (j && typeof j === 'object' && typeof j.id === 'string') return j.id;
+    return '';
+}
+
 // Convert API response to Article type for AuthorArticleReport
 const convertToArticleType = (apiArticle: ArticleApiResponse): Article => {
     return {
@@ -69,7 +80,8 @@ const convertToArticleType = (apiArticle: ArticleApiResponse): Article => {
         keywords: apiArticle.keywords,
         status: apiArticle.status,
         authorId: apiArticle.author,
-        journalId: apiArticle.journal,
+        journalId: getArticleJournalId(apiArticle),
+        journalName: apiArticle.journal_name,
         submissionDate: apiArticle.submission_date,
         fastTrack: apiArticle.fast_track,
         versions: [],
@@ -91,14 +103,21 @@ const getStatusDisplayData = (status: ArticleStatus | TranslationStatus): { text
         [ArticleStatus.Accepted]: { text: 'Ma\'qullangan', color: 'bg-teal-500/20 text-teal-300' },
         [ArticleStatus.Published]: { text: 'Nashr etilgan', color: 'bg-green-500/20 text-green-300' },
         [ArticleStatus.Rejected]: { text: 'Rad etilgan', color: 'bg-red-500/20 text-red-300' },
+        [ArticleStatus.PlagiarismReview]: { text: 'Antiplagiat ko\'rib chiqish', color: 'bg-amber-500/20 text-amber-300' },
         [ArticleStatus.NashrgaYuborilgan]: { text: 'Nashrga Yuborilgan', color: 'bg-purple-500/20 text-purple-300' },
         [ArticleStatus.WritingInProgress]: { text: 'Yozilmoqda', color: 'bg-cyan-500/20 text-cyan-300' },
-        // FIX: Removed duplicate [TranslationStatus.Yangi] key which has the same value as [ArticleStatus.Yangi]
+        [ArticleStatus.ContractProcessing]: { text: 'Shartnoma rasmiylashtirilmoqda', color: 'bg-amber-500/20 text-amber-300' },
+        [ArticleStatus.IsbnProcessing]: { text: 'ISBN olinmoqda', color: 'bg-amber-500/20 text-amber-300' },
+        [ArticleStatus.AuthorDataVerified]: { text: 'Muallif ma\'lumotlari tasdiqlandi', color: 'bg-teal-500/20 text-teal-300' },
+        [ArticleStatus.PaymentCompleted]: { text: 'To\'lov yakunlandi', color: 'bg-green-500/20 text-green-300' },
         [TranslationStatus.Jarayonda]: { text: 'Jarayonda', color: 'bg-yellow-500/20 text-yellow-300' },
         [TranslationStatus.Bajarildi]: { text: 'Bajarildi', color: 'bg-green-500/20 text-green-300' },
         [TranslationStatus.BekorQilindi]: { text: 'Bekor Qilindi', color: 'bg-red-500/20 text-red-300' },
     };
-    return map[status] || { text: status, color: 'bg-gray-500/20 text-gray-300' };
+    const entry = map[status as ArticleStatus | TranslationStatus];
+    if (entry) return entry;
+    const label = ARTICLE_STATUS_LABELS[status as string] || (status as string);
+    return { text: label, color: 'bg-gray-500/20 text-gray-300' };
 };
 
 const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, isJournalAdmin?: boolean, userId?: string, journalIds?: string[], onStatusUpdate?: () => void }> = ({ 
@@ -118,6 +137,18 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
 
     // Determine if user can update status
     const canUpdateStatus = isAdmin || (isJournalAdmin && journalIds && journalIds.includes(article.journal));
+    const isAuthor = (userId || user?.id) === article.author;
+
+    const handleShare = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const base = window.location.origin + (window.location.pathname || '/');
+        const shareUrl = (base.endsWith('/') ? base : base + '/') + '#/public/article/' + article.id;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            toast.success('Share havolasi nusxalandi. Havolani istalgan kishiga yuboring — unda jurnal linki va sertifikat ko‘rinadi.');
+        }).catch(() => {
+            toast.error('Havolani nusxalashda xatolik.');
+        });
+    };
 
     const handleStatusUpdate = async (newStatus: ArticleStatus) => {
         if (!canUpdateStatus) return;
@@ -192,6 +223,15 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                             <span className={`text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap ${statusData.color}`}>
                                 {statusData.text}
                             </span>
+                            {isAuthor && currentStatus === ArticleStatus.Published && (
+                                <button
+                                    onClick={handleShare}
+                                    className="p-1.5 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-500/30 transition-colors"
+                                    title="Share — jurnal linki va sertifikat havolasini ulashish"
+                                >
+                                    <Share2 size={16} />
+                                </button>
+                            )}
                             {canUpdateStatus && (
                                 <div className="relative">
                                     <button 
@@ -236,8 +276,8 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                 </div>
             </div>
             <p className="text-sm text-gray-400 mt-2 line-clamp-2">{article.abstract}</p>
-            {/* Hide plagiarism badges for authors */}
-            {user?.role !== 'author' && (
+            {/* Antiplagiat foizlari faqat jurnal admin va super admin uchun (muallifda ko'rinmasin) */}
+            {(user?.role === 'journal_admin' || user?.role === 'super_admin' || user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && (
                 <div className="mt-3">
                     <PlagiarismBadges
                         plagiarism={Number(article.plagiarism_percentage ?? 0)}
@@ -295,6 +335,7 @@ const Articles: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState(user?.role === Role.Reviewer ? 'reviews' : isJournalAdmin ? 'new' : 'all');
     const [showReportModal, setShowReportModal] = useState(false);
+    const [showNashrHisobotModal, setShowNashrHisobotModal] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
     const [filterJournal, setFilterJournal] = useState('');
     const [filterPlagiarism, setFilterPlagiarism] = useState('');
@@ -319,9 +360,10 @@ const Articles: React.FC = () => {
         { id: 'new', label: 'Yangi Kelganlar', statuses: [ArticleStatus.Yangi] },
         { id: 'with-editor', label: 'Redaktorda', statuses: [ArticleStatus.WithEditor] },
         { id: 'in-review', label: 'Tekshiruvda', statuses: [ArticleStatus.QabulQilingan] },
+        { id: 'plagiarism-review', label: 'Antiplagiat (bosh admin)', statuses: [ArticleStatus.PlagiarismReview] },
         { id: 'ready', label: 'Nashrga Tayyorlar', statuses: [ArticleStatus.NashrgaYuborilgan] },
         { id: 'published', label: 'Nashr etilgan', statuses: [ArticleStatus.Published] },
-        { id: 'all', label: 'Barcha Maqolalar', statuses: [] }, // All statuses for 'all' tab
+        { id: 'all', label: 'Barcha Maqolalar', statuses: [] },
     ];
 
     let title = "Maqolalar";
@@ -348,46 +390,34 @@ const Articles: React.FC = () => {
     
     const articlesToShow: ArticleApiResponse[] = useMemo(() => {
         if (isJournalAdmin) {
-            // Handle field name differences between backend and frontend
-            // Also handle cases where user ID might be in different fields
-            const userId = user.id || (user as any).userId || (user as any).user_id;
-            
-            const managedJournals = journals.filter(j => {
-                // Check multiple possible field names for journal admin
-                const journalAdminId = j.journal_admin || j.journalAdminId || j.journalAdmin || j.admin_id || (j.admin && j.admin.id);
-                return journalAdminId === userId;
-            });
-            
-            const managedJournalIds = managedJournals.map(j => j.id);
-            
+            // Backend returns only this admin's journals for journal_admin; use all as managed
+            const managedJournalIds = journals.map(j => j.id);
             const selectedTab = journalAdminTabs.find(t => t.id === activeTab);
-            // If no matching tab, return empty array
             if (!selectedTab) return [];
-            
             return articles.filter(a => {
-                const journalMatch = managedJournalIds.includes(a.journal);
-                // For 'all' tab, show all articles regardless of status
-                const statusMatch = selectedTab.id === 'all' || selectedTab?.statuses.includes(a.status as ArticleStatus);
+                const journalId = getArticleJournalId(a);
+                const journalMatch = managedJournalIds.length === 0 || managedJournalIds.includes(journalId);
+                const statusMatch = selectedTab.id === 'all' || (selectedTab.statuses && selectedTab.statuses.includes(a.status as ArticleStatus));
                 return journalMatch && statusMatch;
             }).sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
         }
-        
+        if (user.role === Role.SuperAdmin) {
+            const selectedTab = journalAdminTabs.find(t => t.id === activeTab);
+            if (!selectedTab) return articles;
+            return articles.filter(a => selectedTab.id === 'all' || (selectedTab.statuses && selectedTab.statuses.includes(a.status as ArticleStatus)))
+                .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
+        }
         switch (user.role) {
             case Role.Author:
-                // All articles are already filtered by author on the backend
                 return articles;
             case Role.Reviewer:
-                {
-                    if (activeTab === 'reviews') {
-                        const selectedTab = reviewerTabs.find(t => t.id === activeTab);
-                        return articles
-                            .filter(a => selectedTab?.statuses.includes(a.status as ArticleStatus))
-                            .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
-                    }
-                    return []; // Translations are handled separately
+                if (activeTab === 'reviews') {
+                    const selectedTab = reviewerTabs.find(t => t.id === activeTab);
+                    return articles
+                        .filter(a => selectedTab?.statuses.includes(a.status as ArticleStatus))
+                        .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
                 }
-            case Role.SuperAdmin:
-                return articles;
+                return [];
             default:
                 return [];
         }
@@ -422,7 +452,7 @@ const Articles: React.FC = () => {
         }
 
         if (filterJournal) {
-            result = result.filter(a => a.journal === filterJournal);
+            result = result.filter(a => getArticleJournalId(a) === filterJournal);
         }
 
         if (filterPlagiarism) {
@@ -471,28 +501,29 @@ const Articles: React.FC = () => {
     }, [articles, translations, reviewerTabs]);
 
     const journalAdminTabCounts = useMemo(() => {
-        // Handle field name differences between backend and frontend
-        // Also handle cases where user ID might be in different fields
-        const userId = user.id || (user as any).userId || (user as any).user_id;
-        
-        const managedJournals = journals.filter(j => {
-            // Check multiple possible field names for journal admin
-            const journalAdminId = j.journal_admin || j.journalAdminId || j.journalAdmin || j.admin_id || (j.admin && j.admin.id);
-            return journalAdminId === userId;
-        });
-        
-        const managedJournalIds = managedJournals.map(j => j.id);
+        const managedJournalIds = journals.map(j => j.id);
         return journalAdminTabs.map(tab => {
             let count = 0;
-            if (tab.statuses !== undefined) {  // Check if statuses is defined instead of checking truthiness
+            if (tab.statuses !== undefined) {
                 count = articles.filter(a => {
+                    const journalId = getArticleJournalId(a);
+                    const journalMatch = managedJournalIds.length === 0 || managedJournalIds.includes(journalId);
                     const statusMatch = tab.id === 'all' || (tab.statuses as ArticleStatus[]).includes(a.status);
-                    return statusMatch && managedJournalIds.includes(a.journal);
+                    return journalMatch && statusMatch;
                 }).length;
             }
             return { id: tab.id, count };
         });
-    }, [user, articles, journals, journalAdminTabs]);
+    }, [articles, journals, journalAdminTabs]);
+
+    const superAdminTabCounts = useMemo(() => {
+        return journalAdminTabs.map(tab => {
+            const count = tab.id === 'all'
+                ? articles.length
+                : articles.filter(a => tab.statuses && (tab.statuses as ArticleStatus[]).includes(a.status)).length;
+            return { id: tab.id, count };
+        });
+    }, [articles, journalAdminTabs]);
 
     const fetchData = useCallback(async () => {
         if (!user) return;
@@ -629,27 +660,59 @@ const Articles: React.FC = () => {
             journalAdminIds = managedJournals.map(j => j.id);
         }
 
-        return (
-            <div className="space-y-4">
-                {filteredArticles.length > 0 ? (
-                    filteredArticles.map(article => (
-                        <ArticleItem 
-                            key={article.id} 
-                            article={article} 
-                            isAdmin={isAdmin}
-                            isJournalAdmin={isJournalAdmin}
-                            userId={user.id}
-                            journalIds={journalAdminIds}
-                            onStatusUpdate={fetchData}
-                        />)
-                    )
-                ) : (
+        const renderArticleList = (list: ArticleApiResponse[]) => (
+            list.map(article => (
+                <ArticleItem
+                    key={article.id}
+                    article={article}
+                    isAdmin={isAdmin}
+                    isJournalAdmin={isJournalAdmin}
+                    userId={user.id}
+                    journalIds={journalAdminIds}
+                    onStatusUpdate={fetchData}
+                />
+            ))
+        );
+
+        if (filteredArticles.length === 0) {
+            return (
+                <div className="space-y-4">
                     <p className="text-center text-gray-400 py-8">
-                        {searchQuery 
-                            ? `"${searchQuery}" bo'yicha hech narsa topilmadi.` 
+                        {searchQuery
+                            ? `"${searchQuery}" bo'yicha hech narsa topilmadi.`
                             : "Ushbu bo'limda hozircha maqolalar mavjud emas."}
                     </p>
-                )}
+                </div>
+            );
+        }
+
+        if (isJournalAdmin && journals.length > 1 && !filterJournal) {
+            const byJournal: Record<string, ArticleApiResponse[]> = {};
+            filteredArticles.forEach(a => {
+                const jId = getArticleJournalId(a);
+                if (!byJournal[jId]) byJournal[jId] = [];
+                byJournal[jId].push(a);
+            });
+            const journalOrder = journals.slice();
+            return (
+                <div className="space-y-6">
+                    {journalOrder.filter(j => byJournal[j.id]?.length).map(journal => (
+                        <div key={journal.id}>
+                            <h3 className="text-lg font-semibold text-white mb-3 pb-2 border-b border-white/10">
+                                {journal.name}
+                            </h3>
+                            <div className="space-y-4">
+                                {renderArticleList(byJournal[journal.id])}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        return (
+            <div className="space-y-4">
+                {renderArticleList(filteredArticles)}
             </div>
         );
     }
@@ -658,14 +721,35 @@ const Articles: React.FC = () => {
         <>
             <Card title={title}>
                 {user.role === Role.Author && (
-                    <div className="mb-6 flex justify-end">
+                    <div className="mb-6 flex flex-wrap gap-2 justify-end">
                         <Button onClick={() => setShowReportModal(true)} variant="secondary">
                             <FileText className="mr-2 h-4 w-4" /> Barcha maqolalar bo'yicha ma'lumotnoma
+                        </Button>
+                        <Button onClick={() => setShowNashrHisobotModal(true)} variant="primary">
+                            <BookOpen className="mr-2 h-4 w-4" /> Nashri haqida hisobot
                         </Button>
                     </div>
                 )}
                 {user.role === Role.Reviewer && renderTabs(reviewerTabs, reviewerTabCounts)}
                 {isJournalAdmin && renderTabs(journalAdminTabs, journalAdminTabCounts)}
+                {user.role === Role.SuperAdmin && renderTabs(journalAdminTabs, superAdminTabCounts)}
+
+                {/* Jurnal admin bir nechta jurnalda: jurnal bo'yicha filtrlash (alohida-alohida) */}
+                {isJournalAdmin && journals.length > 1 && (
+                    <div className="mb-4">
+                        <label className="text-xs text-gray-400 mb-2 block">Jurnal bo'yicha</label>
+                        <select
+                            value={filterJournal}
+                            onChange={(e) => setFilterJournal(e.target.value)}
+                            className="w-full sm:w-auto min-w-[200px] bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">Barcha jurnallar</option>
+                            {journals.map((j) => (
+                                <option key={j.id} value={j.id}>{j.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 <div className="flex items-center gap-2 mb-4">
                     <div className="flex-1 flex items-center bg-white/5 border border-white/10 rounded-xl focus-within:border-accent-color focus-within:ring-2 focus-within:ring-accent-color-glow transition-all">
@@ -743,12 +827,79 @@ const Articles: React.FC = () => {
                         </div>
                         <div className="flex-1 overflow-y-auto p-4">
                             <div id="author-report-print-area">
-                                <AuthorArticleReport articles={articlesToShow.map(convertToArticleType)} author={user as User} />
+                                <AuthorArticleReport articles={articles.map(convertToArticleType)} author={user as User} />
                             </div>
                         </div>
                     </div>
                 </div>
             )}
+
+            {showNashrHisobotModal && user && (() => {
+                // Faqat nashr etilgan maqolalarni olamiz
+                const publishedArticles = articlesToShow.filter(a => a.status === ArticleStatus.Published);
+                
+                const nashrHisobotData: NashrHisobotData = {
+                    documentNumber: `HSB-${Date.now().toString(36).toUpperCase()}`,
+                    documentDate: new Date().toLocaleDateString('uz-UZ'),
+                    authorFullName: `${user.lastName || ''} ${user.firstName || ''}`.trim() || user.email,
+                    authorWorkplace: user.affiliation || "Ko'rsatilmagan",
+                    authorPosition: (user as any).degree || (user as any).position || "Muallif",
+                    articles: publishedArticles.map((article, index) => ({
+                        id: index + 1,
+                        title: article.title,
+                        publishName: article.journal_name || 'Noma\'lum jurnal',
+                        publishDate: article.submission_date ? new Date(article.submission_date).toLocaleDateString('uz-UZ') : undefined,
+                        internetLink: `https://ilmiyfaoliyat.uz/public/article/${article.id}`,
+                        coAuthors: [] // API dan kelgan bo'lsa qo'shish mumkin
+                    }))
+                };
+
+                return (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 print:p-0 print:bg-white no-print">
+                        <div className="w-full max-w-6xl h-[95vh] bg-gray-900 rounded-lg shadow-2xl flex flex-col print:max-w-none print:h-auto print:bg-white print:rounded-none print:shadow-none">
+                            <div className="p-4 border-b border-white/10 flex justify-between items-center no-print">
+                                <h3 className="text-lg font-semibold text-white">Maqolalar nashri haqida hisobot</h3>
+                                <div className="flex gap-2">
+                                    <Button
+                                        onClick={async () => {
+                                            try {
+                                                await downloadNashrHisobotDocx(nashrHisobotData);
+                                                toast.success('Hisobot .docx fayl sifatida yuklandi');
+                                            } catch (e) {
+                                                toast.error('Yuklab olishda xatolik');
+                                            }
+                                        }}
+                                        variant="primary"
+                                        className="flex items-center gap-2"
+                                    >
+                                        <FileDown className="h-4 w-4" /> Yuklab olish (.docx)
+                                    </Button>
+                                    <Button onClick={() => window.print()} variant="primary">
+                                        <Printer className="mr-2 h-4 w-4"/> Chop Etish / PDF
+                                    </Button>
+                                    <Button onClick={() => setShowNashrHisobotModal(false)} variant="secondary">
+                                        Yopish
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-6 print:p-0 print:overflow-visible">
+                                {publishedArticles.length > 0 ? (
+                                    <NashrHisobotCertificate data={nashrHisobotData} />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full text-center">
+                                        <BookOpen size={64} className="text-gray-600 mb-4" />
+                                        <h4 className="text-xl font-semibold text-white mb-2">Nashr etilgan maqolalar yo'q</h4>
+                                        <p className="text-gray-400 max-w-md">
+                                            Sizda hali nashr etilgan maqolalar mavjud emas. 
+                                            Maqolangiz nashr etilgandan so'ng bu yerda hisobot yaratishingiz mumkin bo'ladi.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
         </>
     );
 };

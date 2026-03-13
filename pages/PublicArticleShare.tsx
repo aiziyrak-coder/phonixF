@@ -82,56 +82,65 @@ const PublicArticleShare: React.FC = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-10">
-      <Card title="Nashr etilgan maqola">
-        <div className="space-y-5">
-          <div>
-            <h2 className="text-2xl font-bold text-white leading-snug">{article.title}</h2>
-            <p className="text-sm text-gray-400 mt-2">
-              Muallif: <span className="text-gray-200">{article.author_name || 'Noma’lum'}</span>
-            </p>
-            <p className="text-sm text-gray-400">
-              Jurnal: <span className="text-gray-200">{article.journal_name || 'Noma’lum'}</span>
-            </p>
-            {article.doi && (
-              <p className="text-sm text-gray-400">
-                DOI: <span className="text-gray-200">{article.doi}</span>
+    <div className="min-h-screen bg-gray-950 py-10 px-4">
+      <div className="max-w-2xl mx-auto">
+        <Card title="Nashr etilgan maqola">
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-white leading-snug">{article.title}</h2>
+              <p className="text-sm text-gray-400 mt-1">
+                Muallif: <span className="text-gray-200">{article.author_name || 'Noma’lum'}</span>
+                {' · '}
+                Jurnal: <span className="text-gray-200">{article.journal_name || 'Noma’lum'}</span>
               </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <a
-              href={article.publication_link || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={article.publication_link ? '' : 'pointer-events-none opacity-50'}
-            >
-              <Button variant="secondary" className="w-full justify-center">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Nashr internet havolasi
-              </Button>
-            </a>
-
-            <a
-              href={article.certificate_download_link || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={article.certificate_download_link ? '' : 'pointer-events-none opacity-50'}
-              download
-            >
-              <Button variant="secondary" className="w-full justify-center">
-                <Download className="mr-2 h-4 w-4" />
-                Sertifikatni yuklash
-              </Button>
-            </a>
-          </div>
-
-          {(!article.publication_link || !article.certificate_download_link) && (
-            <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-200 text-sm">
-              Ba'zi ma'lumotlar hali to‘ldirilmagan bo‘lishi mumkin.
+              {article.doi && (
+                <p className="text-sm text-gray-400 mt-0.5">DOI: <span className="text-gray-200">{article.doi}</span></p>
+              )}
             </div>
-          )}
+
+            {/* Jurnal linki va sertifikat — share sahifasining asosiy qismi */}
+            <div className="rounded-xl bg-white/5 border border-white/10 p-4 space-y-4">
+              <h3 className="text-sm font-semibold text-gray-300">Nashr natijalari</h3>
+              {article.publication_link ? (
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Maqola chop etilgan jurnal havolasi</p>
+                  <a
+                    href={article.publication_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium"
+                  >
+                    <ExternalLink size={18} />
+                    Jurnal havolasini ochish
+                  </a>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">Jurnal havolasi hali kiritilmagan.</p>
+              )}
+              {article.certificate_download_link ? (
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Nashr sertifikati</p>
+                  <a
+                    href={article.certificate_download_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium"
+                    download
+                  >
+                    <Download size={18} />
+                    Sertifikatni yuklab olish
+                  </a>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">Sertifikat hali yuklanmagan.</p>
+              )}
+            </div>
+
+            {(!article.publication_link && !article.certificate_download_link) && (
+              <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-200 text-sm">
+                Nashr havolasi va sertifikat hali to‘ldirilmagan.
+              </div>
+            )}
 
           <div className="pt-2">
             <h3 className="text-lg font-semibold text-white mb-3">Antiplagiat tarixi</h3>
@@ -163,8 +172,9 @@ const PublicArticleShare: React.FC = () => {
               </Button>
             </Link>
           </div>
-        </div>
-      </Card>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };

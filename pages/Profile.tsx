@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { User, Mail, Phone, Building, Award, Hash, Edit, CreditCard } from 'lucide-react';
+import { User, Mail, Phone, Building, Award, Hash, Edit, CreditCard, Archive } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import { paymentService } from '../services/paymentService';
 import { toast } from 'react-toastify';
 
 const Profile: React.FC = () => {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<any>({});
     const [processingPayment, setProcessingPayment] = useState(false);
-
     useEffect(() => {
         const fetchProfile = async () => {
             if (!user) return;
@@ -91,16 +92,17 @@ const Profile: React.FC = () => {
 
             console.log('Payment result:', result);
 
-            // Check if payment was successful
-            if (result && result.success === true && result.payment_url) {
-                toast.success('To\'lov sahifasiga yo\'naltirilmoqdasiz...', { autoClose: 2000 });
-                
-                // Redirect to payment page after short delay
-                setTimeout(() => {
-                    if (result.payment_url) {
-                        paymentService.redirectToPayment(result.payment_url);
-                    }
-                }, 1500);
+            // Check if payment was successful — QR kodli to'lov sahifasiga yo'naltirish
+            if (result && result.success === true && result.transaction_id) {
+                toast.success('To\'lov sahifasiga yo\'naltirilmoqdasiz. QR kodni skanerlang yoki tugmani bosing.', { autoClose: 2000 });
+                paymentService.redirectToPaymentPage(result.transaction_id);
+            } else if (result && result.success === true && (result.payment_url || result.transaction_id)) {
+                toast.success('To\'lov sahifasiga yo\'naltirilmoqdasiz. QR kodni skanerlang.', { autoClose: 2000 });
+                if (result.transaction_id) {
+                    paymentService.redirectToPaymentPage(result.transaction_id);
+                } else if (result.payment_url) {
+                    setTimeout(() => paymentService.redirectToPayment(result.payment_url), 1500);
+                }
             } else {
                 // Payment failed - show error message
                 let errorMsg = 'To\'lovni amalga oshirishda xatolik yuz berdi';
@@ -399,6 +401,17 @@ const Profile: React.FC = () => {
                     </div>
                 </div>
             </Card>
+
+            {profile.role === 'author' && (
+                <Card title="Arxiv hujjatlar">
+                    <p className="text-gray-400 text-sm mb-3">
+                        Barcha maqolalar, UDK ma&apos;lumotnomalar, nashr sertifikatlari va taqriz natijalari alohida sahifada.
+                    </p>
+                    <Button variant="secondary" onClick={() => navigate('/arxiv')}>
+                        <Archive className="mr-2 h-4 w-4" /> Arxiv hujjatlar sahifasiga o&apos;tish
+                    </Button>
+                </Card>
+            )}
             
             {profile.gamification_profile && (
                 <Card title="Gamifikatsiya">

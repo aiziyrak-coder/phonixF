@@ -29,11 +29,11 @@ const PaymentTest: React.FC = () => {
 
       setResult(response);
 
-      if (response.success && response.payment_url) {
-        // Show success message
+      if (response.success && response.transaction_id) {
+        toast.success('To\'lov sahifasiga o\'tmoqdasiz. QR kodni skanerlang yoki tugmani bosing.');
+        paymentService.redirectToPaymentPage(response.transaction_id);
+      } else if (response.success && response.payment_url) {
         toast.success('To\'lov sahifasiga o\'tmoqdasiz...');
-        
-        // Redirect to payment page after short delay
         setTimeout(() => {
           paymentService.redirectToPayment(response.payment_url!);
         }, 1000);

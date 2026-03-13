@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
     return {
       server: {
         port: 3000,
+        strictPort: true,
         host: '0.0.0.0',
         fs: {
           // Allow serving files from one level up to the project root

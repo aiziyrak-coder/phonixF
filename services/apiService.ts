@@ -35,6 +35,24 @@ const removeToken = () => {
   localStorage.removeItem('refresh_token');
 };
 
+/** Build user-visible message from API 400 body (detail string or DRF field errors object). */
+function formatApiErrorMessage(error: Record<string, unknown>, status: number): string {
+  const detail = error.detail;
+  if (typeof detail === 'string' && detail) return detail;
+  if (typeof detail === 'object' && detail !== null) {
+    const parts = Object.entries(detail as Record<string, unknown>).map(([k, v]) =>
+      `${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`
+    );
+    if (parts.length) return parts.join('; ');
+  }
+  // DRF returns { "field": ["msg"] } without "detail"
+  const fieldParts = Object.entries(error)
+    .filter(([k]) => k !== 'detail' && k !== 'message')
+    .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : String(v)}`);
+  if (fieldParts.length) return fieldParts.join('; ');
+  return (error.message as string) || `API request failed with status ${status}`;
+}
+
 // Base fetch with authentication
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const token = getToken();
@@ -66,8 +84,10 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     // Handle 401 Unauthorized - token expired
     if (response.status === 401) {
       removeToken();
+      const err: any = new Error('Sizning sessiyangiz muddati tugagan. Iltimos, qayta kiring.');
+      err.status = 401;
       window.location.href = '/#/login';
-      throw new Error('Sizning sessiyangiz muddati tugagan. Iltimos, qayta kiring.');
+      throw err;
     }
 
     if (!response.ok) {
@@ -115,7 +135,9 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     }
   } catch (error: any) {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
-    if (!isProduction) {
+    const isSessionExpired = error?.status === 401 || error?.message?.includes('sessiya');
+    const isForbiddenExpected = error?.status === 403 && (error?.message?.includes('huquq') || error?.message?.includes('egasiz'));
+    if (!isProduction && !isSessionExpired && !isForbiddenExpected) {
       console.error(`[API] Request failed:`, fullUrl, error?.message || error);
     }
     
@@ -180,6 +202,9 @@ export const apiService = {
 
     getProfile: () => apiFetch('/auth/profile/'),
 
+    /** Muallifning arxiv hujjatlari: maqolalar, UDK, sertifikatlar, taqriz natijalari. */
+    getArchive: () => apiFetch('/auth/archive/'),
+
     updateProfile: (userData: any) =>
       apiFetch('/auth/update_profile/', {
         method: 'PUT',
@@ -211,13 +236,32 @@ export const apiService = {
       apiFetch(`/auth/${id}/`, {
         method: 'DELETE',
       }),
+
+    /** User activity, stats and history (super_admin only). */
+    activity: (id: string) => apiFetch(`/auth/${id}/activity/`),
       
     stats: () => apiFetch('/auth/stats/'),
   },
 
   // Articles
   articles: {
-    list: (params?: any) => {
+    /** Maqola namuna: 1 bet narxlari (quyi/orta/yuqori). */
+    getArticleSamplePrice: () => apiFetch('/articles/article-sample/price/'),
+    /** Maqola namuna so'rovi yaratadi, tranzaksiya qaytaradi (to'lov sahifasiga yo'naltirish uchun). */
+    createArticleSampleRequest: (data: {
+      requirements: string;
+      pages: number;
+      topic: string;
+      quality_level: 'quyi' | 'orta' | 'yuqori';
+      first_name: string;
+      last_name: string;
+    }) =>
+      apiFetch('/articles/article-sample/request/', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    list: (params?: Record<string, string>) => {
       const query = params ? `?${new URLSearchParams(params)}` : '';
       return apiFetch(`/articles/${query}`);
     },
@@ -368,6 +412,12 @@ export const apiService = {
       }
     },
 
+    patch: (id: string, data: Partial<Record<string, unknown>>) =>
+      apiFetch(`/articles/${id}/`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
+
     delete: (id: string) =>
       apiFetch(`/articles/${id}/`, {
         method: 'DELETE',
@@ -393,6 +443,63 @@ export const apiService = {
       apiFetch(`/articles/${id}/check_plagiarism/`, {
         method: 'POST',
       }),
+
+    /** Nashr qilish: sertifikat yuklash, status Published, muallifga bildirishnoma */
+    completePublication: (id: string, formData: FormData) =>
+      fetch(`${API_BASE_URL}/articles/${id}/complete_publication/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: formData,
+      }).then(async (r) => {
+        const text = await r.text();
+        if (!r.ok) {
+          let err: { error?: string; detail?: string } = {};
+          try {
+            err = JSON.parse(text);
+          } catch {
+            err = { detail: text };
+          }
+          throw Object.assign(
+            new Error((err as any).error || (err as any).detail || 'Xatolik'),
+            { status: r.status, response: err }
+          );
+        }
+        return text ? JSON.parse(text) : {};
+      }),
+  },
+
+  // DOI raqami olish
+  doi: {
+    price: () => apiFetch('/articles/doi/price/'),
+    request: (formData: FormData) =>
+      fetch(`${API_BASE_URL}/articles/doi/request/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: formData,
+      }).then(async (r) => {
+        const text = await r.text();
+        if (!r.ok) {
+          let err: any;
+          try {
+            err = JSON.parse(text);
+          } catch {
+            err = { detail: text };
+          }
+          throw Object.assign(new Error(err.detail || 'Xatolik'), { status: r.status, response: err });
+        }
+        return text ? JSON.parse(text) : {};
+      }),
+    list: () => apiFetch('/articles/doi/requests/'),
+    updateLink: (id: string, doi_link: string) =>
+      apiFetch(`/articles/doi/requests/${id}/`, {
+        method: 'PATCH',
+        body: JSON.stringify({ doi_link }),
+      }),
+  },
+
+  /** Maqola namuna so'rovlari (taqrizchi: barcha, muallif: o'zini) */
+  articleSample: {
+    list: () => apiFetch('/articles/article-sample/requests/'),
   },
 
   // Journals
@@ -554,6 +661,8 @@ export const apiService = {
       }),
     
     listIssues: () => apiFetch('/journals/issues/'),
+    /** Public issue data for share link (no auth required). */
+    getPublicIssue: (id: string) => apiFetch(`/journals/issues/${id}/public/`),
     
     createIssue: async (issueData: any, collectionFile?: File) => {
       if (collectionFile) {
@@ -595,13 +704,14 @@ export const apiService = {
         
         if (!response.ok) {
           const errorText = await response.text();
-          let error;
+          let error: Record<string, unknown>;
           try {
-            error = JSON.parse(errorText);
+            error = JSON.parse(errorText) as Record<string, unknown>;
           } catch (e) {
             error = { detail: errorText || 'Unknown error' };
           }
-          throw new Error(error.detail || error.message || `API request failed with status ${response.status}`);
+          const message = formatApiErrorMessage(error, response.status);
+          throw new Error(message);
         }
         
         const text = await response.text();
@@ -661,13 +771,13 @@ export const apiService = {
         
         if (!response.ok) {
           const errorText = await response.text();
-          let error;
+          let error: Record<string, unknown>;
           try {
-            error = JSON.parse(errorText);
+            error = JSON.parse(errorText) as Record<string, unknown>;
           } catch (e) {
             error = { detail: errorText || 'Unknown error' };
           }
-          throw new Error(error.detail || error.message || `API request failed with status ${response.status}`);
+          throw new Error(formatApiErrorMessage(error, response.status));
         }
         
         const text = await response.text();
@@ -719,6 +829,124 @@ export const apiService = {
       apiFetch(`/payments/transactions/${id}/check_status/`, {
         method: 'POST',
       }),
+  },
+
+  // UDC (UDK) — Universal Decimal Classification, teacode.com + O'zbekiston
+  udc: {
+    price: () => apiFetch('/udc/price/'),
+    root: () => apiFetch('/udc/root/'),
+    children: (path: string) => apiFetch(`/udc/children/?path=${encodeURIComponent(path)}`),
+    search: (q: string, limit?: number) =>
+      apiFetch(`/udc/search/?q=${encodeURIComponent(q)}${limit != null ? `&limit=${limit}` : ''}`),
+    /** Maqola uchun (article_id) yoki mustaqil mavzu/fayl (title, abstract, author_name majburiy; file ixtiyoriy). */
+    requestDocument: (data: {
+      article_id?: string;
+      udk_code?: string;
+      udk_description?: string;
+      title?: string;
+      abstract?: string;
+      author_name?: string;
+      file?: File;
+    }) => {
+      if (data.article_id) {
+        return apiFetch('/udc/request-document/', {
+          method: 'POST',
+          body: JSON.stringify({ article_id: data.article_id, udk_code: data.udk_code, udk_description: data.udk_description }),
+        });
+      }
+      const title = (data.title || '').trim();
+      const author_name = (data.author_name || '').trim();
+      if (!title) throw new Error('Mavzu (title) majburiy.');
+      if (!author_name) throw new Error('Ism, familya, otchestva majburiy.');
+      if (data.file) {
+        const form = new FormData();
+        form.append('title', title);
+        form.append('abstract', data.abstract || '');
+        form.append('author_name', author_name);
+        form.append('file', data.file);
+        return apiFetch('/udc/request-document/', { method: 'POST', body: form });
+      }
+      return apiFetch('/udc/request-document/', {
+        method: 'POST',
+        body: JSON.stringify({ title, abstract: data.abstract || '', author_name }),
+      });
+    },
+    myCertificates: () => apiFetch('/udc/my-certificates/'),
+    /** Standalone UDK ma'lumotnomani yuklab olish (auth bilan). */
+    downloadCertificate: async (id: number): Promise<void> => {
+      const token = getToken();
+      const res = await fetch(`${API_BASE_URL}/udc/certificates/${id}/download/`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error('Yuklab olishda xatolik');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `udk_malumotnoma_${id}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    // UDK Request endpoints (DOI kabi workflow)
+    /** UDK so'rovlari ro'yxati - taqrizchi barcha, muallif faqat o'zini */
+    requests: {
+      list: () => apiFetch('/udc/requests/'),
+      /** Yangi UDK so'rovi yaratish */
+      create: (data: {
+        author_first_name: string;
+        author_last_name: string;
+        author_middle_name?: string;
+        title: string;
+        abstract: string;
+        file?: File;
+      }) => {
+        if (data.file) {
+          const form = new FormData();
+          form.append('author_first_name', data.author_first_name);
+          form.append('author_last_name', data.author_last_name);
+          if (data.author_middle_name) form.append('author_middle_name', data.author_middle_name);
+          form.append('title', data.title);
+          form.append('abstract', data.abstract);
+          form.append('file', data.file);
+          return apiFetch('/udc/request/', { method: 'POST', body: form });
+        }
+        return apiFetch('/udc/request/', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
+      },
+      /** UDK so'rovni yakunlash (taqrizchi) */
+      complete: (id: string, udk_code: string, udk_description?: string) =>
+        apiFetch(`/udc/requests/${id}/complete/`, {
+          method: 'PATCH',
+          body: JSON.stringify({ udk_code, udk_description }),
+        }),
+      /** UDK so'rovni rad etish (taqrizchi) */
+      reject: (id: string, reject_reason?: string) =>
+        apiFetch(`/udc/requests/${id}/reject/`, {
+          method: 'PATCH',
+          body: JSON.stringify({ reject_reason }),
+        }),
+    },
+    /** Service prices management (bosh admin uchun) */
+    servicePrices: {
+      list: () => apiFetch('/udc/service-prices/'),
+      get: (id: number) => apiFetch(`/udc/service-prices/${id}/`),
+      create: (data: { service_key: string; label: string; amount: number }) =>
+        apiFetch('/udc/service-prices/', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      update: (id: number, data: { amount?: number; label?: string }) =>
+        apiFetch(`/udc/service-prices/${id}/`, {
+          method: 'PATCH',
+          body: JSON.stringify(data),
+        }),
+      delete: (id: number) =>
+        apiFetch(`/udc/service-prices/${id}/`, {
+          method: 'DELETE',
+        }),
+    },
   },
 
   // Translations

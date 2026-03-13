@@ -5,7 +5,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Role } from '../types';
 // FIX: Import DollarSign icon and add Accountant role to sidebar links.
-import { LayoutDashboard, FileText, Upload, Users, Library, UserCircle, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages, BookOpen, FilePlus } from 'lucide-react';
+import { LayoutDashboard, FileText, Upload, Users, Library, UserCircle, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages, BookOpen, FilePlus, FolderArchive, Bot, TrendingUp } from 'lucide-react';
 
 type NavLinkItem = {
     to: string;
@@ -16,17 +16,20 @@ type NavLinkItem = {
 const sidebarLinks: Record<Role, NavLinkItem[]> = {
     [Role.Author]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
-        { to: '/articles', icon: FileText, label: 'Maqolalarim' },
-        { to: '/author-publications', icon: BookOpen, label: 'Muallif nashrlari' },
-        { to: '/my-collections', icon: Archive, label: 'To\'plamlarim' },
-        { to: '/my-translations', icon: Languages, label: 'Tarjimalarim' },
+        { to: '/submit', icon: Upload, label: 'Maqola yuborish' },
         { to: '/services', icon: Sparkles, label: 'Xizmatlar' },
+        { to: '/my-collections', icon: Archive, label: 'To\'plamlarim' },
+        { to: '/articles', icon: FileText, label: 'Maqolalarim' },
+        { to: '/my-translations', icon: Languages, label: 'Tarjimalarim' },
+        { to: '/arxiv', icon: FolderArchive, label: 'Arxiv hujjatlar' },
+        { to: '/author-publications', icon: BookOpen, label: 'Muallif nashrlari' },
         { to: '/profile', icon: UserCircle, label: 'Profilim' },
     ],
     [Role.Reviewer]: [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Ishchi stol' },
         { to: '/articles', icon: FileText, label: 'Taqrizga kelganlar' },
-        { to: '/author-publications', icon: BookOpen, label: 'Muallif nashrlari' },
+        { to: '/doi-requests', icon: Bot, label: 'DOI so\'rovlari' },
+        { to: '/udk-requests', icon: Library, label: 'UDK so\'rovlari' },
         { to: '/profile', icon: UserCircle, label: 'Profilim' },
     ],
     [Role.JournalAdmin]: [
@@ -41,9 +44,11 @@ const sidebarLinks: Record<Role, NavLinkItem[]> = {
         { to: '/users', icon: Users, label: 'Foydalanuvchilar' },
         { to: '/articles', icon: FileText, label: 'Barcha maqolalar' },
         { to: '/journal-management', icon: BookMarked, label: 'Jurnallar' },
+        { to: '/prices', icon: DollarSign, label: 'Narxlar' },
         { to: '/author-publications', icon: BookOpen, label: 'Muallif nashrlari' },
         { to: '/financials', icon: DollarSign, label: 'Moliya' },
-        { to: '/udk-requests', icon: Library, label: 'UDK so\'rovlari' },
+        { to: '/article-sample-requests', icon: FileText, label: 'Maqola namuna so\'rovlari' },
+        { to: '/doi-requests', icon: Bot, label: 'DOI so\'rovlari' },
         { to: '/profile', icon: UserCircle, label: 'Profilim' },
     ],
     [Role.Accountant]: [

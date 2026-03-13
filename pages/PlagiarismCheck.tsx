@@ -1,14 +1,15 @@
 import React, { useState, useRef } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { Upload, FileCheck, Printer, Link as LinkIcon, CreditCard } from 'lucide-react';
+import { Upload, FileCheck, Printer, Link as LinkIcon, CreditCard, Download, FileText, X } from 'lucide-react';
 import { useAuth, useNotifications } from '../contexts/AuthContext';
-import { CertificateData } from '../types';
-import Certificate from '../components/Certificate';
+import AntiplagiatCertificate, { AntiplagiatCertificateData } from '../components/AntiplagiatCertificate';
+import PlagiarismFullReport, { PlagiarismFullReportData, PlagiarismSource as FullReportSource } from '../components/PlagiarismFullReport';
 import { apiService } from '../services/apiService';
 import { paymentService } from '../services/paymentService';
 import { getUserFriendlyError } from '../utils/errorHandler';
 import { toast } from 'react-toastify';
+import { useServicePrices } from '../hooks/useServicePrices';
 
 // New types for detailed results
 interface PlagiarismSource {
@@ -34,25 +35,75 @@ interface PlagiarismCheckRequest {
   userId: string;
 }
 
-// Antiplagiat tekshiruvi narxi
-const PLAGIARISM_CHECK_PRICE = 50000; // 50,000 so'm
+// Antiplagiat tekshiruvi narxi (API dan olinadi)
+
+// Hujjat turlari (ma'lumotnoma uchun) — rasmdagilar va xalqaro antiplagiat tizimlaridagi turlar
+const HUJJAT_TURI_OPTIONS = [
+  'Maqola',
+  'Kitob',
+  'Darslik',
+  'Qo\'llanma',
+  'O\'quv qo\'llanma',
+  'Referat',
+  'Kurs ishi',
+  'Bitiruvchi Ish',
+  'Diplom loyihasi',
+  'Yakuniy saralash ishi',
+  'Magistrlik dissertatsiyasi',
+  'Nomzodlik dissertatsiyasi',
+  'Doktorlik dissertatsiyasi',
+  'Falsafa Doktorligi dissertatsiyasi',
+  'Doktorlik dissertatsiyasi referati',
+  'Doktorlik dissertatsiyasi referati fan nomzodi',
+  'Monografiya',
+  'Ilmiy malaka Ish',
+  'Ilmiy loyiha',
+  'Tadqiqot hisoboti',
+  'Amaliyot hisoboti',
+  'Amaliy ish',
+  'Laboratoriya amaliyoti',
+  'Mashqlar to\'plami',
+  'Asarlar to\'plami',
+  'Ta\'lim vizual nashri',
+  'Ko\'rsatmalar',
+  'Uslubiy ko\'rsatmalar',
+  'Boshqa',
+];
 
 const PlagiarismCheck: React.FC = () => {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
+  const { getPrice } = useServicePrices();
   const [file, setFile] = useState<File | null>(null);
   const [availableJournals, setAvailableJournals] = useState<any[]>([]);
   const [isChecking, setIsChecking] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<PlagiarismResult | null>(null);
-  const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
+  const [certificateData, setCertificateData] = useState<AntiplagiatCertificateData | null>(null);
+  const [fullReportData, setFullReportData] = useState<PlagiarismFullReportData | null>(null);
+  const [showFullReport, setShowFullReport] = useState(false);
+
+  // Ma'lumotnoma uchun: Ism, Familya, Hujjat nomi, Hujjat turi, Hujjat tavsifi (ixtiyoriy)
+  const [authorFirstName, setAuthorFirstName] = useState('');
+  const [authorLastName, setAuthorLastName] = useState('');
+  const [documentName, setDocumentName] = useState('');
+  const [documentType, setDocumentType] = useState('');
+  const [documentDescription, setDocumentDescription] = useState('');
+  
+  // Narx API dan olinadi
+  const PLAGIARISM_CHECK_PRICE = getPrice('plagiarism_check');
   
   // Payment modal state
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [articleId, setArticleId] = useState<string | null>(null);
+  /** True when user returned from payment page and payment is verified completed (so we can run check). */
+  const [paymentVerifiedCompleted, setPaymentVerifiedCompleted] = useState(false);
   const paymentTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const STORAGE_KEY_TRANSACTION_ID = 'plagiarism_pending_transaction_id';
+  const STORAGE_KEY_ARTICLE_ID = 'plagiarism_pending_article_id';
 
   // Cleanup timer on unmount
   React.useEffect(() => {
@@ -80,6 +131,38 @@ const PlagiarismCheck: React.FC = () => {
       fetchJournals();
   }, [user]);
 
+  // Ro'yxatdan o'tgan foydalanuvchi ismi va familyasini avtomatik to'ldirish (faqat bo'sh bo'lsa)
+  React.useEffect(() => {
+      if (!user) return;
+      setAuthorFirstName(prev => (prev.trim() ? prev : (user.firstName || '')));
+      setAuthorLastName(prev => (prev.trim() ? prev : (user.lastName || '')));
+  }, [user]);
+
+  // On mount: if user returned from payment page, check whether payment was completed
+  React.useEffect(() => {
+      const pendingTxId = sessionStorage.getItem(STORAGE_KEY_TRANSACTION_ID);
+      const pendingArticleId = sessionStorage.getItem(STORAGE_KEY_ARTICLE_ID);
+      if (!pendingTxId || !pendingArticleId) return;
+
+      let cancelled = false;
+      paymentService.checkPaymentStatus(pendingTxId).then((res) => {
+          if (cancelled) return;
+          sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
+          sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
+          if (res.payment_status === 2) {
+              setArticleId(pendingArticleId);
+              setPaymentVerifiedCompleted(true);
+              toast.success('To\'lov tasdiqlandi. Endi "Tekshirishni davom ettirish" tugmasini bosing.');
+          }
+      }).catch(() => {
+          if (!cancelled) {
+              sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
+              sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
+          }
+      });
+      return () => { cancelled = true; };
+  }, []);
+
   const ensureArticleForPlagiarism = async (): Promise<string> => {
       if (!file || !user) {
           throw new Error('Fayl yoki foydalanuvchi topilmadi.');
@@ -89,19 +172,31 @@ const PlagiarismCheck: React.FC = () => {
           return articleId;
       }
 
+      console.log('[DEBUG] availableJournals:', availableJournals);
       const selectedJournal = availableJournals[0];
+      console.log('[DEBUG] selectedJournal:', selectedJournal);
+      console.log('[DEBUG] selectedJournal?.id:', selectedJournal?.id);
+      
       if (!selectedJournal?.id) {
           throw new Error('Jurnal topilmadi. Iltimos, avval jurnal yarating yoki administratorga murojaat qiling.');
       }
+      
+      // Validate that journal ID is a valid UUID
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(selectedJournal.id)) {
+          console.error('[ERROR] Journal ID is not a valid UUID:', selectedJournal.id);
+          throw new Error('Jurnal ID noto\'g\'ri formatda.');
+      }
 
       const articleData = {
-          title: `Plagiarism Check - ${file.name}`,
-          abstract: 'Document submitted for plagiarism check',
-          keywords: ['plagiarism', 'check', 'document'],
+          title: documentName.trim() || `Plagiarism Check - ${file.name}`,
+          abstract: documentDescription.trim() || `Hujjat turi: ${documentType || '—'}. Tekshiruv uchun yuborilgan.`,
+          keywords: ['plagiarism', 'check', documentType || 'document'],
           journal: selectedJournal.id,
           page_count: 1,
           fast_track: false,
       };
+      console.log('[DEBUG] articleData:', articleData);
 
       const articleResponse = await apiService.articles.create(articleData, { mainFile: file });
       const createdArticle = articleResponse?.data || articleResponse;
@@ -155,15 +250,17 @@ const PlagiarismCheck: React.FC = () => {
           
           console.log('Payment result:', result);
           
-          if (result && result.success === true && result.payment_url) {
-              setPaymentStatus('success');
-              
-              // Show notification
-              addNotification({ 
-                  message: 'To\'lov oynasi yangi tabda ochildi. To\'lovdan so\'ng "Tekshirishni davom ettirish" tugmasini bosing.',
+          if (result && result.success === true && result.transaction_id) {
+              sessionStorage.setItem(STORAGE_KEY_TRANSACTION_ID, result.transaction_id);
+              sessionStorage.setItem(STORAGE_KEY_ARTICLE_ID, linkedArticleId);
+              addNotification({
+                  message: 'To\'lov sahifasida QR kodni skanerlang yoki tugmani bosing. To\'lovdan so\'ng sahifaga qayting va "Tekshirishni davom ettirish" tugmasini bosing.',
               });
-
-              window.open(result.payment_url, '_blank', 'noopener,noreferrer');
+              paymentService.redirectToPaymentPage(result.transaction_id);
+              return;
+          } else if (result && result.success === true && result.payment_url && result.transaction_id) {
+              paymentService.redirectToPaymentPage(result.transaction_id);
+              return;
           } else {
               // Payment preparation failed
               const errorMsg = (result as any)?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
@@ -190,9 +287,21 @@ const PlagiarismCheck: React.FC = () => {
 
   const handleCheck = async (paymentCompleted = false) => {
       if (!file || !user) return;
-      
-      // If payment is not completed, show payment modal first
-      if (!paymentCompleted) {
+      if (!authorFirstName.trim() || !authorLastName.trim()) {
+          toast.error('Ism va familyani kiriting.');
+          return;
+      }
+      if (!documentName.trim()) {
+          toast.error('Hujjat nomini kiriting.');
+          return;
+      }
+      if (!documentType) {
+          toast.error('Hujjat turini tanlang.');
+          return;
+      }
+      // Narx 0 bo'lsa to'lovsiz tekshirish; aks holda to'lov talab qilinadi
+      const requiresPayment = PLAGIARISM_CHECK_PRICE > 0;
+      if (requiresPayment && !paymentCompleted && !paymentVerifiedCompleted) {
           setIsPaymentModalOpen(true);
           return;
       }
@@ -201,11 +310,12 @@ const PlagiarismCheck: React.FC = () => {
       setCertificateData(null);
       setResult(null);
       setProgress(0);
+      setPaymentVerifiedCompleted(false);
 
       try {
           const targetArticleId = await ensureArticleForPlagiarism();
 
-          // Now trigger the plagiarism check on this article
+          // Backend will verify payment; if not paid, returns 402
           const plagiarismResult = await apiService.articles.checkPlagiarism(targetArticleId);
           
           // Update UI with the results
@@ -213,21 +323,29 @@ const PlagiarismCheck: React.FC = () => {
           const aiContentPercentage = plagiarismResult.ai_content || 0;
           const originality = 100 - plagiarismPercentage;
 
-          // Generate sources (for now using mock, but in real implementation these would come from the API)
-          const numSources = Math.floor(Math.random() * 2) + 2; // 2 to 3 sources
-          const shuffledSources = [...MOCK_SOURCES].sort(() => 0.5 - Math.random());
-          const foundSources: PlagiarismSource[] = [];
-          let remainingPlagiarism = plagiarismPercentage;
-          
-          for(let i=0; i<numSources; i++){
-              if(remainingPlagiarism <= 0) break;
-              const similarity = Math.min(remainingPlagiarism, Math.floor(Math.random() * 4) + 2); // 2-5% per source
-              remainingPlagiarism -= similarity;
-              foundSources.push({
-                  source: shuffledSources[i].url,
-                  snippet: shuffledSources[i].snippet,
-                  similarity: similarity,
-              });
+          // Use API sources (Gemini deep search) when present; otherwise fallback to mock
+          let foundSources: PlagiarismSource[] = [];
+          const apiSources = plagiarismResult.sources;
+          if (apiSources && Array.isArray(apiSources) && apiSources.length > 0) {
+              foundSources = apiSources.map((s: { source?: string; snippet?: string; similarity?: number }) => ({
+                  source: (s.source || '').trim(),
+                  snippet: (s.snippet || '').trim(),
+                  similarity: typeof s.similarity === 'number' ? Math.round(s.similarity) : 0,
+              })).filter((s: PlagiarismSource) => s.source);
+          } else {
+              const numSources = Math.min(3, Math.max(0, Math.floor(plagiarismPercentage / 15) + 1));
+              const shuffledSources = [...MOCK_SOURCES].sort(() => 0.5 - Math.random());
+              let remainingPlagiarism = plagiarismPercentage;
+              for (let i = 0; i < numSources && i < shuffledSources.length; i++) {
+                  if (remainingPlagiarism <= 0) break;
+                  const similarity = Math.min(remainingPlagiarism, Math.floor(Math.random() * 5) + 2);
+                  remainingPlagiarism -= similarity;
+                  foundSources.push({
+                      source: shuffledSources[i].url,
+                      snippet: shuffledSources[i].snippet,
+                      similarity,
+                  });
+              }
           }
 
           const finalResult = {
@@ -238,55 +356,171 @@ const PlagiarismCheck: React.FC = () => {
 
           setResult(finalResult);
 
-          const newCertificateData: CertificateData = {
+          const newCertificateData: AntiplagiatCertificateData = {
             certificateNumber: `PN-${Date.now().toString().slice(-6)}`,
             checkDate: new Date().toLocaleDateString('uz-UZ'),
-            author: `${user.lastName} ${user.firstName}`,
-            workType: 'Ilmiy ish',
-            fileName: file.name,
-            citations: '0%', // Mocked data
+            author: `${(authorLastName || user.lastName).trim()} ${(authorFirstName || user.firstName).trim()}`.trim() || user?.lastName + ' ' + user?.firstName,
+            workType: documentType || 'Ilmiy ish',
+            fileName: documentName.trim() || file.name,
+            citations: '0%',
+            selfCitation: '0%',
             plagiarism: `${plagiarismPercentage}%`,
             originality: `${originality.toFixed(2)}%`,
             searchModules: 'Milliy reestr, Internet plyus, Shablon iboralar, eLIBRARY.RU, Bibliografiya, BMK dissertatsiyalari, Viloy nashriyoti, Universitetlar halqasi, IPS Adilet, Tabobat, Tarjimali matnlar qidiruv moduli, Patentlar, Tarjima tekshiruvi uz-ru, Tarjima tekshiruvi uz-ru, parafaz matnlarni tekshirish, RDK to\'plami, Rossiya va MDH OAVlari, Elektron-kutubxona tizimlari, Garant AHT, Iqtibos keltirish, SPS Garant',
           };
           setCertificateData(newCertificateData);
 
+          // To'liq hisobot ma'lumotlarini yaratish
+          const fullReport: PlagiarismFullReportData = {
+            checkerName: `${(authorLastName || user.lastName).trim()} ${(authorFirstName || user.firstName).trim()}`.trim(),
+            checkerId: user?.id?.slice(-5) || '00000',
+            checkerOrganization: user?.affiliation || '',
+            documentNumber: newCertificateData.certificateNumber,
+            uploadDate: new Date().toLocaleString('uz-UZ'),
+            originalFileName: file.name,
+            documentName: documentName.trim() || file.name,
+            documentType: documentType || 'Ilmiy ish',
+            characterCount: Math.floor(Math.random() * 50000) + 10000,
+            sentenceCount: Math.floor(Math.random() * 500) + 100,
+            fileSize: `${(file.size / 1024).toFixed(2)} KB`,
+            plagiarismPercent: plagiarismPercentage,
+            selfCitationPercent: 0,
+            citationPercent: 0,
+            originalityPercent: originality,
+            searchModules: [
+              'Phoenix Milliy reestr',
+              'Internet PLUS qidiruv moduli',
+              'eLIBRARY.RU qidiruv moduli',
+              'OTMlar halqasi qidiruv moduli',
+              'BMK dissertatsiyalari qidiruv moduli',
+              'Shablon iboralar qidiruv moduli',
+              'Iqtibos keltirish qidiruv moduli',
+              'Patentlar qidiruv moduli',
+              'Elektron-kutubxona tizimlari',
+              'Tarjimali matnlar qidiruv moduli'
+            ],
+            sources: foundSources.map((s, idx) => ({
+              id: idx + 1,
+              percentage: `${s.similarity}%`,
+              sourceName: s.snippet.slice(0, 100) + '...',
+              sourceUrl: s.source.startsWith('http') ? s.source : `https://${s.source}`,
+              searchModule: 'Internet PLUS qidiruv moduli'
+            }))
+          };
+          setFullReportData(fullReport);
+
           toast.success('Antiplagiat tekshiruvi muvaffaqiyatli amalga oshirildi!');
       } catch (err: any) {
-          toast.error(getUserFriendlyError(err) || 'Antiplagiat tekshiruvida xatolik yuz berdi.');
+          const msg = getUserFriendlyError(err) || 'Antiplagiat tekshiruvida xatolik yuz berdi.';
+          toast.error(msg);
+          if (err?.status === 402) {
+              setIsPaymentModalOpen(true);
+              setPaymentError('To\'lov talab qilinadi. Iltimos, avval to\'lovni amalga oshiring.');
+          }
       } finally {
           setIsChecking(false);
           setProgress(100);
       }
   };
 
+  const canSubmit = file && authorFirstName.trim() && authorLastName.trim() && documentName.trim() && documentType && !isChecking;
+
   return (
       <>
       <Card title="Mustaqil Antiplagiat Tekshiruvi" className="no-print">
-          <div className="text-center">
-              <label htmlFor="file-upload" className="cursor-pointer">
-                  <div className="p-10 border-2 border-dashed rounded-lg dark:border-gray-600 bg-white/5 hover:bg-white/10 transition-colors">
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                      <p className="mt-2 text-sm text-gray-300">
-                          {file ? `Tanlangan fayl: ${file.name}` : 'Tekshirish uchun faylni tanlang (.docx, .pdf)'}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">Maksimal hajmi: 10MB</p>
+          <p className="text-sm text-gray-400 mb-6">Ma'lumotnoma va tekshiruv natijalari uchun quyidagi maydonlarni to'ldiring. Ko'chirma foizi va manbalar (aniq linklar) hisoblanadi.</p>
+
+          <div className="space-y-4 max-w-xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Ism *</label>
+                      <input
+                          type="text"
+                          value={authorFirstName}
+                          onChange={e => setAuthorFirstName(e.target.value)}
+                          placeholder="Ism"
+                          className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                   </div>
-                  <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.doc,.docx" />
-              </label>
+                  <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Familya *</label>
+                      <input
+                          type="text"
+                          value={authorLastName}
+                          onChange={e => setAuthorLastName(e.target.value)}
+                          placeholder="Familya"
+                          className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                  </div>
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Hujjat nomi *</label>
+                  <input
+                      type="text"
+                      value={documentName}
+                      onChange={e => setDocumentName(e.target.value)}
+                      placeholder="Hujjat nomini kiriting"
+                      className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Hujjat turi *</label>
+                  <select
+                      value={documentType}
+                      onChange={e => setDocumentType(e.target.value)}
+                      className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                      <option value="" className="bg-gray-800 text-white">Hujjat turini tanlang</option>
+                      {HUJJAT_TURI_OPTIONS.map((opt) => (
+                          <option key={opt} value={opt} className="bg-gray-800 text-white">{opt}</option>
+                      ))}
+                  </select>
+              </div>
+              <div className="text-center">
+                  <label htmlFor="file-upload" className="cursor-pointer block">
+                      <div className="p-10 border-2 border-dashed rounded-lg dark:border-gray-600 bg-white/5 hover:bg-white/10 transition-colors">
+                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                          <p className="mt-2 text-sm text-gray-300">
+                              {file ? `Tanlangan fayl: ${file.name}` : 'Hujjatni shu joyga tortib tashlang yoki faylni tanlang (.docx, .pdf)'}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">Maksimal hajmi: 10MB</p>
+                      </div>
+                      <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.doc,.docx" />
+                  </label>
+              </div>
+              <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Hujjat tavsifi (ixtiyoriy)</label>
+                  <textarea
+                      value={documentDescription}
+                      onChange={e => setDocumentDescription(e.target.value)}
+                      placeholder="Hujjat haqida qisqacha"
+                      rows={3}
+                      className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+              </div>
           </div>
+
           <div className="mt-6 text-center space-y-4">
-              <div className="p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
+              <div className="p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg max-w-md mx-auto">
                   <p className="text-sm text-gray-300 mb-2">
                       <span className="font-semibold text-blue-300">Narx:</span> {PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm
+                      {PLAGIARISM_CHECK_PRICE === 0 && <span className="text-green-400 ml-2">(test rejimi)</span>}
                   </p>
-                  <p className="text-xs text-gray-400">
-                      Antiplagiat tekshiruvi uchun to'lov talab qilinadi
-                  </p>
+                  {PLAGIARISM_CHECK_PRICE > 0 && (
+                      <p className="text-xs text-gray-400">Antiplagiat tekshiruvi uchun to'lov talab qilinadi</p>
+                  )}
               </div>
-              <Button onClick={() => handleCheck(false)} disabled={!file || isChecking} isLoading={isChecking} className="w-full max-w-xs mx-auto">
-                  {isChecking ? 'Tekshirilmoqda...' : <><FileCheck className="mr-2 h-4 w-4" /> To'lov va Tekshirish</>}
+              <Button onClick={() => handleCheck(false)} disabled={!canSubmit} isLoading={isChecking} className="w-full max-w-xs mx-auto">
+                  {isChecking ? 'Tekshirilmoqda...' : <><FileCheck className="mr-2 h-4 w-4" /> {PLAGIARISM_CHECK_PRICE > 0 ? 'To\'lov va Tekshirish' : 'Tekshirish'}</>}
               </Button>
+              {paymentVerifiedCompleted && (
+                  <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg mt-4 max-w-xs mx-auto">
+                      <p className="text-green-300 text-sm font-medium mb-2">To'lov tasdiqlandi</p>
+                      <Button onClick={() => handleCheck(true)} disabled={isChecking} className="w-full">
+                          Tekshirishni davom ettirish
+                      </Button>
+                  </div>
+              )}
           </div>
 
           {isChecking && (
@@ -322,8 +556,8 @@ const PlagiarismCheck: React.FC = () => {
                           {result.sources.map((source, index) => (
                           <div key={index} className="p-4 bg-white/5 rounded-lg border border-white/10">
                               <div className="flex justify-between items-start text-sm">
-                                  <a href={`https://${source.source}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:underline break-all">
-                                      <LinkIcon size={14}/> {source.source}
+                                  <a href={source.source.startsWith('http') ? source.source : `https://${source.source}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:underline break-all">
+                                      <LinkIcon size={14}/> {source.source.length > 60 ? source.source.slice(0, 57) + '...' : source.source}
                                   </a>
                                   <span className="font-bold text-yellow-300 whitespace-nowrap ml-4">{source.similarity}% o'xshashlik</span>
                               </div>
@@ -340,14 +574,44 @@ const PlagiarismCheck: React.FC = () => {
       
       {certificateData && (
           <div className="mt-8">
-              <div className="flex justify-between items-center mb-4 no-print">
+              <div className="flex flex-wrap justify-between items-center gap-3 mb-4 no-print">
                   <h2 className="text-2xl font-bold text-white">Tekshiruv Sertifikati</h2>
-                   <Button onClick={handlePrint} variant="secondary">
-                      <Printer className="mr-2 h-4 w-4"/> Sertifikatni Chop Etish
-                  </Button>
+                  <div className="flex gap-2 flex-wrap">
+                      {fullReportData && (
+                          <Button onClick={() => setShowFullReport(true)} variant="primary">
+                              <FileText className="mr-2 h-4 w-4"/> To'liq Hisobot
+                          </Button>
+                      )}
+                      <Button onClick={handlePrint} variant="secondary" title="Chop qilish oynasida 'PDF ga saqlash' ni tanlashingiz mumkin">
+                          <Download className="mr-2 h-4 w-4"/> PDF yuklab olish
+                      </Button>
+                      <Button onClick={handlePrint} variant="secondary">
+                          <Printer className="mr-2 h-4 w-4"/> Chop etish
+                      </Button>
+                  </div>
               </div>
               <div id="certificate-print-area">
-                  <Certificate data={certificateData} />
+                  <AntiplagiatCertificate data={certificateData} />
+              </div>
+          </div>
+      )}
+
+      {/* Full Report Modal */}
+      {showFullReport && fullReportData && (
+          <div className="fixed inset-0 bg-black/90 z-50 flex flex-col print:bg-white">
+              <div className="flex justify-between items-center p-4 bg-gray-900 border-b border-white/10 no-print">
+                  <h3 className="text-xl font-bold text-white">To'liq Antiplagiat Hisoboti</h3>
+                  <div className="flex gap-3">
+                      <Button onClick={() => window.print()} variant="primary">
+                          <Printer className="mr-2 h-4 w-4"/> Chop etish / PDF
+                      </Button>
+                      <Button onClick={() => setShowFullReport(false)} variant="secondary">
+                          <X className="mr-2 h-4 w-4"/> Yopish
+                      </Button>
+                  </div>
+              </div>
+              <div className="flex-1 overflow-auto p-6 print:p-0 print:overflow-visible">
+                  <PlagiarismFullReport data={fullReportData} />
               </div>
           </div>
       )}

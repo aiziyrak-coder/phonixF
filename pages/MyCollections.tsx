@@ -3,7 +3,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
-import { Archive, Download, BookOpen, Loader2 } from 'lucide-react';
+import { Archive, Download, BookOpen, Loader2, Share2 } from 'lucide-react';
 
 const MyCollections: React.FC = () => {
     const { user } = useAuth();
@@ -46,20 +46,39 @@ const MyCollections: React.FC = () => {
     const myPublishedArticlesIds = useMemo(() => {
         if (!user) return [];
         return articles
-            .filter(a => a.author === user.id && a.status === 'published')
+            .filter(a => a.author === user.id && a.status === 'Published')
             .map(a => a.id);
     }, [user, articles]);
 
     const myCollections = useMemo(() => {
         return issues
             .filter(issue => {
-                // Ensure issue.articles exists and is an array
                 const articlesArray = Array.isArray(issue.articles) ? issue.articles : [];
-                return articlesArray.some((articleId: string) => myPublishedArticlesIds.includes(articleId)) && 
-                    issue.collection_url;
+                const hasMyArticle = articlesArray.some((articleId: string) => myPublishedArticlesIds.includes(articleId));
+                const hasDownload = !!(issue.collection_url || issue.collection_file_url);
+                return hasMyArticle && hasDownload;
             })
             .sort((a, b) => new Date(b.publication_date).getTime() - new Date(a.publication_date).getTime());
     }, [issues, myPublishedArticlesIds]);
+
+    const getPublicCollectionLink = (issueId: string) => {
+        const base = window.location.origin + window.location.pathname;
+        return (base.endsWith('/') ? base : base + '/') + '#/public/collection/' + issueId;
+    };
+
+    const handleShareCollection = async (issueId: string) => {
+        const link = getPublicCollectionLink(issueId);
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(link);
+                alert('To\'plam havolasi nusxalandi. Havolani istalgan kishiga yuboring.');
+            } else {
+                window.prompt('Havolani nusxalang:', link);
+            }
+        } catch {
+            window.prompt('Havolani nusxalang:', link);
+        }
+    };
 
     if (!user) {
         return <Card title="Xatolik"><p>Foydalanuvchi topilmadi.</p></Card>;
@@ -109,13 +128,27 @@ const MyCollections: React.FC = () => {
                                             Nashr sanasi: {new Date(issue.publication_date).toLocaleDateString()}
                                         </p>
                                     </div>
-                                    {issue.collection_url && (
-                                        <a href={issue.collection_url} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                                            <Button variant="secondary" className="w-full">
-                                                <Download className="mr-2 h-4 w-4" /> To'plamni Yuklash
-                                            </Button>
-                                        </a>
-                                    )}
+                                    <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                                        {(issue.collection_file_url || issue.collection_url) && (
+                                            <a
+                                                href={issue.collection_file_url || issue.collection_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-block"
+                                            >
+                                                <Button variant="secondary" className="w-full sm:w-auto">
+                                                    <Download className="mr-2 h-4 w-4" /> To'plamni Yuklash
+                                                </Button>
+                                            </a>
+                                        )}
+                                        <Button
+                                            variant="secondary"
+                                            className="w-full sm:w-auto"
+                                            onClick={() => handleShareCollection(issue.id)}
+                                        >
+                                            <Share2 className="mr-2 h-4 w-4" /> Ulashish
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         )

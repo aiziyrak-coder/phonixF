@@ -90,6 +90,36 @@
     100% { background-position: 0% 50%; }
   }
 
+  /* Dashboard premium animations */
+  @keyframes dashboardFadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes dashboardGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+    50% { box-shadow: 0 0 32px rgba(59, 130, 246, 0.25); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .dashboard-animate-in {
+    animation: dashboardFadeInUp 0.6s ease-out both;
+  }
+  .dashboard-animate-in-1 { animation-delay: 0.05s; }
+  .dashboard-animate-in-2 { animation-delay: 0.1s; }
+  .dashboard-animate-in-3 { animation-delay: 0.15s; }
+  .dashboard-animate-in-4 { animation-delay: 0.2s; }
+  .dashboard-animate-in-5 { animation-delay: 0.25s; }
+  .dashboard-animate-in-6 { animation-delay: 0.3s; }
+  .dashboard-card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .dashboard-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.08);
+  }
+
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
@@ -123,6 +153,12 @@
       outline: none !important;
       border-color: var(--accent-color) !important;
       box-shadow: 0 0 0 3px var(--accent-color-glow), 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  /* Dark dropdown list for native select (Rol, Tashkilot filters, etc.) */
+  select option {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
   }
 
   .phone-input-group {

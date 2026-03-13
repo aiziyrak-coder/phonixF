@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { CreditCard, Loader, CheckCircle, XCircle } from 'lucide-react';
+import { CreditCard, Loader, CheckCircle, XCircle, QrCode } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import { toast } from 'react-toastify';
 
@@ -15,26 +16,18 @@ const ClickPayment: React.FC = () => {
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
     const [error, setError] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [transaction, setTransaction] = useState<any>(null);
 
     useEffect(() => {
         if (transactionId) {
             loadPaymentUrl();
+            apiService.payments.getTransaction(transactionId).then((tx) => setTransaction(tx)).catch(() => {});
         } else {
             setError('Transaction ID topilmadi');
         }
     }, [transactionId]);
 
-    // Payment URL tayyor bo'lganda avtomatik ochish
-    useEffect(() => {
-        if (paymentUrl && status === 'success') {
-            // 2 soniyadan keyin avtomatik ochish (user ko'rish uchun)
-            const timer = setTimeout(() => {
-                window.location.href = paymentUrl;
-            }, 2000);
-            
-            return () => clearTimeout(timer);
-        }
-    }, [paymentUrl, status]);
+    // Avtomatik yo'naltirish o'chirildi — foydalanuvchi QR orqali skanerlab to'lashi yoki tugma orqali ochishi mumkin
 
     const loadPaymentUrl = async () => {
         if (!transactionId) return;
@@ -45,8 +38,9 @@ const ClickPayment: React.FC = () => {
         try {
             const response = await apiService.payments.processPayment(transactionId, 'click');
             
-            if (response.success && response.payment_url) {
-                setPaymentUrl(response.payment_url);
+            const url = response.payment_url;
+            if (url && typeof url === 'string') {
+                setPaymentUrl(url);
                 setStatus('success');
             } else {
                 setError(response.error || response.error_note || 'To\'lov URL olinmadi');
@@ -62,10 +56,17 @@ const ClickPayment: React.FC = () => {
 
     const handlePayment = () => {
         if (paymentUrl) {
-            // Click sahifasini to'g'ridan-to'g'ri ochish
-            // User u yerda karta ma'lumotlarini kiritadi
-            window.location.href = paymentUrl;
+            window.open(paymentUrl, '_blank', 'noopener,noreferrer');
         }
+    };
+
+    const refreshTransaction = async () => {
+        if (!transactionId) return;
+        try {
+            const tx = await apiService.payments.getTransaction(transactionId);
+            setTransaction(tx);
+            if (tx?.status === 'completed') toast.success('To\'lov tasdiqlandi.');
+        } catch (_) {}
     };
 
     return (
@@ -98,23 +99,69 @@ const ClickPayment: React.FC = () => {
                         <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
                             <div className="flex items-center gap-2 text-green-300 mb-2">
                                 <CheckCircle className="h-5 w-5" />
-                                <p className="font-semibold">To'lov sahifasi tayyor!</p>
+                                <p className="font-semibold">Click to&apos;lov sahifasi tayyor</p>
                             </div>
                             <p className="text-sm text-gray-400">
-                                Quyidagi tugmani bosib, Click to'lov sahifasiga o'ting va karta ma'lumotlarini kiriting.
+                                QR kodni skanerlang yoki tugma orqali Click rasmiy to&apos;lov sahifasiga o&apos;ting (my.click.uz).
                             </p>
                         </div>
 
-                        <Button
-                            onClick={handlePayment}
-                            className="w-full flex items-center justify-center gap-2"
-                        >
-                            <CreditCard className="h-5 w-5" />
-                            To'lovni Amalga Oshirish
-                        </Button>
-                        
-                        <div className="text-sm text-gray-400 text-center p-3 bg-gray-800/50 rounded-lg">
-                            <p>ℹ️ Click to'lov sahifasida karta raqami va muddatini kiriting</p>
+                        {/* QR kod — Click to'lov linki (Установка кнопки оплаты, Вариант 1) */}
+                        <div className="flex flex-col items-center p-4 bg-white rounded-xl">
+                            <p className="text-gray-700 text-sm font-medium mb-3 flex items-center gap-2">
+                                <QrCode className="h-4 w-4" />
+                                QR kod — telefonda to&apos;lash
+                            </p>
+                            <QRCodeSVG
+                                value={paymentUrl}
+                                size={240}
+                                level="M"
+                                bgColor="#ffffff"
+                                fgColor="#0f172a"
+                                includeMargin={true}
+                                className="rounded-lg"
+                            />
+                            <p className="text-gray-700 text-xs mt-3 text-center max-w-[280px] font-medium">
+                                Telefonda to&apos;lov uchun: <strong>Click ilovasini</strong> oching → «QR orqali to&apos;lash» yoki kamerani shu QR ga qarating. To&apos;lov to&apos;g&apos;ridan-to&apos;g&apos;ri Click ilovasida ochiladi (veb emas).
+                            </p>
+                            <p className="text-gray-500 text-xs mt-1 text-center max-w-[280px]">
+                                Ilova o&apos;rnatilgan bo&apos;lsa, telefon kamerasi orqali skanerlanganda ham tizim Click ilovasini ochishi mumkin.
+                            </p>
+                        </div>
+
+                        <div className="border-t border-white/10 pt-4">
+                            <p className="text-sm text-gray-400 text-center mb-3">Yoki kompyuterdan — Click sahifasini ochish:</p>
+                            <Button
+                                onClick={handlePayment}
+                                className="w-full flex items-center justify-center gap-2"
+                            >
+                                <CreditCard className="h-5 w-5" />
+                                Click orqali to&apos;lash (sahifa yangi tabda ochiladi)
+                            </Button>
+                        </div>
+
+                        {transaction?.status === 'completed' && transaction?.udk_certificate_url && (
+                            <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
+                                <p className="font-semibold text-green-300 mb-2">UDK tasdiqlangan ma&apos;lumotnoma tayyor</p>
+                                <a
+                                    href={transaction.udk_certificate_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-sm text-green-400 hover:underline"
+                                >
+                                    Ma&apos;lumotnomani yuklab olish
+                                </a>
+                            </div>
+                        )}
+
+                        <div className="flex justify-center gap-2">
+                            <button
+                                type="button"
+                                onClick={refreshTransaction}
+                                className="text-sm text-gray-400 hover:text-white"
+                            >
+                                To&apos;lovni tekshirish
+                            </button>
                         </div>
 
                         <div className="text-center">

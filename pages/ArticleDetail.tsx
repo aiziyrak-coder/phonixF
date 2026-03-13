@@ -3,11 +3,12 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
-import { Role, ArticleStatus, ActivityLogEvent, SubmissionCertificateData } from '../types';
+import { Role, ArticleStatus, ActivityLogEvent } from '../types';
 import { Check, X, Award, UploadCloud, BookOpen, Download, Edit, Send, GitCommit, UserCheck, FileCheck2, BookUp, XCircle, Clock, FileInput, CheckCircle, Shield, Bot, ExternalLink, Printer, Eye, FileText, Inbox, RefreshCw } from 'lucide-react';
 import PlagiarismReport, { PlagiarismReportData } from '../components/PlagiarismReport';
-import SubmissionCertificate from '../components/SubmissionCertificate';
+import QabulCertificate, { QabulCertificateData } from '../components/QabulCertificate';
 import { apiService } from '../services/apiService';
+import { toast } from 'react-toastify';
 
 // Type for the API response which has different field names
 interface ArticleApiResponse {
@@ -27,6 +28,7 @@ interface ArticleApiResponse {
     submission_date: string;
     fast_track: boolean;
     file_url?: string;
+    final_pdf_path?: string;
     views: number;
     downloads: number;
     activity_logs?: ActivityLogEvent[];
@@ -34,6 +36,8 @@ interface ArticleApiResponse {
     ai_content_percentage?: number;
     plagiarism_checked_at?: string | null;
     plagiarism_report?: PlagiarismReportData | null;
+    publication_link?: string;
+    certificate_download_link?: string;
 }
 
 const ArticleDetail: React.FC = () => {
@@ -45,8 +49,17 @@ const ArticleDetail: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [activityLogs, setActivityLogs] = useState<ActivityLogEvent[]>([]);
     const [showCertificate, setShowCertificate] = useState(false);
-    const [certificateData, setCertificateData] = useState<SubmissionCertificateData | null>(null);
+    const [certificateData, setCertificateData] = useState<QabulCertificateData | null>(null);
     const [showPdfPreview, setShowPdfPreview] = useState(false);
+    const [publicationCertificateFile, setPublicationCertificateFile] = useState<File | null>(null);
+    const [publicationUrl, setPublicationUrl] = useState('');
+    const [publicationIssueId, setPublicationIssueId] = useState<string>('');
+    const [completePublicationLoading, setCompletePublicationLoading] = useState(false);
+    const [journalIssues, setJournalIssues] = useState<{ id: string; issue_number: string; journal: string }[]>([]);
+    const [showRevisionModal, setShowRevisionModal] = useState(false);
+    const [revisionReason, setRevisionReason] = useState('');
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectReason, setRejectReason] = useState('');
 
     useEffect(() => {
         const fetchArticleData = async () => {
@@ -67,13 +80,14 @@ const ArticleDetail: React.FC = () => {
                 
                 // Set certificate data
                 setCertificateData({
-                    referenceNumber: `REF-${articleData.id.substring(0, 8).toUpperCase()}`,
-                    issueDate: new Date().toISOString(),
-                    authorFullName: `${user.firstName} ${user.lastName}`,
-                    authorAffiliation: user.affiliation,
-                    articleTitle: articleData.title,
+                    certificateNumber: `QBL-${articleData.id.substring(0, 8).toUpperCase()}`,
+                    issueDate: new Date().toLocaleDateString('uz-UZ'),
+                    author: `${user.lastName} ${user.firstName}`,
+                    workType: 'Ilmiy maqola',
+                    workTitle: articleData.title,
                     journalName: articleData.journal_name || 'Noma\'lum jurnal',
-                    submissionDate: articleData.submission_date || new Date().toISOString(),
+                    organization: user.affiliation || 'Noma\'lum tashkilot',
+                    publishDate: articleData.submission_date ? new Date(articleData.submission_date).toLocaleDateString('uz-UZ') : undefined,
                     currentStatus: articleData.status_label || articleData.status,
                     articleId: articleData.id
                 });
@@ -87,6 +101,21 @@ const ArticleDetail: React.FC = () => {
 
         fetchArticleData();
     }, [id, user]);
+
+    useEffect(() => {
+        if (article?.status !== ArticleStatus.Accepted || !article?.journal) return;
+        const fetchIssues = async () => {
+            try {
+                const list = await apiService.journals.listIssues();
+                const data = Array.isArray(list) ? list : (list as any)?.results ?? [];
+                const forJournal = data.filter((i: { journal: string }) => i.journal === article.journal);
+                setJournalIssues(forJournal);
+            } catch {
+                setJournalIssues([]);
+            }
+        };
+        fetchIssues();
+    }, [article?.status, article?.journal]);
 
     const handleStatusUpdate = async (status: ArticleStatus, reason?: string) => {
         if (!id) return;
@@ -103,13 +132,101 @@ const ArticleDetail: React.FC = () => {
         }
     };
 
+    const handleRevisionSubmit = async () => {
+        const trimmed = revisionReason.trim();
+        if (!trimmed) {
+            toast.error('Tahrirga qaytarish sababini yozing.');
+            return;
+        }
+        if (!id) return;
+        setShowRevisionModal(false);
+        try {
+            await apiService.articles.updateStatus(id, ArticleStatus.Revision, trimmed);
+            toast.success('Maqola tahrirga qaytarildi. Muallifga bildirishnoma yuborildi.');
+            setRevisionReason('');
+            const articleResponse = await apiService.articles.get(id);
+            const articleData = articleResponse.data || articleResponse;
+            setArticle(articleData);
+            const logs = Array.isArray(articleData.activity_logs) ? articleData.activity_logs : [];
+            setActivityLogs(logs);
+        } catch (err) {
+            console.error('Failed to send revision:', err);
+            toast.error('Tahrirga qaytarishda xatolik.');
+        }
+    };
+
+    const handleRejectSubmit = async () => {
+        const trimmed = rejectReason.trim();
+        if (!trimmed) {
+            toast.error('Rad etish sababini yozing.');
+            return;
+        }
+        if (!id) return;
+        setShowRejectModal(false);
+        try {
+            await apiService.articles.updateStatus(id, ArticleStatus.Rejected, trimmed);
+            toast.success('Maqola rad etildi. Muallifga bildirishnoma yuborildi.');
+            setRejectReason('');
+            const articleResponse = await apiService.articles.get(id);
+            const articleData = articleResponse.data || articleResponse;
+            setArticle(articleData);
+            const logs = Array.isArray(articleData.activity_logs) ? articleData.activity_logs : [];
+            setActivityLogs(logs);
+        } catch (err) {
+            console.error('Failed to reject article:', err);
+            toast.error('Rad etishda xatolik.');
+        }
+    };
+
+    const handleCompletePublication = async () => {
+        if (!id || !publicationCertificateFile) {
+            toast.error('Sertifikat faylini (PDF yoki JPG) tanlang.');
+            return;
+        }
+        const allowed = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowed.includes(publicationCertificateFile.type)) {
+            toast.error('Sertifikat faqat PDF yoki JPG (PNG) formatida bo\'lishi kerak.');
+            return;
+        }
+        setCompletePublicationLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('certificate', publicationCertificateFile);
+            if (publicationIssueId) formData.append('issue_id', publicationIssueId);
+            if (publicationUrl.trim()) formData.append('publication_url', publicationUrl.trim());
+            await apiService.articles.completePublication(id, formData);
+            toast.success('Nashr qilindi. Muallifga bildirishnoma yuborildi.');
+            setPublicationCertificateFile(null);
+            setPublicationUrl('');
+            setPublicationIssueId('');
+            const articleResponse = await apiService.articles.get(id);
+            const articleData = articleResponse.data || articleResponse;
+            setArticle(articleData);
+        } catch (err: any) {
+            const msg = err?.response?.error ?? err?.message ?? 'Nashr qilishda xatolik.';
+            toast.error(msg);
+        } finally {
+            setCompletePublicationLoading(false);
+        }
+    };
+
+    /** Full URL of the main PDF (from API file_url or built from final_pdf_path). */
+    const fileUrl = article?.file_url
+        || (article?.final_pdf_path ? apiService.getMediaUrl(article.final_pdf_path) : null);
+
     const handleDownload = () => {
-        if (!article?.file_url) return;
-        
-        // In a real app, this would download the file
-        window.open(article.file_url, '_blank');
-        
-        // Increment download count
+        if (!fileUrl) {
+            toast.info('Maqola fayli hali mavjud emas.');
+            return;
+        }
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.setAttribute('download', '');
+        link.setAttribute('target', '_blank');
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         if (id) {
             apiService.articles.incrementDownloads(id).catch(err => {
                 console.error('Failed to increment download count:', err);
@@ -118,12 +235,11 @@ const ArticleDetail: React.FC = () => {
     };
 
     const handleView = () => {
-        if (!article?.file_url) return;
-        
-        // In a real app, this would open the file in a viewer
-        window.open(article.file_url, '_blank');
-        
-        // Increment view count
+        if (!fileUrl) {
+            toast.info('Maqola fayli hali mavjud emas.');
+            return;
+        }
+        window.open(fileUrl, '_blank', 'noopener,noreferrer');
         if (id) {
             apiService.articles.incrementViews(id).catch(err => {
                 console.error('Failed to increment view count:', err);
@@ -165,6 +281,7 @@ const ArticleDetail: React.FC = () => {
             'QabulQilingan': { text: 'Ko\'rib chiqilmoqda', color: 'bg-yellow-500/20 text-yellow-300', icon: CheckCircle },
             'WritingInProgress': { text: 'Tuzatish kiritilmoqda', color: 'bg-cyan-500/20 text-cyan-300', icon: Edit },
             'NashrgaYuborilgan': { text: 'Nashrga tayyorlanmoqda', color: 'bg-purple-500/20 text-purple-300', icon: Send },
+            'PlagiarismReview': { text: 'Antiplagiat ko\'rib chiqish (bosh admin qarori)', color: 'bg-amber-500/20 text-amber-300', icon: Edit },
             'Revision': { text: 'To\'ldirish talab qilinadi', color: 'bg-orange-500/20 text-orange-300', icon: Edit },
             'Accepted': { text: 'Qabul qilindi', color: 'bg-teal-500/20 text-teal-300', icon: Check },
             'Published': { text: 'Nashr etildi', color: 'bg-green-500/20 text-green-300', icon: BookOpen },
@@ -255,15 +372,17 @@ const ArticleDetail: React.FC = () => {
                         </div>
                     </Card>
 
-                    {/* Plagiarism Report */}
-                    <Card title="Antiplagiat & AI Detektor">
-                        <PlagiarismReport
-                            plagiarismPercentage={article.plagiarism_percentage ?? 0}
-                            aiContentPercentage={article.ai_content_percentage ?? 0}
-                            checkedAt={article.plagiarism_checked_at || null}
-                            report={article.plagiarism_report || null}
-                        />
-                    </Card>
+                    {/* Plagiarism Report — faqat jurnal admin / super admin uchun (muallifda ko'rinmasin) */}
+                    {(user?.role === 'journal_admin' || user?.role === 'super_admin' || user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && (
+                        <Card title="Antiplagiat & AI Detektor">
+                            <PlagiarismReport
+                                plagiarismPercentage={article.plagiarism_percentage ?? 0}
+                                aiContentPercentage={article.ai_content_percentage ?? 0}
+                                checkedAt={article.plagiarism_checked_at || null}
+                                report={article.plagiarism_report || null}
+                            />
+                        </Card>
+                    )}
 
                     {/* Basic info */}
                     <Card title="Asosiy ma'lumotlar">
@@ -293,19 +412,19 @@ const ArticleDetail: React.FC = () => {
                     <Card title="Fayllar">
                         <div className="space-y-4">
                             <div className="flex flex-col sm:flex-row gap-3">
-                                <Button onClick={handleView} variant="secondary" className="flex items-center justify-center gap-2 flex-1">
-                                    <Eye size={18} /> Ko'rish
-                                </Button>
                                 <Button onClick={handleDownload} variant="secondary" className="flex items-center justify-center gap-2 flex-1">
                                     <Download size={18} /> Yuklab olish
                                 </Button>
-                                {article.file_url && article.file_url.toLowerCase().endsWith('.pdf') && (
+                                <Button onClick={handleView} variant="secondary" className="flex items-center justify-center gap-2 flex-1">
+                                    <Eye size={18} /> Ko'rish
+                                </Button>
+                                {fileUrl && (fileUrl.toLowerCase().endsWith('.pdf') || !fileUrl.includes('.')) && (
                                     <Button onClick={() => setShowPdfPreview(!showPdfPreview)} variant="secondary" className="flex items-center justify-center gap-2 flex-1">
                                         <FileText size={18} /> {showPdfPreview ? 'Yopish' : 'PDF ko\'rish'}
                                     </Button>
                                 )}
                             </div>
-                            {showPdfPreview && article.file_url && (
+                            {showPdfPreview && fileUrl && (
                                 <div className="rounded-xl overflow-hidden border border-white/10 bg-gray-900">
                                     <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
                                         <span className="text-sm text-gray-300 font-medium">PDF ko'rinishi</span>
@@ -314,7 +433,7 @@ const ArticleDetail: React.FC = () => {
                                         </button>
                                     </div>
                                     <iframe
-                                        src={article.file_url}
+                                        src={fileUrl}
                                         className="w-full border-0"
                                         style={{ height: '70vh', minHeight: '400px' }}
                                         title="PDF Preview"
@@ -323,6 +442,78 @@ const ArticleDetail: React.FC = () => {
                             )}
                         </div>
                     </Card>
+
+                    {/* Nashr havolasi va sertifikat — nashr etilganda barcha uchun (ayniqsa muallif) */}
+                    {article.status === ArticleStatus.Published && (article.publication_link || article.certificate_download_link) && (
+                        <Card title="Nashr natijalari">
+                            <div className="space-y-4">
+                                {article.publication_link && (
+                                    <div>
+                                        <p className="text-sm text-gray-400 mb-1">Nashr etilgan maqola havolasi</p>
+                                        <a
+                                            href={article.publication_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 underline"
+                                        >
+                                            <ExternalLink size={16} />
+                                            {article.publication_link}
+                                        </a>
+                                    </div>
+                                )}
+                                {article.certificate_download_link && (
+                                    <div>
+                                        <p className="text-sm text-gray-400 mb-1">Nashr sertifikati</p>
+                                        <a
+                                            href={article.certificate_download_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium"
+                                        >
+                                            <Download size={16} />
+                                            Sertifikatni yuklab olish
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+                    )}
+
+                    {/* Tahrirga qaytarish sababi — muallif uchun */}
+                    {article.status === ArticleStatus.Revision && (() => {
+                        const revisionLog = activityLogs.find(
+                            (l) => l.action && l.action.includes('Revision') && (l.details || '').trim()
+                        );
+                        const reason = revisionLog?.details?.trim();
+                        return reason ? (
+                            <Card title="Tahrirga qaytarish sababi">
+                                <p className="text-gray-300 whitespace-pre-wrap">{reason}</p>
+                                {revisionLog?.timestamp && (
+                                    <p className="text-xs text-gray-500 mt-2">
+                                        {new Date(revisionLog.timestamp).toLocaleString()}
+                                    </p>
+                                )}
+                            </Card>
+                        ) : null;
+                    })()}
+
+                    {/* Rad etish sababi — muallif uchun */}
+                    {article.status === ArticleStatus.Rejected && (() => {
+                        const rejectLog = activityLogs.find(
+                            (l) => l.action && l.action.includes('Rejected') && (l.details || '').trim()
+                        );
+                        const reason = rejectLog?.details?.trim();
+                        return reason ? (
+                            <Card title="Rad etish sababi">
+                                <p className="text-gray-300 whitespace-pre-wrap">{reason}</p>
+                                {rejectLog?.timestamp && (
+                                    <p className="text-xs text-gray-500 mt-2">
+                                        {new Date(rejectLog.timestamp).toLocaleString()}
+                                    </p>
+                                )}
+                            </Card>
+                        ) : null;
+                    })()}
 
                     {/* Activity log */}
                     <Card title="Faoliyat jurnali">
@@ -357,27 +548,40 @@ const ArticleDetail: React.FC = () => {
                     {/* Management actions */}
                     <Card title="Boshqaruv">
                         <div className="space-y-3">
+                            {/* Qabul ma'lumotnomasi tugmasi - barcha foydalanuvchilar uchun */}
+                            <Button onClick={() => setShowCertificate(true)} variant="secondary" className="w-full flex items-center justify-center gap-2">
+                                <Award size={18} /> Qabul ma'lumotnomasi
+                            </Button>
+                            
                             {user?.role === Role.Author && (
                                 <Button onClick={() => navigate(`/submit/${id}`)} variant="secondary" className="w-full flex items-center justify-center gap-2">
                                     <Edit size={18} /> Tahrirlash
                                 </Button>
                             )}
-                            {user?.role === Role.JournalAdmin && (
+                            {(user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && article.status !== ArticleStatus.PlagiarismReview && (
                                 <>
                                     <Button onClick={() => handleStatusUpdate(ArticleStatus.Accepted)} variant="primary" className="w-full flex items-center justify-center gap-2">
                                         <Check size={18} /> Qabul qilish
                                     </Button>
-                                    <Button onClick={() => handleStatusUpdate(ArticleStatus.Revision)} variant="secondary" className="w-full flex items-center justify-center gap-2">
+                                    <Button onClick={() => setShowRevisionModal(true)} variant="secondary" className="w-full flex items-center justify-center gap-2">
                                         <Edit size={18} /> Tahrirga qaytarish
                                     </Button>
-                                    <Button onClick={() => handleStatusUpdate(ArticleStatus.Rejected)} variant="danger" className="w-full flex items-center justify-center gap-2">
+                                    <Button onClick={() => setShowRejectModal(true)} variant="danger" className="w-full flex items-center justify-center gap-2">
                                         <X size={18} /> Rad etish
                                     </Button>
                                 </>
                             )}
-                            <Button onClick={() => setShowCertificate(true)} variant="secondary" className="w-full flex items-center justify-center gap-2">
-                                <Printer size={18} /> Sertifikat chop etish
-                            </Button>
+                            {user?.role === Role.SuperAdmin && article.status === ArticleStatus.PlagiarismReview && (
+                                <>
+                                    <p className="text-sm text-amber-300 mb-2">Plagiat/AI/originalilik qisman talabga mos. Qaror qiling:</p>
+                                    <Button onClick={() => handleStatusUpdate(ArticleStatus.NashrgaYuborilgan)} variant="primary" className="w-full flex items-center justify-center gap-2">
+                                        <Check size={18} /> Qabul qilish (nashrga yuborish)
+                                    </Button>
+                                    <Button onClick={() => setShowRejectModal(true)} variant="danger" className="w-full flex items-center justify-center gap-2">
+                                        <X size={18} /> Rad etish
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </Card>
 
@@ -400,19 +604,163 @@ const ArticleDetail: React.FC = () => {
                             </div>
                         </div>
                     </Card>
+
+                    {/* Jurnal admin / bosh admin: nashr etilganda yuklangan link va sertifikat — qaytib kirganda ham ko‘rinsin */}
+                    {(user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && article.status === ArticleStatus.Published && (article.publication_link || article.certificate_download_link) && (
+                        <Card title="Nashr natijalari">
+                            <div className="space-y-3">
+                                {article.publication_link && (
+                                    <div>
+                                        <p className="text-xs text-gray-400 mb-1">Nashr havolasi</p>
+                                        <a href={article.publication_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-sm break-all">
+                                            <ExternalLink size={14} />
+                                            Havolani ochish
+                                        </a>
+                                    </div>
+                                )}
+                                {article.certificate_download_link && (
+                                    <div>
+                                        <p className="text-xs text-gray-400 mb-1">Sertifikat</p>
+                                        <a href={article.certificate_download_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm">
+                                            <Download size={14} />
+                                            Yuklab olish
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+                    )}
+
+                    {/* Nashr qilish — faqat Accepted holatida, jurnal/bosh admin uchun */}
+                    {(user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && article.status === ArticleStatus.Accepted && (
+                        <Card title="Nashr qilish">
+                            <p className="text-sm text-gray-400 mb-4">
+                                Sertifikat faylini yuklang va muallifga tayyor deb yuboring. Muallifga bildirishnoma keladi.
+                            </p>
+                            {journalIssues.length > 0 && (
+                                <div className="mb-4">
+                                    <label className="block text-sm text-gray-400 mb-1">Jurnal soni (ixtiyoriy)</label>
+                                    <select
+                                        value={publicationIssueId}
+                                        onChange={(e) => setPublicationIssueId(e.target.value)}
+                                        className="w-full rounded-lg bg-gray-800 border border-gray-600 text-white px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    >
+                                        <option value="">— Tanlamang —</option>
+                                        {journalIssues.map((iss) => (
+                                            <option key={iss.id} value={iss.id}>{iss.issue_number}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                            <div className="mb-4">
+                                <label className="block text-sm text-gray-400 mb-1">Nashr etilgan maqola linki (ixtiyoriy)</label>
+                                <input
+                                    type="url"
+                                    value={publicationUrl}
+                                    onChange={(e) => setPublicationUrl(e.target.value)}
+                                    placeholder="https://..."
+                                    className="w-full rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-sm text-gray-400 mb-1">Sertifikat fayli (PDF yoki JPG) *</label>
+                                <input
+                                    type="file"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={(e) => setPublicationCertificateFile(e.target.files?.[0] ?? null)}
+                                    className="w-full text-sm text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white file:cursor-pointer"
+                                />
+                                {publicationCertificateFile && (
+                                    <span className="text-xs text-gray-500 mt-1 block">{publicationCertificateFile.name}</span>
+                                )}
+                            </div>
+                            <Button
+                                onClick={handleCompletePublication}
+                                disabled={completePublicationLoading || !publicationCertificateFile}
+                                variant="primary"
+                                className="w-full flex items-center justify-center gap-2"
+                            >
+                                <Send size={18} />
+                                {completePublicationLoading ? 'Yuborilmoqda...' : 'Muallifga tayyor deb yuborish'}
+                            </Button>
+                        </Card>
+                    )}
                 </div>
             </div>
 
+            {/* Tahrirga qaytarish — izoh modali */}
+            {showRevisionModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+                    <div className="w-full max-w-lg bg-gray-800 border border-gray-600 rounded-xl shadow-2xl">
+                        <div className="p-4 border-b border-gray-600">
+                            <h3 className="text-lg font-semibold text-white">Tahrirga qaytarish</h3>
+                            <p className="text-sm text-gray-400 mt-1">Nega tahrirga qaytarilgani haqida izoh yozing. Bu matn muallifga bildirishnoma orqali yuboriladi.</p>
+                        </div>
+                        <div className="p-4">
+                            <textarea
+                                value={revisionReason}
+                                onChange={(e) => setRevisionReason(e.target.value)}
+                                placeholder="Masalan: Annotatsiya qisqartirilishi, adabiyotlar ro'yxati to'ldirilishi kerak..."
+                                rows={4}
+                                className="w-full rounded-lg bg-gray-900 border border-gray-600 text-white placeholder-gray-500 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            />
+                        </div>
+                        <div className="p-4 border-t border-gray-600 flex gap-3 justify-end">
+                            <Button onClick={() => { setShowRevisionModal(false); setRevisionReason(''); }} variant="secondary">
+                                Bekor qilish
+                            </Button>
+                            <Button onClick={handleRevisionSubmit} variant="primary" disabled={!revisionReason.trim()}>
+                                Yuborish
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Rad etish — izoh modali */}
+            {showRejectModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+                    <div className="w-full max-w-lg bg-gray-800 border border-gray-600 rounded-xl shadow-2xl">
+                        <div className="p-4 border-b border-gray-600">
+                            <h3 className="text-lg font-semibold text-white">Rad etish</h3>
+                            <p className="text-sm text-gray-400 mt-1">Nega rad etilgani haqida to‘liq izoh yozing. Bu matn muallifga bildirishnoma orqali yuboriladi va maqola sahifasida ko‘rinadi.</p>
+                        </div>
+                        <div className="p-4">
+                            <textarea
+                                value={rejectReason}
+                                onChange={(e) => setRejectReason(e.target.value)}
+                                placeholder="Masalan: Maqola mavzusi jurnal doirasiga to‘g‘ri kelmadi; adabiyotlar yangilanishi talab qilinadi..."
+                                rows={4}
+                                className="w-full rounded-lg bg-gray-900 border border-gray-600 text-white placeholder-gray-500 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            />
+                        </div>
+                        <div className="p-4 border-t border-gray-600 flex gap-3 justify-end">
+                            <Button onClick={() => { setShowRejectModal(false); setRejectReason(''); }} variant="secondary">
+                                Bekor qilish
+                            </Button>
+                            <Button onClick={handleRejectSubmit} variant="danger" disabled={!rejectReason.trim()}>
+                                Yuborish
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Certificate modal */}
             {showCertificate && certificateData && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-                    <div className="w-full max-w-4xl bg-white rounded-lg shadow-2xl">
-                        <div className="p-4 border-b flex justify-between items-center">
-                            <h3 className="text-lg font-semibold">Yuborish sertifikati</h3>
-                            <Button onClick={() => setShowCertificate(false)} variant="secondary">Yopish</Button>
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 print:p-0 print:bg-white">
+                    <div className="w-full max-w-6xl bg-gray-900 rounded-lg shadow-2xl print:max-w-none print:bg-white print:rounded-none">
+                        <div className="p-4 border-b border-white/10 flex justify-between items-center no-print">
+                            <h3 className="text-lg font-semibold text-white">Qabul haqida ma'lumotnoma</h3>
+                            <div className="flex items-center gap-2">
+                                <Button onClick={() => window.print()} variant="secondary" className="flex items-center gap-2">
+                                    <Printer size={16} /> Chop etish / PDF
+                                </Button>
+                                <Button onClick={() => setShowCertificate(false)} variant="secondary">Yopish</Button>
+                            </div>
                         </div>
-                        <div className="p-4 max-h-[80vh] overflow-y-auto">
-                            <SubmissionCertificate data={certificateData} />
+                        <div className="p-4 max-h-[80vh] overflow-y-auto print:p-0 print:max-h-none print:overflow-visible">
+                            <QabulCertificate data={certificateData} />
                         </div>
                     </div>
                 </div>

@@ -38,7 +38,10 @@ const JournalManagement: React.FC = () => {
             required: false,
             label: 'Taqriz fayli',
             type: 'file',
-        }
+        },
+        plagiarism_max_percent: undefined,
+        ai_content_max_percent: undefined,
+        originality_min_percent: undefined,
     };
     const [formData, setFormData] = useState<Partial<Journal> & { additionalDocumentConfig?: AdditionalDocumentConfig }>(initialNewJournalState);
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -91,12 +94,9 @@ const JournalManagement: React.FC = () => {
         fetchData();
     }, [user]);
     
-    // Filter journal admins - handle both string and enum values
-    const journalAdmins = users.filter(u => 
-        u.role === Role.JournalAdmin || 
-        u.role === Role.Reviewer ||
-        u.role === 'journal_admin' || 
-        u.role === 'reviewer'
+    // Only journal admins (not reviewers) can be assigned as journal admin
+    const journalAdmins = users.filter(u =>
+        u.role === Role.JournalAdmin || u.role === 'journal_admin'
     );
     
 
@@ -126,16 +126,19 @@ const JournalManagement: React.FC = () => {
         if (journalToEdit) {
             setEditingJournal(journalToEdit);
             // Handle both field name formats when editing
+            const j = journalToEdit as any;
             const formDataWithCamelCase: any = {
                 ...journalToEdit,
-                // Map snake_case fields to camelCase if needed
-                journalAdminId: journalToEdit.journalAdminId || (journalToEdit as any).journal_admin,
-                categoryId: journalToEdit.categoryId || (journalToEdit as any).category,
-                paymentModel: journalToEdit.paymentModel || (journalToEdit as any).payment_model,
-                pricingType: journalToEdit.pricingType || (journalToEdit as any).pricing_type,
-                publicationFee: journalToEdit.publicationFee !== undefined ? journalToEdit.publicationFee : (journalToEdit as any).publication_fee,
-                pricePerPage: journalToEdit.pricePerPage !== undefined ? journalToEdit.pricePerPage : (journalToEdit as any).price_per_page,
-                additionalDocumentConfig: journalToEdit.additionalDocumentConfig || initialNewJournalState.additionalDocumentConfig
+                journalAdminId: journalToEdit.journalAdminId || j.journal_admin,
+                categoryId: journalToEdit.categoryId || j.category,
+                paymentModel: journalToEdit.paymentModel || j.payment_model,
+                pricingType: journalToEdit.pricingType || j.pricing_type,
+                publicationFee: journalToEdit.publicationFee !== undefined ? journalToEdit.publicationFee : j.publication_fee,
+                pricePerPage: journalToEdit.pricePerPage !== undefined ? journalToEdit.pricePerPage : j.price_per_page,
+                additionalDocumentConfig: journalToEdit.additionalDocumentConfig || initialNewJournalState.additionalDocumentConfig,
+                plagiarism_max_percent: journalToEdit.plagiarism_max_percent ?? j.plagiarism_max_percent ?? undefined,
+                ai_content_max_percent: journalToEdit.ai_content_max_percent ?? j.ai_content_max_percent ?? undefined,
+                originality_min_percent: journalToEdit.originality_min_percent ?? j.originality_min_percent ?? undefined,
             };
             setFormData(formDataWithCamelCase);
         } else {
@@ -276,7 +279,10 @@ const JournalManagement: React.FC = () => {
                     payment_model: formData.paymentModel || PaymentModel.PostPayment,
                     pricing_type: formData.pricingType || JournalPricingType.Fixed,
                     publication_fee: Number(formData.publicationFee) || 0,
-                    price_per_page: Number(formData.pricePerPage) || 0
+                    price_per_page: Number(formData.pricePerPage) || 0,
+                    plagiarism_max_percent: formData.plagiarism_max_percent != null && formData.plagiarism_max_percent !== '' ? Number(formData.plagiarism_max_percent) : null,
+                    ai_content_max_percent: formData.ai_content_max_percent != null && formData.ai_content_max_percent !== '' ? Number(formData.ai_content_max_percent) : null,
+                    originality_min_percent: formData.originality_min_percent != null && formData.originality_min_percent !== '' ? Number(formData.originality_min_percent) : null,
                 };
                 
                 // Only include additional_document_config if it exists and has content
@@ -316,7 +322,10 @@ const JournalManagement: React.FC = () => {
                     payment_model: formData.paymentModel || PaymentModel.PostPayment,
                     pricing_type: formData.pricingType || JournalPricingType.Fixed,
                     publication_fee: Number(formData.publicationFee) || 0,
-                    price_per_page: Number(formData.pricePerPage) || 0
+                    price_per_page: Number(formData.pricePerPage) || 0,
+                    plagiarism_max_percent: formData.plagiarism_max_percent != null && formData.plagiarism_max_percent !== '' ? Number(formData.plagiarism_max_percent) : null,
+                    ai_content_max_percent: formData.ai_content_max_percent != null && formData.ai_content_max_percent !== '' ? Number(formData.ai_content_max_percent) : null,
+                    originality_min_percent: formData.originality_min_percent != null && formData.originality_min_percent !== '' ? Number(formData.originality_min_percent) : null,
                 };
                 
                 // Only include additional_document_config if it exists and has content
@@ -474,9 +483,9 @@ const JournalManagement: React.FC = () => {
             </Card>
 
             {isModalOpen && (
-                 <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <Card className="w-full max-w-2xl" title={editingJournal ? "Jurnalni Tahrirlash" : "Yangi Jurnal Qo'shish"}>
-                        {/* Display journal image when editing */}
+                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 p-4 overflow-auto min-h-screen flex flex-col items-center py-8">
+                    <Card className="w-full max-w-2xl min-w-0 max-h-[90vh] flex flex-col overflow-hidden my-auto shrink-0" title={editingJournal ? "Jurnalni Tahrirlash" : "Yangi Jurnal Qo'shish"}>
+                        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1 -mr-1">
                         {editingJournal && (
                             <div className="mb-4">
                                 <h3 className="text-lg font-medium text-white mb-2">Jurnal Rasmi</h3>
@@ -486,7 +495,6 @@ const JournalManagement: React.FC = () => {
                                         alt="Jurnal rasmi" 
                                         className="h-32 w-32 rounded-lg object-cover"
                                         onError={(e) => {
-                                            // Hide image if it fails to load
                                             (e.target as HTMLImageElement).style.display = 'none';
                                         }}
                                     />
@@ -495,12 +503,12 @@ const JournalManagement: React.FC = () => {
                                 )}
                             </div>
                         )}
-                        <form onSubmit={handleSaveJournal} className="space-y-4 max-h-[80vh] overflow-y-auto pr-4">
-                            <div>
+                        <form onSubmit={handleSaveJournal} className="space-y-4 min-w-0">
+                            <div className="min-w-0">
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Jurnal Nomi</label>
-                                <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full" placeholder="Jurnal nomini kiriting..." required/>
+                                <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full min-w-0 box-border" placeholder="Jurnal nomini kiriting..." required/>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-2">Jurnal Kategoriyasi</label>
                                     {isAddingCategory ? (
@@ -534,8 +542,8 @@ const JournalManagement: React.FC = () => {
                                     </select>
                                 </div>
                             </div>
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
+                                <div className="min-w-0">
                                     <label className="block text-sm font-medium text-gray-300 mb-2">Narx Turi</label>
                                     <select name="pricingType" value={formData.pricingType} onChange={handleInputChange} className="w-full">
                                         <option value={JournalPricingType.Fixed}>Qat'iy narx</option>
@@ -554,14 +562,14 @@ const JournalManagement: React.FC = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
+                                <div className="min-w-0">
                                     <label className="block text-sm font-medium text-gray-300 mb-2">ISSN</label>
-                                    <input type="text" name="issn" value={formData.issn} onChange={handleInputChange} className="w-full" placeholder="XXXX-XXXX"/>
+                                    <input type="text" name="issn" value={formData.issn} onChange={handleInputChange} className="w-full min-w-0 box-border" placeholder="XXXX-XXXX"/>
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                     <label className="block text-sm font-medium text-gray-300 mb-2">To'lov Turi</label>
-                                    <select name="paymentModel" value={formData.paymentModel} onChange={handleInputChange} className="w-full">
+                                    <select name="paymentModel" value={formData.paymentModel} onChange={handleInputChange} className="w-full min-w-0 box-border">
                                         <option value={PaymentModel.PrePayment}>Maqola qabul qilinishidan oldin</option>
                                         <option value={PaymentModel.PostPayment}>Maqola qabul qilinganidan so'ng</option>
                                     </select>
@@ -594,15 +602,33 @@ const JournalManagement: React.FC = () => {
                                     </div>
                                 )}
                             </div>
-                            <div>
+                            <div className="pt-4 border-t border-white/10 min-w-0">
+                                <h4 className="text-sm font-semibold text-blue-300 mb-3">Antiplagiat & AI Detektor talablari</h4>
+                                <p className="text-xs text-gray-400 mb-3">Maqola nashrga yuborilganda tekshiriladi. Bo&apos;sh qoldirilsa — shart o&apos;rnatilmaydi.</p>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-1">Plagiat max %</label>
+                                        <input type="number" name="plagiarism_max_percent" min={0} max={100} step={0.1} value={formData.plagiarism_max_percent ?? ''} onChange={handleInputChange} className="w-full" placeholder="mas. 25"/>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-1">AI kontent max %</label>
+                                        <input type="number" name="ai_content_max_percent" min={0} max={100} step={0.1} value={formData.ai_content_max_percent ?? ''} onChange={handleInputChange} className="w-full" placeholder="mas. 30"/>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-1">Originalilik min %</label>
+                                        <input type="number" name="originality_min_percent" min={0} max={100} step={0.1} value={formData.originality_min_percent ?? ''} onChange={handleInputChange} className="w-full" placeholder="mas. 70"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="min-w-0">
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Tavsif</label>
-                                <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full" rows={3} placeholder="Jurnal haqida qisqacha ma'lumot..."></textarea>
+                                <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full min-w-0 max-w-full box-border resize-y" rows={4} placeholder="Jurnal haqida qisqacha ma'lumot..."></textarea>
                             </div>
 
-                            <div className="pt-4 border-t border-white/10">
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input type="checkbox" name="required" checked={formData.additionalDocumentConfig?.required} onChange={handleAdditionalDocConfigChange} className="h-5 w-5 rounded bg-white/10 border-white/20 text-blue-500 focus:ring-blue-500" style={{boxShadow: 'none'}}/>
-                                    <span className="font-medium text-gray-200">Qo'shimcha hujjat talab qilish (masalan, taqriz)</span>
+                            <div className="pt-4 border-t border-white/10 min-w-0">
+                                <label className="flex items-start gap-3 cursor-pointer">
+                                    <input type="checkbox" name="required" checked={formData.additionalDocumentConfig?.required} onChange={handleAdditionalDocConfigChange} className="h-5 w-5 mt-0.5 shrink-0 rounded bg-white/10 border-white/20 text-blue-500 focus:ring-blue-500" style={{boxShadow: 'none'}}/>
+                                    <span className="font-medium text-gray-200 break-words">Qo'shimcha hujjat talab qilish (masalan, taqriz)</span>
                                 </label>
                                 {formData.additionalDocumentConfig?.required && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pl-8">
@@ -626,6 +652,7 @@ const JournalManagement: React.FC = () => {
                                 <Button type="submit">{editingJournal ? "Saqlash" : "Qo'shish"}</Button>
                             </div>
                         </form>
+                        </div>
                     </Card>
                 </div>
             )}

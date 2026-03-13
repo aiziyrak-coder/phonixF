@@ -36,6 +36,14 @@ export function getErrorMessage(error: any): string {
       return typeof apiError.detail === 'string' ? apiError.detail : JSON.stringify(apiError.detail);
     }
     
+    // DRF validation errors: { field_name: ["msg1", "msg2"], ... }
+    if (typeof apiError === 'object' && apiError !== null && !Array.isArray(apiError)) {
+      const fieldParts = Object.entries(apiError)
+        .filter(([k]) => !['detail', 'message', 'error', 'error_note', 'non_field_errors'].includes(k))
+        .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`);
+      if (fieldParts.length > 0) return fieldParts.join('; ');
+    }
+    
     // Check for error_note (Click payment errors)
     if (apiError.error_note) {
       return apiError.error_note;
@@ -97,9 +105,19 @@ export function getFieldError(error: any, fieldName: string): string | null {
 }
 
 /**
- * Check if error is network error
+ * Check if error is server-side (5xx). Such errors must not be shown as "network error".
+ */
+export function isServerError(error: any): boolean {
+  const status = error?.status ?? error?.response?.status;
+  return typeof status === 'number' && status >= 500 && status < 600;
+}
+
+/**
+ * Check if error is network error (no response from server).
+ * 5xx responses are not network errors — server responded.
  */
 export function isNetworkError(error: any): boolean {
+  if (isServerError(error)) return false;
   const errorMessage = error?.message?.toLowerCase() || '';
   const errorName = error?.name?.toLowerCase() || '';
   
@@ -125,12 +143,21 @@ export function isAuthError(error: any): boolean {
 }
 
 /**
- * Get user-friendly error message based on error type
+ * Get user-friendly error message based on error type.
+ * 5xx is checked first so we never show "Serverga ulanib bo'lmadi" for server errors.
  */
 export function getUserFriendlyError(error: any): string {
+  const status = error?.status ?? error?.response?.status;
+  if (typeof status === 'number' && status >= 500 && status < 600) {
+    const body = error?.response;
+    const detail = body?.detail;
+    if (detail && typeof detail === 'string' && detail.length < 200) {
+      return detail;
+    }
+    return 'Server xatosi. Iltimos, keyinroq urinib ko\'ring.';
+  }
+
   if (isNetworkError(error)) {
-    // Aniqroq xabar - API'ga ulanib bo'lmaganligi haqida
-    // Production'da API URL'ni ko'rsatmaslik (xavfsizlik uchun)
     if (import.meta.env.PROD) {
       return 'Serverga ulanib bo\'lmadi. Iltimos, internet aloqasini tekshiring yoki keyinroq urinib ko\'ring.';
     } else {
@@ -143,16 +170,18 @@ export function getUserFriendlyError(error: any): string {
     return 'Sizning sessiyangiz muddati tugagan. Iltimos, qayta kiring.';
   }
   
-  if (error?.status === 403) {
+  if (status === 402) {
+    const body = error?.response;
+    const msg = (body && (body.error || body.detail));
+    return (typeof msg === 'string' ? msg : null) || 'To\'lov talab qilinadi. Iltimos, avval to\'lovni amalga oshiring.';
+  }
+  
+  if (status === 403) {
     return 'Siz bu amalni bajarish huquqiga egasiz.';
   }
   
-  if (error?.status === 404) {
+  if (status === 404) {
     return 'Ma\'lumot topilmadi.';
-  }
-  
-  if (error?.status === 500) {
-    return 'Server xatosi. Iltimos, keyinroq urinib ko\'ring.';
   }
   
   return getErrorMessage(error);

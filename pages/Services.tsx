@@ -34,9 +34,17 @@ const services = [
     },
     {
         title: 'UDK Olish',
-        description: 'Ilmiy ishingiz uchun Universal O\'nli Klassifikatsiya kodini tez va oson oling.',
+        description: 'Ilmiy ishingiz uchun Universal O\'nli Klassifikatsiya (teacode.com) va O\'zbekiston UDK kodini tanlang va maqolaga biriktiring.',
         icon: Library,
-        isAvailable: false,
+        link: '/udk-olish',
+        isAvailable: true,
+    },
+    {
+        title: 'DOI Raqami Olish',
+        description: 'Maqolangiz uchun unikal raqamli obyekt identifikatorini (DOI) ro\'yxatdan o\'tkazish.',
+        icon: Bot,
+        link: '/doi-olish',
+        isAvailable: true,
     },
     {
         title: 'Tahrirlash va Musahhihlik',
@@ -66,12 +74,6 @@ const services = [
         title: 'Jurnal Tanlash Xizmati',
         description: 'Sizning maqolangiz uchun eng mos bo\'lgan jurnallarni topishga yordam beramiz.',
         icon: Compass,
-        isAvailable: false,
-    },
-    {
-        title: 'DOI Raqami Olish',
-        description: 'Maqolangiz uchun unikal raqamli obyekt identifikatorini (DOI) ro\'yxatdan o\'tkazish.',
-        icon: Bot,
         isAvailable: false,
     },
     {

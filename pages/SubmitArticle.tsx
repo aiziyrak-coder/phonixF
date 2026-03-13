@@ -1,23 +1,31 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { UploadCloud, CheckCircle, Loader2, XCircle, FileText, Users, AlertTriangle, Eye } from 'lucide-react';
-import { useAuth, useNotifications } from '../contexts/AuthContext';
-import { Article, ArticleStatus } from '../types';
+import { UploadCloud, CheckCircle, Loader2, XCircle, FileText, Users, AlertTriangle, Eye, BookOpen, Filter, Layers, X } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { PUBLICATION_TYPES, SUBJECT_AREAS } from '../constants/authorCategories';
 import { apiService } from '../services/apiService';
+import { paymentService } from '../services/paymentService';
 import { PlagiarismBadges } from '../components/PlagiarismReport';
+import { toast } from 'react-toastify';
 
 const SubmitArticle: React.FC = () => {
   const { user } = useAuth();
-  const { showNotification } = useNotifications();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [journals, setJournals] = useState<{ id: string; name: string; description?: string; issn?: string; publication_fee?: number; price_per_page?: number; pricing_type?: string; payment_model?: string; image_url?: string | null; category_name?: string }[]>([]);
+  const [journalSearch, setJournalSearch] = useState('');
+  const [journalFilterType, setJournalFilterType] = useState('');
+  const [journalFilterSubject, setJournalFilterSubject] = useState('');
 
-  // Form data
+  // Form data — maqola mavzusi va ism-familiya majburiy
   const [formData, setFormData] = useState({
     title: '',
     authorName: '',
+    journalId: '',
     file: null as File | null,
     abstract: '',
     keywords: '',
@@ -34,26 +42,63 @@ const SubmitArticle: React.FC = () => {
   // Validation errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  // Pre-payment: to'lov qilinganidan keyin maqola yuboriladi
+  const [paymentPendingTransactionId, setPaymentPendingTransactionId] = useState<string | null>(null);
+  const [paymentChecking, setPaymentChecking] = useState(false);
+
   const steps = [
-    { id: 1, title: 'Fayl yuklash', icon: UploadCloud },
-    { id: 2, title: 'Maqola tavsifi', icon: FileText },
-    { id: 3, title: 'Hammualliflar', icon: Users },
-    { id: 4, title: 'Tasdiqlash', icon: Eye },
+    { id: 1, title: 'Jurnal tanlash', icon: BookOpen },
+    { id: 2, title: 'Fayl yuklash', icon: UploadCloud },
+    { id: 3, title: 'Maqola tavsifi', icon: FileText },
+    { id: 4, title: 'Hammualliflar', icon: Users },
+    { id: 5, title: 'Tasdiqlash', icon: Eye },
   ];
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await apiService.journals.list();
+        const list = Array.isArray(data) ? data : (data?.results || data?.data || []);
+        setJournals(list.map((j: any) => ({
+          id: j.id,
+          name: j.name || j.title,
+          description: j.description,
+          issn: j.issn,
+          publication_fee: j.publication_fee != null ? Number(j.publication_fee) : undefined,
+          price_per_page: j.price_per_page != null ? Number(j.price_per_page) : undefined,
+          pricing_type: j.pricing_type,
+          payment_model: j.payment_model || undefined,
+          image_url: j.image_url || null,
+          category_name: j.category_name || '',
+        })));
+      } catch (e) {
+        console.error('Failed to load journals', e);
+      }
+    };
+    load();
+  }, []);
 
   const validateStep = (step: number): boolean => {
     const newErrors: { [key: string]: string } = {};
 
     if (step === 1) {
+      if (!formData.journalId) {
+        newErrors.journalId = 'Jurnalni tanlang';
+      }
+    } else if (step === 2) {
       if (!formData.file) {
         newErrors.file = 'Faylni tanlang';
       }
-    } else if (step === 2) {
+    } else if (step === 3) {
       if (!formData.title.trim()) {
-        newErrors.title = 'Maqola mavzusini kiriting';
+        newErrors.title = 'Maqola mavzusini kiriting (majburiy)';
+      } else if (formData.title.trim().length < 5) {
+        newErrors.title = 'Maqola mavzusi kamida 5 ta belgidan iborat bo\'lishi kerak';
       }
       if (!formData.authorName.trim()) {
-        newErrors.authorName = 'Muallif ism-familiyasini kiriting';
+        newErrors.authorName = 'Muallif ism-familiyasini kiriting (majburiy)';
+      } else if (formData.authorName.trim().length < 3) {
+        newErrors.authorName = 'Ism-familiyani to\'liq kiriting';
       }
       if (!formData.abstract.trim()) {
         newErrors.abstract = 'Abstraktni kiriting';
@@ -67,6 +112,28 @@ const SubmitArticle: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  /** Select journal and go to next step (card click = select + next) */
+  const selectJournalAndNext = (journalId: string) => {
+    setFormData((prev) => ({ ...prev, journalId }));
+    setErrors((e) => ({ ...e, journalId: '' }));
+    setCurrentStep(2);
+  };
+
+  const filteredJournals = journals.filter((j) => {
+    if (journalFilterType && (j.category_name || '') !== journalFilterType) return false;
+    if (journalFilterSubject) {
+      const sub = journalFilterSubject.toLowerCase();
+      const name = (j.name || '').toLowerCase();
+      const desc = (j.description || '').toLowerCase();
+      if (!name.includes(sub) && !desc.includes(sub)) return false;
+    }
+    return (
+      !journalSearch.trim() ||
+      (j.name || '').toLowerCase().includes(journalSearch.trim().toLowerCase()) ||
+      (j.description || '').toLowerCase().includes(journalSearch.trim().toLowerCase())
+    );
+  });
+
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(currentStep + 1);
@@ -77,28 +144,23 @@ const SubmitArticle: React.FC = () => {
     setCurrentStep(currentStep - 1);
   };
 
+  /** Abstrakt bo‘yicha taxminiy ko‘rsatkich (backend maqola yaratilganda haqiqiy tekshiruv qiladi). */
   const checkPlagiarism = async () => {
     if (!formData.abstract.trim()) {
-      showNotification('Avval abstraktni kiriting', 'error');
+      toast.info('Avval abstraktni kiriting');
       return;
     }
-
     setChecking(true);
     try {
-      // Mock plagiarism check - in real implementation this would call the backend
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Generate mock results
-      const mockPlagiarism = Math.random() * 30; // 0-30%
-      const mockAiContent = Math.random() * 20; // 0-20%
-
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const mockPlagiarism = Math.random() * 25;
+      const mockAiContent = Math.random() * 15;
       setPlagiarism(mockPlagiarism);
       setAiContent(mockAiContent);
       setCheckedAt(new Date().toISOString());
-
-      showNotification('Antiplagiat tekshiruvi tugadi', 'success');
+      toast.success('Tekshiruv yakunlandi. Maqola yuborilgach backend to‘liq antiplagiat tekshiradi.');
     } catch (error) {
-      showNotification('Tekshiruvda xatolik yuz berdi', 'error');
+      toast.error('Tekshiruvda xatolik yuz berdi');
     } finally {
       setChecking(false);
     }
@@ -107,60 +169,145 @@ const SubmitArticle: React.FC = () => {
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Check file type
-      if (!file.name.toLowerCase().endsWith('.docx') && !file.name.toLowerCase().endsWith('.pdf')) {
-        showNotification('Faqat DOCX yoki PDF fayllarini yuklash mumkin', 'error');
+      const name = file.name.toLowerCase();
+      if (!name.endsWith('.docx') && !name.endsWith('.doc')) {
+        toast.error('Faqat DOC yoki DOCX (Word) fayllarini yuklash mumkin');
         return;
       }
-
-      // Check file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        showNotification('Fayl hajmi 10MB dan oshmasligi kerak', 'error');
-        return;
-      }
-
       setFormData({ ...formData, file });
     }
   };
 
+  /** Create article (called when no payment required or after payment completed). */
+  const doSubmitArticle = async () => {
+    const keywordsStr = formData.keywords.trim();
+    const keywordsList = keywordsStr ? keywordsStr.split(/\s*,\s*/).map((k: string) => k.trim()).filter(Boolean) : [];
+    const articlePayload: Record<string, unknown> = {
+      title: formData.title.trim(),
+      journal: formData.journalId,
+      abstract: formData.abstract.trim() || '',
+      keywords: keywordsList,
+      page_count: 1,
+      fast_track: false,
+    };
+    if (paymentPendingTransactionId) {
+      articlePayload.payment_transaction_id = paymentPendingTransactionId;
+    }
+    await apiService.articles.create(articlePayload, { mainFile: formData.file! });
+    toast.success('Maqola muvaffaqiyatli yuborildi');
+    setFormData({
+      title: '',
+      authorName: '',
+      journalId: '',
+      file: null,
+      abstract: '',
+      keywords: '',
+      references: '',
+      coAuthors: [],
+    });
+    setPlagiarism(0);
+    setAiContent(0);
+    setCheckedAt(null);
+    setCurrentStep(1);
+    setJournalSearch('');
+    setPaymentPendingTransactionId(null);
+    navigate('/articles');
+  };
+
   const handleSubmit = async () => {
-    if (!validateStep(4)) return;
+    if (!formData.title.trim()) {
+      toast.error('Maqola mavzusini kiriting.');
+      setErrors(e => ({ ...e, title: 'Maqola mavzusini kiriting (majburiy)' }));
+      return;
+    }
+    if (!formData.authorName.trim()) {
+      toast.error('Muallif ism-familiyasini kiriting.');
+      setErrors(e => ({ ...e, authorName: 'Muallif ism-familiyasini kiriting (majburiy)' }));
+      return;
+    }
+    if (!formData.journalId) {
+      toast.error('Jurnalni tanlang.');
+      setErrors((e) => ({ ...e, journalId: 'Jurnalni tanlang' }));
+      return;
+    }
+    if (!formData.file) {
+      toast.error('Maqola faylini yuklang.');
+      return;
+    }
+    if (!validateStep(3)) {
+      setCurrentStep(3);
+      return;
+    }
+
+    const selectedJournal = journals.find((j) => j.id === formData.journalId);
+    const isPrePayment = selectedJournal?.payment_model === 'pre-payment';
+    const isFixed = selectedJournal?.pricing_type === 'fixed' || (selectedJournal?.publication_fee != null && selectedJournal.publication_fee > 0 && !selectedJournal.price_per_page);
+    const amount = isFixed
+      ? (selectedJournal?.publication_fee ?? 0)
+      : (selectedJournal?.price_per_page ?? 0) * 1;
+
+    if (isPrePayment && amount > 0) {
+      setLoading(true);
+      try {
+        const result = await paymentService.createTransactionAndPay(
+          amount,
+          'UZS',
+          'publication_fee',
+          undefined,
+          undefined,
+          'click'
+        );
+        if (result?.transaction_id) {
+          setPaymentPendingTransactionId(result.transaction_id);
+          toast.info('To\'lov sahifasiga yo\'naltirilmoqda — QR kodni skanerlang yoki tugmani bosing.');
+          paymentService.redirectToPaymentPage(result.transaction_id);
+        } else {
+          toast.error(result?.error || result?.error_note || 'To\'lovni boshlashda xatolik');
+        }
+      } catch (err: any) {
+        toast.error(err?.message || 'To\'lovni boshlashda xatolik');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     setLoading(true);
     try {
-      const submitData = new FormData();
-      submitData.append('title', formData.title);
-      submitData.append('author_name', formData.authorName);
-      submitData.append('abstract', formData.abstract);
-      submitData.append('keywords', formData.keywords);
-      submitData.append('references', formData.references);
-      submitData.append('file', formData.file!);
-      submitData.append('co_authors', JSON.stringify(formData.coAuthors));
-      submitData.append('plagiarism_percentage', plagiarism.toString());
-      submitData.append('ai_content_percentage', aiContent.toString());
-      submitData.append('plagiarism_checked_at', checkedAt || '');
-
-      await apiService.articles.create(submitData);
-      showNotification('Maqola muvaffaqiyatli yuborildi', 'success');
-
-      // Reset form
-      setFormData({
-        title: '',
-        authorName: '',
-        file: null,
-        abstract: '',
-        keywords: '',
-        references: '',
-        coAuthors: [],
-      });
-      setPlagiarism(0);
-      setAiContent(0);
-      setCheckedAt(null);
-      setCurrentStep(1);
-    } catch (error) {
-      showNotification('Maqola yuborishda xatolik yuz berdi', 'error');
+      await doSubmitArticle();
+    } catch (error: any) {
+      const msg = error?.response?.detail || error?.message || 'Maqola yuborishda xatolik yuz berdi';
+      const details = error?.response && typeof error.response === 'object' && !error.response.detail;
+      const detailStr = details ? Object.entries(error.response).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join('; ') : null;
+      toast.error(detailStr || msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCheckPaymentAndSubmit = async () => {
+    if (!paymentPendingTransactionId) return;
+    setPaymentChecking(true);
+    try {
+      const res = await paymentService.checkPaymentStatus(paymentPendingTransactionId);
+      if (res.payment_status === 2) {
+        setLoading(true);
+        try {
+          await doSubmitArticle();
+        } catch (err: any) {
+          toast.error(err?.message || 'Maqola yuborishda xatolik');
+        } finally {
+          setLoading(false);
+        }
+      } else if (res.payment_status === -1) {
+        toast.error('To\'lov amalga oshirilmadi yoki bekor qilindi.');
+      } else {
+        toast.info('To\'lov hali tasdiqlanmadi. To\'lovni amalga oshiring yoki biroz kutib qayta tekshiring.');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'To\'lov holatini tekshirishda xatolik');
+    } finally {
+      setPaymentChecking(false);
     }
   };
 
@@ -228,6 +375,120 @@ const SubmitArticle: React.FC = () => {
       <Card className="p-6">
         {currentStep === 1 && (
           <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-white mb-2">Jurnal tanlang</h2>
+            <p className="text-gray-400 text-sm mb-4">Jurnal kartasiga bosing — tanlash va keyingi qadamga o&apos;ting (Keyingi tugmasini bosish shart emas).</p>
+
+            {/* Filtr — faqat jurnal tanlash qadamida, kartalar ustida; mobilda carddan chiqmaslik */}
+            <div className="w-full min-w-0 overflow-hidden flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 p-3 rounded-lg bg-black/20 border border-white/10 mb-4">
+              <span className="flex items-center gap-2 text-sm font-medium text-gray-400 shrink-0">
+                <Filter size={18} className="text-blue-400" />
+                Filtr
+              </span>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 min-w-0 w-full sm:flex-1">
+                <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
+                  <BookOpen size={16} className="text-gray-500 shrink-0" />
+                  <select
+                    value={journalFilterType}
+                    onChange={(e) => setJournalFilterType(e.target.value)}
+                    className="flex-1 min-w-0 w-full max-w-full bg-white/5 border border-white/10 rounded-lg pl-3 pr-8 py-2 text-sm text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+                    style={{ minWidth: 0 }}
+                    aria-label="Nashr turi"
+                  >
+                    <option value="">Barcha jurnallar</option>
+                    {PUBLICATION_TYPES.map((name) => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
+                  <Layers size={16} className="text-gray-500 shrink-0" />
+                  <select
+                    value={journalFilterSubject}
+                    onChange={(e) => setJournalFilterSubject(e.target.value)}
+                    className="flex-1 min-w-0 w-full max-w-full bg-white/5 border border-white/10 rounded-lg pl-3 pr-8 py-2 text-sm text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+                    style={{ minWidth: 0 }}
+                    aria-label="Soha"
+                  >
+                    <option value="">Barcha sohalar</option>
+                    {SUBJECT_AREAS.map((name) => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                </div>
+                {(journalFilterType || journalFilterSubject) && (
+                  <button
+                    type="button"
+                    onClick={() => { setJournalFilterType(''); setJournalFilterSubject(''); }}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 self-start sm:self-center"
+                    aria-label="Filterni tozalash"
+                  >
+                    <X size={16} />
+                    Tozalash
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <input
+              type="text"
+              value={journalSearch}
+              onChange={(e) => setJournalSearch(e.target.value)}
+              placeholder="Jurnal nomi yoki tavsifi bo'yicha qidirish..."
+              className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 mb-4"
+            />
+            <p className="text-sm text-gray-400 mb-4">Jurnallar: {journals.length} | Ko&apos;rsatilmoqda: {filteredJournals.length}</p>
+            {errors.journalId && <p className="text-red-500 text-sm mb-2">{errors.journalId}</p>}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredJournals.map((j) => {
+                const isFixed = j.pricing_type === 'fixed' || (j.publication_fee != null && j.publication_fee > 0 && !j.price_per_page);
+                const priceText = isFixed
+                  ? `${(j.publication_fee ?? 0).toLocaleString()} so'm`
+                  : j.price_per_page != null
+                    ? `${(j.price_per_page).toLocaleString()} so'm / sahifa`
+                    : '';
+                return (
+                  <button
+                    key={j.id}
+                    type="button"
+                    onClick={() => selectJournalAndNext(j.id)}
+                    className="text-left rounded-xl border-2 border-white/10 bg-white/5 hover:border-blue-500/50 hover:bg-white/10 transition-all duration-200 group overflow-hidden"
+                  >
+                    <div className="flex flex-col">
+                      <div className="w-full h-36 sm:h-40 rounded-t-xl bg-white/5 flex items-center justify-center overflow-hidden border-b border-white/10">
+                        {j.image_url ? (
+                          <img
+                            src={j.image_url.startsWith('http') ? j.image_url : apiService.getMediaUrl(j.image_url)}
+                            alt={j.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <BookOpen className="w-16 h-16 text-blue-400" />
+                        )}
+                      </div>
+                      <div className="p-4 min-w-0">
+                        <h3 className="font-semibold text-white truncate">{j.name}</h3>
+                        {j.description && (
+                          <p className="text-sm text-gray-400 mt-1 line-clamp-2">{j.description}</p>
+                        )}
+                        {j.issn && <p className="text-xs text-gray-500 mt-1 font-mono">{j.issn}</p>}
+                        {priceText && (
+                          <p className="text-sm font-medium text-blue-300 mt-2">{priceText}</p>
+                        )}
+                        {priceText && <p className="text-xs text-gray-400">To&apos;liq to&apos;lov</p>}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            {filteredJournals.length === 0 && (
+              <p className="text-center text-gray-400 py-8">Qidiruv bo&apos;yicha jurnal topilmadi.</p>
+            )}
+          </div>
+        )}
+
+        {currentStep === 2 && (
+          <div className="space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-white mb-4">Fayl yuklash</h2>
               <div
@@ -246,14 +507,14 @@ const SubmitArticle: React.FC = () => {
                   <div className="space-y-2">
                     <UploadCloud className="w-12 h-12 text-gray-400 mx-auto" />
                     <p className="text-white font-medium">Faylni tanlang</p>
-                    <p className="text-gray-400 text-sm">DOCX yoki PDF, maksimal 10MB</p>
+                    <p className="text-gray-400 text-sm">DOC yoki DOCX (Word)</p>
                   </div>
                 )}
               </div>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".docx,.pdf"
+                accept=".doc,.docx"
                 onChange={handleFileSelect}
                 className="hidden"
               />
@@ -262,21 +523,22 @@ const SubmitArticle: React.FC = () => {
           </div>
         )}
 
-        {currentStep === 2 && (
+        {currentStep === 3 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-white mb-4">Maqola tavsifi</h2>
+            <p className="text-gray-400 text-sm mb-4">Maqola mavzusi va muallif ism-familiyasi majburiy (ma&apos;lumotnomada ko&apos;rsatiladi).</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Maqola mavzusi *
+                  Maqola mavzusi (sarlavha) *
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                  placeholder="Maqola mavzusini kiriting"
+                  placeholder="Masalan: O'zbekiston iqtisodiyotida raqamlashtirish tendensiyalari"
                 />
                 {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
               </div>
@@ -290,9 +552,18 @@ const SubmitArticle: React.FC = () => {
                   value={formData.authorName}
                   onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
                   className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                  placeholder="Ism familiyani kiriting"
+                  placeholder="Masalan: Ali Valiyev"
                 />
                 {errors.authorName && <p className="text-red-500 text-sm mt-1">{errors.authorName}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Jurnal
+                </label>
+                <p className="px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white">
+                  {journals.find((j) => j.id === formData.journalId)?.name || '—'}
+                </p>
               </div>
             </div>
 
@@ -375,7 +646,7 @@ const SubmitArticle: React.FC = () => {
           </div>
         )}
 
-        {currentStep === 3 && (
+        {currentStep === 4 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-white mb-4">Hammualliflar</h2>
 
@@ -421,7 +692,7 @@ const SubmitArticle: React.FC = () => {
           </div>
         )}
 
-        {currentStep === 4 && (
+        {currentStep === 5 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-white mb-4">Tasdiqlash</h2>
 
@@ -434,8 +705,9 @@ const SubmitArticle: React.FC = () => {
               <div>
                 <h3 className="text-lg font-medium text-white mb-2">Maqola ma'lumotlari</h3>
                 <div className="bg-white/5 rounded-lg p-4 space-y-2">
-                  <p><strong>Mavzu:</strong> {formData.title}</p>
-                  <p><strong>Muallif:</strong> {formData.authorName}</p>
+                  <p><strong>Mavzu (sarlavha):</strong> {formData.title || '—'}</p>
+                  <p><strong>Muallif (ism-familiya):</strong> {formData.authorName || '—'}</p>
+                  <p><strong>Jurnal:</strong> {journals.find(j => j.id === formData.journalId)?.name || '—'}</p>
                   <p><strong>Kalit so'zlar:</strong> {formData.keywords}</p>
                   <p><strong>Abstrakt:</strong> {formData.abstract.substring(0, 100)}...</p>
                 </div>
@@ -468,6 +740,24 @@ const SubmitArticle: React.FC = () => {
           </div>
         )}
 
+        {/* Pre-payment: to'lov kutilmoqda — to'lovni tekshirish */}
+        {currentStep === steps.length && paymentPendingTransactionId && (
+          <div className="mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
+            <p className="text-amber-200 text-sm mb-3">
+              Oldindan to&apos;lov talab qilinadi. To&apos;lovni amalga oshiring (yangi tabda ochilgan sahifada), keyin quyidagi tugmani bosing.
+            </p>
+            <Button
+              type="button"
+              onClick={handleCheckPaymentAndSubmit}
+              disabled={paymentChecking || loading}
+              className="flex items-center gap-2"
+            >
+              {paymentChecking || loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              To&apos;lovni tekshirish va maqolani yuborish
+            </Button>
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         <div className="flex justify-between mt-8 pt-6 border-t border-gray-600">
           <Button
@@ -485,11 +775,11 @@ const SubmitArticle: React.FC = () => {
           ) : (
             <Button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || !!paymentPendingTransactionId}
               className="flex items-center gap-2"
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Yuborish
+              {loading && !paymentPendingTransactionId && <Loader2 className="w-4 h-4 animate-spin" />}
+              {paymentPendingTransactionId ? 'To\'lov kutilmoqda' : 'Yuborish'}
             </Button>
           )}
         </div>

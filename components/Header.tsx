@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link, NavLink } from 'react-router-dom';
 import { useAuth, useNotifications } from '../contexts/AuthContext';
-import { LogOut, Bell, LayoutDashboard, FileText, Upload, Users, Library, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages } from 'lucide-react';
+import { LogOut, Bell, LayoutDashboard, FileText, Upload, Users, Library, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages, FolderArchive } from 'lucide-react';
 import { Role, Notification } from '../types';
 
 const roleNames: Record<Role, string> = {
@@ -26,9 +26,10 @@ const mainNavLinks: Record<Role, NavLinkItem[]> = {
         { to: '/my-collections', icon: Archive, label: 'To\'plamlarim' },
         { to: '/my-translations', icon: Languages, label: 'Tarjimalarim' },
         { to: '/services', icon: Sparkles, label: 'Xizmatlar' },
+        { to: '/arxiv', icon: FolderArchive, label: 'Arxiv hujjatlar' },
     ],
     [Role.Reviewer]: [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Ishchi stol' },
         { to: '/articles', icon: FileText, label: 'Taqrizga kelganlar' },
     ],
     [Role.JournalAdmin]: [
@@ -41,7 +42,7 @@ const mainNavLinks: Record<Role, NavLinkItem[]> = {
         { to: '/users', icon: Users, label: 'Foydalanuvchilar' },
         { to: '/articles', icon: FileText, label: 'Barcha maqolalar' },
         { to: '/journal-management', icon: BookMarked, label: 'Jurnallar' },
-        { to: '/udk-requests', icon: Library, label: 'UDK so\'rovlari' },
+        { to: '/prices', icon: DollarSign, label: 'Narxlar' },
     ],
     [Role.Accountant]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
@@ -88,7 +89,8 @@ useState(false);
   }
 
   return (
-    <header className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 h-20 bg-black/20 backdrop-blur-lg border-b border-white/10 sticky top-0 z-30">
+    <>
+      <header className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 h-20 bg-black/20 backdrop-blur-lg border-b border-white/10 sticky top-0 z-30">
         <div className="flex items-center gap-6">
             <Link to="/dashboard" className="text-2xl font-bold text-white tracking-wider flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-xl shadow-md">
@@ -176,6 +178,7 @@ useState(false);
             </button>
         </div>
     </header>
+    </>
   );
 };
 

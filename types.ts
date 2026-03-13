@@ -8,18 +8,43 @@ export enum Role {
   Accountant = 'accountant',
 }
 
+/** Backend status keys (use these for API and comparisons). */
 export enum ArticleStatus {
-  Draft = 'Qoralama',
-  Yangi = 'Yangi', // Renamed from Submitted
-  WithEditor = 'Redaktorda',
-  QabulQilingan = 'Qabul Qilingan', // Renamed from InReview
-  WritingInProgress = 'Yozish jarayonida',
-  NashrgaYuborilgan = 'Nashrga Yuborilgan', // Renamed from ReadyForPublication
-  Revision = 'Tahrirga qaytarilgan',
-  Accepted = 'Qabul qilingan',
-  Rejected = 'Rad etilgan',
-  Published = 'Nashr etilgan',
+  Draft = 'Draft',
+  Yangi = 'Yangi',
+  WithEditor = 'WithEditor',
+  QabulQilingan = 'QabulQilingan',
+  WritingInProgress = 'WritingInProgress',
+  NashrgaYuborilgan = 'NashrgaYuborilgan',
+  PlagiarismReview = 'PlagiarismReview',
+  Revision = 'Revision',
+  Accepted = 'Accepted',
+  Rejected = 'Rejected',
+  Published = 'Published',
+  ContractProcessing = 'ContractProcessing',
+  IsbnProcessing = 'IsbnProcessing',
+  AuthorDataVerified = 'AuthorDataVerified',
+  PaymentCompleted = 'PaymentCompleted',
 }
+
+/** Display labels for article status (Uzbek). */
+export const ARTICLE_STATUS_LABELS: Record<string, string> = {
+  [ArticleStatus.Draft]: 'Qoralama',
+  [ArticleStatus.Yangi]: 'Yangi',
+  [ArticleStatus.WithEditor]: 'Redaktorda',
+  [ArticleStatus.QabulQilingan]: 'Qabul Qilingan',
+  [ArticleStatus.WritingInProgress]: 'Yozish jarayonida',
+  [ArticleStatus.NashrgaYuborilgan]: 'Nashrga Yuborilgan',
+  [ArticleStatus.PlagiarismReview]: 'Antiplagiat ko\'rib chiqish (bosh admin)',
+  [ArticleStatus.Revision]: 'Tahrirga qaytarilgan',
+  [ArticleStatus.Accepted]: 'Qabul qilingan',
+  [ArticleStatus.Rejected]: 'Rad etilgan',
+  [ArticleStatus.Published]: 'Nashr etilgan',
+  [ArticleStatus.ContractProcessing]: 'Shartnoma rasmiylashtirilmoqda',
+  [ArticleStatus.IsbnProcessing]: 'ISBN olinmoqda',
+  [ArticleStatus.AuthorDataVerified]: 'Muallif ma\'lumotlari tasdiqlandi',
+  [ArticleStatus.PaymentCompleted]: 'To\'lov jarayoni yakunlandi',
+};
 
 export enum TranslationStatus {
   Yangi = 'Yangi',
@@ -74,6 +99,7 @@ export interface Article {
   status: ArticleStatus;
   authorId: string;
   journalId: string;
+  journalName?: string;
   doi?: string;
   submissionDate: string;
   versions: ArticleVersion[];
@@ -154,6 +180,12 @@ export interface Journal {
   additional_doc_label?: string;
   additional_doc_required?: boolean;
   additional_doc_type?: string;
+  /** Antiplagiat & AI: plagiat bu % dan katta bo'lsa rad. Null = tekshiruv o'chiq. */
+  plagiarism_max_percent?: number | null;
+  /** AI kontent bu % dan katta bo'lsa rad. Null = tekshiruv o'chiq. */
+  ai_content_max_percent?: number | null;
+  /** Originalilik bu % dan kichik bo'lsa rad. Null = tekshiruv o'chiq. */
+  originality_min_percent?: number | null;
 }
 
 export interface Issue {

@@ -38,7 +38,7 @@ const PublishedArticles: React.FC = () => {
         }
     }, [managedJournals, selectedJournalId]);
 
-    // Fetch data from API
+    // Fetch data from API (JournalAdmin: users list returns 403, so fetch users separately)
     useEffect(() => {
         const fetchData = async () => {
             if (!user || user.role !== Role.JournalAdmin) return;
@@ -47,20 +47,28 @@ const PublishedArticles: React.FC = () => {
             setError(null);
             
             try {
-                const [issuesData, journalsData, articlesData, usersData] = await Promise.all([
+                const [issuesData, journalsData, articlesData] = await Promise.all([
                     apiService.journals.listIssues(),
                     apiService.journals.list(),
-                    apiService.articles.list(),
-                    apiService.users.list()
+                    apiService.articles.list()
                 ]);
                 
                 setIssues(issuesData.results || issuesData);
                 setJournals(journalsData.results || journalsData);
                 setArticles(articlesData.results || articlesData);
-                setUsers(usersData.results || usersData);
+
+                try {
+                    const usersData = await apiService.users.list();
+                    setUsers(usersData.results || usersData);
+                } catch {
+                    setUsers([]);
+                }
             } catch (err: any) {
-                console.error('Failed to fetch data:', err);
-                setError('Ma\'lumotlarni yuklashda xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
+                const isForbidden = err?.status === 403;
+                if (!isForbidden) {
+                    console.error('Failed to fetch data:', err);
+                    setError('Ma\'lumotlarni yuklashda xatolik yuz berdi: ' + (err.message || 'Noma\'lum xatolik'));
+                }
             } finally {
                 setLoading(false);
             }
@@ -70,11 +78,13 @@ const PublishedArticles: React.FC = () => {
     }, [user]);
 
     const activeIssue = useMemo(() => {
-        return issues.find(issue => 
-            issue.journalId === selectedJournalId &&
-            new Date(issue.publicationDate).getFullYear() === selectedYear &&
-            new Date(issue.publicationDate).getMonth() === selectedMonth
-        );
+        return issues.find(issue => {
+            const journalId = issue.journalId ?? (issue as any).journal;
+            const pubDate = issue.publicationDate ?? (issue as any).publication_date;
+            if (!journalId || !pubDate) return false;
+            const d = new Date(pubDate);
+            return journalId === selectedJournalId && d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
+        });
     }, [issues, selectedJournalId, selectedYear, selectedMonth]);
 
     const articlesForNewIssue = useMemo(() => {
@@ -140,6 +150,10 @@ const PublishedArticles: React.FC = () => {
     }
 
     const handleCreateOrUpdateIssue = async () => {
+        if (!selectedJournalId) {
+            alert("Iltimos, jurnalni tanlang.");
+            return;
+        }
         if (!collectionPdf && !collectionUrl) {
             alert("Iltimos, oylik to'plamning faylini (DOC/DOCX/PDF) yuklang yoki havola kiriting.");
             return;

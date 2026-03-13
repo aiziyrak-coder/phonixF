@@ -133,6 +133,15 @@ const SubmitBook: React.FC = () => {
     const [coverType, setCoverType] = useState<'soft' | 'hard'>('soft');
     const [options, setOptions] = useState({ isbn: false, design: false });
 
+    // Nashr turi: bosma (yuborish kerak) yoki raqamli
+    const [publicationType, setPublicationType] = useState<'bosma' | 'raqamli'>('bosma');
+    // Bosma nashr bo'lsa — yetkazib berish (profil dan avtomatik to'ldiriladi, boshqasiga bo'lsa o'zgartirib kiritiladi)
+    const [shippingFirstName, setShippingFirstName] = useState('');
+    const [shippingLastName, setShippingLastName] = useState('');
+    const [shippingRegion, setShippingRegion] = useState('');
+    const [shippingAddress, setShippingAddress] = useState('');
+    const [shippingPhone, setShippingPhone] = useState('');
+
     // Book details state
     const [title, setTitle] = useState('');
     const [synopsis, setSynopsis] = useState('');
@@ -153,6 +162,30 @@ const SubmitBook: React.FC = () => {
         return () => {
             if (paymentTimerRef.current) clearTimeout(paymentTimerRef.current);
         };
+    }, []);
+
+    // Muqova rasm yuklanmasa — professional muqova dizayni yoqiladi; yuklasa — avtomatik o'chadi
+    useEffect(() => {
+        setOptions((prev) => ({ ...prev, design: !coverFile }));
+    }, [coverFile]);
+
+    // Ro'yxatdan o'tgan foydalanuvchi ismi, familyasi va telefoni avtomatik to'ldiriladi (bo'sh bo'lsa)
+    useEffect(() => {
+        if (user && !shippingFirstName && !shippingLastName && !shippingPhone) {
+            setShippingFirstName(user.firstName || '');
+            setShippingLastName(user.lastName || '');
+            const phone = user.phone || '';
+            setShippingPhone(phone && !phone.startsWith('+') ? `+${phone}` : phone);
+        }
+    }, [user]);
+
+    // To'lov sahifasidan qaytganda transactionId ni tiklash va holatni avtomatik tekshirish
+    useEffect(() => {
+        const stored = sessionStorage.getItem('submitbook_pending_transaction_id');
+        if (stored) {
+            setTransactionId(stored);
+            refreshProcessStatus(stored);
+        }
     }, []);
 
     const calculatedCosts = useMemo(() => {
@@ -242,6 +275,24 @@ const SubmitBook: React.FC = () => {
             alert("Iltimos, sahifa va nusxalar sonini to'g'ri kiriting.");
             return;
         }
+        if (publicationType === 'bosma') {
+            if (!shippingRegion.trim()) {
+                alert("Bosma nashr uchun viloyat yoki shaharni kiriting.");
+                return;
+            }
+            if (!shippingAddress.trim()) {
+                alert("Yetkazib berish manzilini (ko'cha, uy) kiriting.");
+                return;
+            }
+            if (!shippingFirstName.trim() || !shippingLastName.trim()) {
+                alert("Yetkazib berish uchun ism va familyani kiriting.");
+                return;
+            }
+            if (!shippingPhone.trim()) {
+                alert("Yetkazib berish uchun telefon raqamini kiriting.");
+                return;
+            }
+        }
         setPaymentStatus('idle');
         setPaymentError(null);
         setIsPaymentModalOpen(true);
@@ -260,27 +311,40 @@ const SubmitBook: React.FC = () => {
         
         try {
             // Create transaction and process payment via Click
+            const extraData: Record<string, unknown> = {
+                publication_type: publicationType,
+            };
+            if (publicationType === 'bosma') {
+                extraData.shipping_region = shippingRegion.trim();
+                extraData.shipping_address = shippingAddress.trim();
+                extraData.shipping_first_name = shippingFirstName.trim();
+                extraData.shipping_last_name = shippingLastName.trim();
+                extraData.shipping_phone = shippingPhone.trim();
+            }
             const result = await paymentService.createTransactionAndPay(
                 calculatedCosts.total,
                 'UZS',
                 'book_publication',
                 undefined, // articleId
-                undefined  // translationRequestId
+                undefined, // translationRequestId
+                'click',
+                extraData
             );
             
             console.log('Payment result:', result);
             
-            if (result && result.success === true && result.payment_url) {
+            if (result && result.success === true && result.transaction_id) {
+                const txId = result.transaction_id;
                 setPaymentStatus('success');
-                setTransactionId(result.transaction_id || null);
+                setTransactionId(txId);
                 setProcessPaymentStatus('pending');
-                
-                // Show notification
-                addNotification({ 
-                    message: 'To\'lov oynasi yangi tabda ochildi. To\'lovni shu oynada davom ettiring.',
+                sessionStorage.setItem('submitbook_pending_transaction_id', txId);
+                addNotification({
+                    message: 'To\'lov sahifasida QR kodni skanerlang yoki tugmani bosing. To\'lovdan keyin sahifaga qayting va "Holatni yangilash" ni bosing.',
                 });
-
-                window.open(result.payment_url, '_blank', 'noopener,noreferrer');
+                paymentService.redirectToPaymentPage(txId);
+            } else if (result && result.success === true && result.payment_url && result.transaction_id) {
+                paymentService.redirectToPaymentPage(result.transaction_id);
             } else {
                 // Payment preparation failed
                 const errorMsg = (result as any)?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
@@ -305,21 +369,29 @@ const SubmitBook: React.FC = () => {
 
     const closeProcessModal = () => setIsProcessModalOpen(false);
 
-    const refreshProcessStatus = async () => {
-        if (!transactionId) return;
+    const STORAGE_KEY_BOOK_TX = 'submitbook_pending_transaction_id';
+
+    const refreshProcessStatus = async (txId?: string) => {
+        const id = txId ?? transactionId ?? sessionStorage.getItem(STORAGE_KEY_BOOK_TX);
+        if (!id) return;
 
         setIsRefreshingProcess(true);
         try {
-            const statusResult = await paymentService.checkPaymentStatus(transactionId);
+            const statusResult = await paymentService.checkPaymentStatus(id);
             if (statusResult.payment_status === 2) {
                 setProcessPaymentStatus('completed');
+                setTransactionId((prev) => (prev || id));
+                sessionStorage.removeItem(STORAGE_KEY_BOOK_TX);
             } else if (statusResult.payment_status === -1) {
                 setProcessPaymentStatus('failed');
+                setTransactionId((prev) => prev || id);
             } else {
                 setProcessPaymentStatus('pending');
+                setTransactionId((prev) => prev || id);
             }
         } catch (err) {
             setProcessPaymentStatus('pending');
+            setTransactionId((prev) => prev || id);
         } finally {
             setIsRefreshingProcess(false);
         }
@@ -387,13 +459,13 @@ const SubmitBook: React.FC = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Qo'lyozma Fayli (.docx, .pdf)</label>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Qo'lyozma Fayli (.doc, .docx)</label>
                                     <label htmlFor="manuscript-upload" className="cursor-pointer">
                                         <div className="p-8 border-2 border-dashed rounded-lg border-gray-600 text-center bg-white/5 hover:bg-white/10 transition-colors h-full flex flex-col justify-center">
                                             <UploadCloud className="mx-auto h-10 w-10 text-gray-400" />
                                             <p className="mt-2 text-sm text-gray-400">{manuscriptFile ? manuscriptFile.name : 'Faylni yuklang'}</p>
                                         </div>
-                                        <input id="manuscript-upload" type="file" className="sr-only" onChange={(e) => setManuscriptFile(e.target.files ? e.target.files[0] : null)} accept=".doc,.docx,.pdf" required />
+                                        <input id="manuscript-upload" type="file" className="sr-only" onChange={(e) => setManuscriptFile(e.target.files ? e.target.files[0] : null)} accept=".doc,.docx" required />
                                     </label>
                                 </div>
                                 <div>
@@ -410,11 +482,92 @@ const SubmitBook: React.FC = () => {
                         </div>
                     </div>
 
+                    <div className="mt-10 pt-6 border-t border-white/10">
+                        <h3 className="text-lg font-semibold text-white mb-4">4. Nashr turi va yetkazib berish</h3>
+                        <OptionToggle
+                            label="Nashr turi"
+                            options={[
+                                { value: 'bosma', label: 'Bosma nashr (yuborish kerak)' },
+                                { value: 'raqamli', label: 'Raqamli nashr' },
+                            ]}
+                            selected={publicationType}
+                            onSelect={(val) => setPublicationType(val as 'bosma' | 'raqamli')}
+                        />
+                        {publicationType === 'bosma' && (
+                            <div className="mt-6 p-4 rounded-lg bg-white/5 border border-white/10 space-y-4">
+                                <p className="text-sm text-gray-400">Kitob bosma nashrda chiqsa, yetkazib berish uchun manzilni kiriting. Ism, familya va telefon profil ma'lumotlaridan avtomatik to'ldiriladi; boshqasiga yetkazib berish bo'lsa o'zgartiring.</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">Ism *</label>
+                                        <input
+                                            type="text"
+                                            value={shippingFirstName}
+                                            onChange={e => setShippingFirstName(e.target.value)}
+                                            placeholder="Ism"
+                                            className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">Familya *</label>
+                                        <input
+                                            type="text"
+                                            value={shippingLastName}
+                                            onChange={e => setShippingLastName(e.target.value)}
+                                            placeholder="Familya"
+                                            className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Telefon (yetkazib berish uchun) *</label>
+                                    <input
+                                        type="tel"
+                                        value={shippingPhone}
+                                        onChange={e => {
+                                            const v = e.target.value;
+                                            setShippingPhone(v && !v.startsWith('+') ? `+${v}` : v);
+                                        }}
+                                        placeholder="+998 90 123 45 67"
+                                        className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Viloyat / Shahar *</label>
+                                    <input
+                                        type="text"
+                                        value={shippingRegion}
+                                        onChange={e => setShippingRegion(e.target.value)}
+                                        placeholder="Masalan: Toshkent, Samarqand"
+                                        className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Manzil (ko'cha, uy, kv) *</label>
+                                    <input
+                                        type="text"
+                                        value={shippingAddress}
+                                        onChange={e => setShippingAddress(e.target.value)}
+                                        placeholder="Ko'cha nomi, uy raqami, kv"
+                                        className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="mt-10 pt-6 border-t border-white/10 flex justify-end">
-                        <Button type="submit" disabled={!title || !manuscriptFile || pages <= 0 || copies <= 0}>
+                        <Button
+                            type="submit"
+                            disabled={
+                                !title || !manuscriptFile || pages <= 0 || copies <= 0 ||
+                                (publicationType === 'bosma' && (
+                                    !shippingRegion.trim() || !shippingAddress.trim() ||
+                                    !shippingFirstName.trim() || !shippingLastName.trim() || !shippingPhone.trim()
+                                ))
+                            }
+                        >
                             To'lovga o'tish va Yuborish
                         </Button>
-
                     </div>
                 </form>
             </Card>
@@ -452,7 +605,12 @@ const SubmitBook: React.FC = () => {
                                 <p className="mt-4 text-lg font-medium text-gray-200">To'lov oynasi ochildi</p>
                                 <p className="text-sm text-gray-400">Click sahifasi yangi tabda ochildi. To'lovni yakunlagach ushbu oynaga qayting.</p>
                                 <div className="space-y-2 mt-6">
-                                    <Button onClick={() => { setIsProcessModalOpen(true); refreshProcessStatus(); }} className="w-full">
+                                    <Button onClick={() => {
+                                        const stored = sessionStorage.getItem('submitbook_pending_transaction_id');
+                                        if (stored && !transactionId) setTransactionId(stored);
+                                        setIsProcessModalOpen(true);
+                                        refreshProcessStatus(stored || undefined);
+                                    }} className="w-full">
                                         Jarayonni ko'rish
                                     </Button>
                                     <Button onClick={closePaymentModal} variant="secondary" className="w-full">
@@ -520,7 +678,12 @@ const SubmitBook: React.FC = () => {
                         </div>
 
                         <div className="flex gap-2 mt-6">
-                            <Button onClick={refreshProcessStatus} variant="secondary" className="w-full" disabled={isRefreshingProcess || !transactionId}>
+                            <Button
+                                onClick={() => refreshProcessStatus(transactionId || sessionStorage.getItem(STORAGE_KEY_BOOK_TX) || undefined)}
+                                variant="secondary"
+                                className="w-full"
+                                disabled={isRefreshingProcess || !(transactionId || sessionStorage.getItem(STORAGE_KEY_BOOK_TX))}
+                            >
                                 {isRefreshingProcess ? 'Yangilanmoqda...' : 'Holatni yangilash'}
                             </Button>
                             <Button onClick={closeProcessModal} className="w-full">Yopish</Button>
