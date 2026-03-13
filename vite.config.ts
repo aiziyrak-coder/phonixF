@@ -51,21 +51,8 @@ export default defineConfig(({ mode }) => {
         rollupOptions: {
           output: {
             manualChunks: (id) => {
-              // Split node_modules into separate chunks
+              // Barcha node_modules bitta vendor chunkda (React forwardRef xatosini oldini olish)
               if (id.includes('node_modules')) {
-                if (id.includes('react') || id.includes('react-dom')) {
-                  return 'react-vendor';
-                }
-                if (id.includes('react-router')) {
-                  return 'router-vendor';
-                }
-                if (id.includes('lucide-react')) {
-                  return 'ui-vendor';
-                }
-                if (id.includes('@google/genai')) {
-                  return 'ai-vendor';
-                }
-                // Other node_modules
                 return 'vendor';
               }
             }
