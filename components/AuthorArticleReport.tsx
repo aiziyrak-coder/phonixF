@@ -36,7 +36,10 @@ const AuthorArticleReport: React.FC<AuthorArticleReportProps> = ({ articles, aut
     const listArticles = articles;
     const documentDate = new Date().toLocaleDateString('uz-UZ', { year: 'numeric', month: 'long', day: 'numeric' });
     const documentNumber = `MAQ-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
-    const qrData = `https://ilmiyfaoliyat.uz/verify/articles-report`;
+    // QR kod: aynan shu hisobot sahifasini ochish (PDF/print ko'rinishi)
+    const qrData = typeof window !== 'undefined'
+        ? window.location.href
+        : `https://ilmiyfaoliyat.uz/#/articles?report=author`;
 
     const getJournalName = (article: Article): string =>
         article.journalName || MOCK_JOURNALS.find((j) => j.id === article.journalId)?.name || '-';
@@ -191,7 +194,7 @@ const AuthorArticleReport: React.FC<AuthorArticleReportProps> = ({ articles, aut
                     <CertificateBrandBlock />
                     <CertificateQRBlock
                         qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrData)}&bgcolor=ffffff`}
-                        label="TEKSHIRISH UCHUN QR KODDAN FOYDALANING"
+                        label="Ushbu ma'lumotnomani ochish uchun QR kodni skanerlang"
                     />
                 </div>
             </div>

@@ -955,6 +955,16 @@ export const apiService = {
 
     get: (id: string) => apiFetch(`/translations/${id}/`),
 
+    analyzeFile: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiFetch('/translations/analyze_file/', {
+        method: 'POST',
+        body: formData,
+        headers: {}, // Let fetch set Content-Type for FormData
+      });
+    },
+
     create: (translationData: any) => {
       // Handle file uploads for translations
       if (translationData.file) {

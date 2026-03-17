@@ -127,17 +127,11 @@ const TranslationService: React.FC = () => {
 
     setIsAnalyzing(true);
     try {
-      // In a real implementation, we would extract text and count words
-      // For now, we'll simulate with a calculation based on file size
-      const fileSizeInKB = file.size / 1024;
-      // Estimate ~150 words per KB for text documents
-      const estimatedWords = Math.round(fileSizeInKB * 150);
-      // Cost: 500 so'm per word
-      const estimatedCost = estimatedWords * 500;
-
+      const response = await apiService.translations.analyzeFile(file);
+      
       setAnalysisResult({
-        wordCount: estimatedWords,
-        cost: estimatedCost,
+        wordCount: response.word_count,
+        cost: response.cost,
         fileName: file.name,
       });
 
