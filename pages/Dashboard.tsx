@@ -8,6 +8,7 @@ import Button from '../components/ui/Button';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiService } from '../services/apiService';
 import { getArticleJournalIdFromApi } from '../utils/articleIds';
+import { txAmount } from '../utils/amount';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const CHART_COLORS = ['#3b82f6', '#eab308', '#22c55e', '#ef4444', '#8b5cf6', '#06b6d4'];
@@ -71,27 +72,8 @@ const Dashboard: React.FC = () => {
             try {
                 setLoading(true);
                 setError(null);
-                
-                // Fetch data based on user role
-                let usersData = [];
-                if (user.role === Role.SuperAdmin) {
-                    try {
-                        const userData = await apiService.users.list();
-                        usersData = Array.isArray(userData) ? userData : (userData?.data && Array.isArray(userData.data) ? userData.data : []);
-                    } catch (err) {
-                        console.error('Failed to fetch users:', err);
-                        // If we can't fetch users, continue with empty array
-                        usersData = [];
-                    }
-                }
-                
-                const [articlesData, journalsData, transactionsData] = await Promise.all([
-                    apiService.articles.list(),
-                    apiService.journals.list(),
-                    apiService.payments.listTransactions()
-                ]);
-                
-                // Ensure we're working with arrays - handle various response formats
+
+                // DRF: { results: [...] }, ba'zan { data: [...] } yoki to'g'ridan-to'g'ri massiv
                 const processApiResponse = (data: any): any[] => {
                     if (Array.isArray(data)) {
                         return data;
@@ -104,11 +86,37 @@ const Dashboard: React.FC = () => {
                     }
                     return [];
                 };
-                
+
+                let usersRaw: any = null;
+                if (user.role === Role.SuperAdmin) {
+                    try {
+                        const [allUsersRes, journalAdminsRes] = await Promise.all([
+                            apiService.users.list(),
+                            apiService.users.list({ role: 'journal_admin' }),
+                        ]);
+                        const base = processApiResponse(allUsersRes);
+                        const jaOnly = processApiResponse(journalAdminsRes);
+                        const byId = new Map<string, any>();
+                        [...base, ...jaOnly].forEach((u: any) => {
+                            if (u?.id) byId.set(String(u.id), u);
+                        });
+                        usersRaw = Array.from(byId.values());
+                    } catch (err) {
+                        console.error('Failed to fetch users:', err);
+                        usersRaw = null;
+                    }
+                }
+
+                const [articlesData, journalsData, transactionsData] = await Promise.all([
+                    apiService.articles.list(),
+                    apiService.journals.list(),
+                    apiService.payments.listTransactions()
+                ]);
+
                 const articlesArray = processApiResponse(articlesData);
                 const journalsArray = processApiResponse(journalsData);
                 const transactionsArray = processApiResponse(transactionsData);
-                const usersArray = processApiResponse(usersData);
+                const usersArray = user.role === Role.SuperAdmin ? processApiResponse(usersRaw) : [];
                 
                 setArticles(articlesArray);
                 setJournals(journalsArray);
@@ -591,7 +599,7 @@ const Dashboard: React.FC = () => {
         const validTransactions = Array.isArray(transactions) ? transactions : [];
         const totalRevenue = stats?.finance?.total_revenue || validTransactions
             .filter(t => t.service_type !== 'top_up' && t.status === 'completed')
-            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            .reduce((sum, t) => sum + Math.abs(txAmount(t.amount)), 0);
         const bookTransactions = validTransactions.filter(t => t.service_type === 'book_publication');
         const bookOrdersTotal = stats?.finance?.book_orders_total ?? bookTransactions.length;
         const bookOrdersCompleted = stats?.finance?.book_orders_completed ?? bookTransactions.filter(t => t.status === 'completed').length;
@@ -599,7 +607,7 @@ const Dashboard: React.FC = () => {
         const bookOrdersFailed = stats?.finance?.book_orders_failed ?? bookTransactions.filter(t => t.status === 'failed').length;
         const bookTotalRevenue = stats?.finance?.book_total_revenue ?? bookTransactions
             .filter(t => t.status === 'completed')
-            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            .reduce((sum, t) => sum + Math.abs(txAmount(t.amount)), 0);
         const totalUsersCount = stats?.users?.total || users.length;
         const totalAuthors = stats?.users?.authors || users.filter(u => u.role === Role.Author || u.role === 'author').length;
         const totalReviewers = stats?.users?.reviewers || users.filter(u => u.role === Role.Reviewer || u.role === 'reviewer').length;
@@ -613,7 +621,22 @@ const Dashboard: React.FC = () => {
         const avgPlag = checked.length > 0 ? (checked.reduce((s: number, a: any) => s + Number(a.plagiarism_percentage || 0), 0) / checked.length).toFixed(1) : '0';
         const avgAi = checked.length > 0 ? (checked.reduce((s: number, a: any) => s + Number(a.ai_content_percentage || 0), 0) / checked.length).toFixed(1) : '0';
         const highPlag = checked.filter((a: any) => Number(a.plagiarism_percentage) >= 50).length;
-        const journalAdmins = users.filter((u: any) => u.role === Role.JournalAdmin || u.role === 'journal_admin');
+        const roleNorm = (r: unknown) => String(r ?? '').toLowerCase();
+        const journalAdminIdsFromJournals = new Set(
+            journals
+                .map((j: any) => {
+                    const ja = j.journal_admin ?? j.journalAdminId ?? j.journal_admin_id;
+                    if (ja != null && typeof ja === 'object' && 'id' in ja) return String((ja as { id: string }).id);
+                    return ja != null ? String(ja) : '';
+                })
+                .filter(Boolean)
+        );
+        const journalAdmins = users.filter((u: any) => {
+            const uid = String(u.id);
+            if (roleNorm(u.role) === 'journal_admin') return true;
+            if (journalAdminIdsFromJournals.has(uid)) return true;
+            return false;
+        });
         const topArticles = [...validArticles].sort((a: any, b: any) => (b.views_count || 0) - (a.views_count || 0)).slice(0, 5);
 
         const articleStatusData = [
@@ -785,8 +808,23 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div className="space-y-3">
                             {journalAdmins.length > 0 ? journalAdmins.map((admin: any) => {
-                                const mJournalIds = journals.filter((j: any) => j.journal_admin === admin.id || j.journalAdminId === admin.id).map((j: any) => j.id);
-                                const pubCount = validArticles.filter((a: any) => mJournalIds.includes(a.journal) && a.status === 'Published').length;
+                                const aid = String(admin.id);
+                                const mJournalIds = journals
+                                    .filter((j: any) => {
+                                        const ja = j.journal_admin ?? j.journalAdminId ?? j.journal_admin_id;
+                                        const jid =
+                                            ja != null && typeof ja === 'object' && ja !== null && 'id' in ja
+                                                ? String((ja as { id: string }).id)
+                                                : ja != null
+                                                  ? String(ja)
+                                                  : '';
+                                        return jid === aid;
+                                    })
+                                    .map((j: any) => String(j.id));
+                                const pubCount = validArticles.filter((a: any) => {
+                                    const aj = getArticleJournalIdFromApi(a);
+                                    return aj && mJournalIds.includes(aj) && a.status === 'Published';
+                                }).length;
                                 return (
                                     <div key={admin.id} className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all">
                                         {admin.avatar_url || admin.avatarUrl ? (
@@ -869,14 +907,14 @@ const Dashboard: React.FC = () => {
     const renderAccountantDashboard = () => {
         const validTransactions = Array.isArray(transactions) ? transactions : [];
         const successfulTransactions = validTransactions.filter(t => t.status === 'completed' && t.service_type !== 'top_up');
-        const totalRevenue = successfulTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        const totalRevenue = successfulTransactions.reduce((sum, t) => sum + Math.abs(txAmount(t.amount)), 0);
         
         const today = new Date().toISOString().split('T')[0];
         const todaysTransactions = successfulTransactions.filter(t => {
             const transactionDate = new Date(t.created_at).toISOString().split('T')[0];
             return transactionDate === today;
         });
-        const revenueToday = todaysTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        const revenueToday = todaysTransactions.reduce((sum, t) => sum + Math.abs(txAmount(t.amount)), 0);
 
         // Calculate weekly revenue
         const oneWeekAgo = new Date();
@@ -885,7 +923,7 @@ const Dashboard: React.FC = () => {
             const transactionDate = new Date(t.created_at);
             return transactionDate >= oneWeekAgo;
         });
-        const revenueThisWeek = weeklyTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        const revenueThisWeek = weeklyTransactions.reduce((sum, t) => sum + Math.abs(txAmount(t.amount)), 0);
 
         return (
             <div className="space-y-8">

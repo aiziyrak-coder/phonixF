@@ -314,7 +314,13 @@ export const apiService = {
 
   // Users
   users: {
-    list: () => apiFetch('/auth/'),
+    /** @param params masalan { role: 'journal_admin' } — DRF sahifalashda barcha jurnal adminlarni olish uchun */
+    list: (params?: Record<string, string>) => {
+      if (!params || Object.keys(params).length === 0) {
+        return apiFetch('/auth/');
+      }
+      return apiFetch(`/auth/?${new URLSearchParams(params)}`);
+    },
 
     get: (id: string) => apiFetch(`/auth/${id}/`),
 

@@ -4,6 +4,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Download, Filter, Search, Loader2 } from 'lucide-react';
 import { apiService } from '../services/apiService';
+import { txAmount } from '../utils/amount';
 
 const Financials: React.FC = () => {
     const { user } = useAuth();
@@ -121,7 +122,7 @@ const Financials: React.FC = () => {
                 const user = users.find(u => u.id === t.user);
                 const userName = user ? `${user.first_name} ${user.last_name}` : 'Noma\'lum foydalanuvchi';
                 const service = serviceTypeNames[t.service_type] || t.service_type || 'Noma\'lum';
-                const amount = `${t.amount >= 0 ? '+' : ''}${t.amount}`;
+                const amount = `${txAmount(t.amount) >= 0 ? '+' : ''}${txAmount(t.amount)}`;
                 const date = new Date(t.created_at).toLocaleDateString();
                 return `"${userName}","${service}","${amount}","${t.currency}","${date}","${t.status}"`;
             })
@@ -170,26 +171,27 @@ const Financials: React.FC = () => {
         );
     }
 
-    // Calculate totals
+    // Calculate totals (amount har doim son — string bo'lsa ham)
     const totalIncome = filteredTransactions
-        .filter(t => t.amount > 0 && t.status === 'completed')
-        .reduce((sum, t) => sum + t.amount, 0);
-        
+        .filter((t) => txAmount(t.amount) > 0 && t.status === 'completed')
+        .reduce((sum, t) => sum + txAmount(t.amount), 0);
+
     const totalExpenses = filteredTransactions
-        .filter(t => t.amount < 0 && t.status === 'completed')
-        .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-        
+        .filter((t) => txAmount(t.amount) < 0 && t.status === 'completed')
+        .reduce((sum, t) => sum + Math.abs(txAmount(t.amount)), 0);
+
     // Calculate by service type
     const incomeByServiceType: Record<string, number> = {};
     const expensesByServiceType: Record<string, number> = {};
-    
-    filteredTransactions.forEach(t => {
+
+    filteredTransactions.forEach((t) => {
         if (t.status === 'completed') {
             const service = t.service_type || 'other';
-            if (t.amount > 0) {
-                incomeByServiceType[service] = (incomeByServiceType[service] || 0) + t.amount;
-            } else {
-                expensesByServiceType[service] = (expensesByServiceType[service] || 0) + Math.abs(t.amount);
+            const amt = txAmount(t.amount);
+            if (amt > 0) {
+                incomeByServiceType[service] = (incomeByServiceType[service] || 0) + amt;
+            } else if (amt < 0) {
+                expensesByServiceType[service] = (expensesByServiceType[service] || 0) + Math.abs(amt);
             }
         }
     });

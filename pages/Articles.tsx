@@ -409,9 +409,11 @@ const Articles: React.FC = () => {
     // Handle both string and enum role values
     const userRole = typeof user?.role === 'string' ? user.role.toLowerCase() : user?.role;
     const isJournalAdmin = userRole === Role.JournalAdmin || userRole === 'journal_admin' || userRole === 'journaladmin';
-    
+    /** API ba'zan role ni boshqa registrda yuborishi mumkin; switch(user.role) bo'sh ro'yxat qaytardi */
+    const isReviewer = userRole === 'reviewer' || user?.role === Role.Reviewer;
+
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState(user?.role === Role.Reviewer ? 'reviews' : isJournalAdmin ? 'new' : 'all');
+    const [activeTab, setActiveTab] = useState(isReviewer ? 'reviews' : isJournalAdmin ? 'new' : 'all');
     const [showReportModal, setShowReportModal] = useState(false);
     const [showNashrHisobotModal, setShowNashrHisobotModal] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
@@ -485,27 +487,25 @@ const Articles: React.FC = () => {
                     : articles.filter(a => selectedTab.statuses.includes(a.status as ArticleStatus));
             return list.sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
         }
-        switch (user.role) {
-            case Role.Reviewer:
-                if (activeTab === 'reviews') {
-                    const selectedTab = reviewerTabs.find(t => t.id === activeTab);
-                    return articles
-                        .filter(a => selectedTab?.statuses.includes(a.status as ArticleStatus))
-                        .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
-                }
-                return [];
-            default:
-                return [];
+        if (isReviewer) {
+            if (activeTab === 'reviews') {
+                const selectedTab = reviewerTabs.find((t) => t.id === activeTab);
+                return articles
+                    .filter((a) => selectedTab?.statuses.includes(a.status as ArticleStatus))
+                    .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
+            }
+            return [];
         }
-    }, [user, userRole, activeTab, articles, journals, isJournalAdmin]);
+        return [];
+    }, [user, userRole, activeTab, articles, journals, isJournalAdmin, isReviewer]);
 
     const translationsToShow: TranslationRequestApiResponse[] = useMemo(() => {
-        if (user.role !== Role.Reviewer || activeTab !== 'translations') return [];
+        if (!isReviewer || activeTab !== 'translations') return [];
         return translations.filter(tr => 
             tr.status === TranslationStatus.Yangi || 
             (tr.reviewer === user.id && tr.status === TranslationStatus.Jarayonda)
         );
-    }, [user, activeTab, translations]);
+    }, [user, activeTab, translations, isReviewer]);
 
     const filteredTranslations = useMemo(() => {
         if (!searchQuery) return translationsToShow;
@@ -715,7 +715,7 @@ const Articles: React.FC = () => {
     };
 
     const renderContent = () => {
-        if (user.role === Role.Reviewer && activeTab === 'translations') {
+        if (isReviewer && activeTab === 'translations') {
             return (
                 <div className="space-y-4">
                     {filteredTranslations.length > 0 ? (
@@ -816,7 +816,7 @@ const Articles: React.FC = () => {
                         </Button>
                     </div>
                 )}
-                {user.role === Role.Reviewer && renderTabs(reviewerTabs, reviewerTabCounts)}
+                {isReviewer && renderTabs(reviewerTabs, reviewerTabCounts)}
                 {(userRole === Role.Author || userRole === 'author') && renderTabs(authorArticleTabs, authorTabCounts)}
                 {isJournalAdmin && renderTabs(journalAdminTabs, journalAdminTabCounts)}
                 {user.role === Role.SuperAdmin && renderTabs(journalAdminTabs, superAdminTabCounts)}
