@@ -6,6 +6,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Search, Edit3, Eye, FileText, CheckCircle, XCircle, Clock, Users, FileEdit, BookOpen, TrendingUp } from 'lucide-react';
 import { apiService } from '../services/apiService';
+import { getArticleJournalIdFromApi } from '../utils/articleIds';
 
 interface JournalAdminPanelProps {}
 
@@ -68,10 +69,14 @@ const JournalAdminPanel: React.FC = () => {
                     }
                 }
                 
-                // Filter articles to only include those from managed journals
-                const filteredArticles = articlesArray.filter(article => 
-                    managedJournalIds.includes(article.journalId)
+                const managedJournalIdSet = new Set(
+                    managedJournalIds.map((id) => String(id).toLowerCase())
                 );
+                const filteredArticles = articlesArray.filter((article) => {
+                    if (managedJournalIdSet.size === 0) return true;
+                    const jid = getArticleJournalIdFromApi(article).toLowerCase();
+                    return Boolean(jid && managedJournalIdSet.has(jid));
+                });
                 
                 setArticles(filteredArticles);
                 setJournals(managedJournals);
@@ -93,7 +98,10 @@ const JournalAdminPanel: React.FC = () => {
         let filtered = articles;
         
         if (activeTab === 'new') {
-            filtered = articles.filter(article => article.status === ArticleStatus.Yangi);
+            filtered = articles.filter(
+                (article) =>
+                    article.status === ArticleStatus.Yangi || article.status === ArticleStatus.Draft
+            );
         } else if (activeTab === 'pending') {
             filtered = articles.filter(article => 
                 article.status === ArticleStatus.WithEditor || 
@@ -117,7 +125,9 @@ const JournalAdminPanel: React.FC = () => {
     // Calculate counts for each tab
     const tabCounts = useMemo(() => {
         return {
-            new: articles.filter(a => a.status === ArticleStatus.Yangi).length,
+            new: articles.filter(
+                (a) => a.status === ArticleStatus.Yangi || a.status === ArticleStatus.Draft
+            ).length,
             pending: articles.filter(a => 
                 a.status === ArticleStatus.WithEditor || 
                 a.status === ArticleStatus.QabulQilingan

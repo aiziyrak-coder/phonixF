@@ -2,10 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-
-const API_BASE = import.meta.env.PROD
-  ? 'https://api.ilmiyfaoliyat.uz/api/v1'
-  : (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1');
+import { API_V1_BASE_URL } from '../config/apiBase';
 
 const UdkVerify: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -31,7 +28,7 @@ const UdkVerify: React.FC = () => {
       return;
     }
     setLoading(true);
-    fetch(`${API_BASE}/udc/verify/?${q}`)
+    fetch(`${API_V1_BASE_URL}/udc/verify/?${q}`)
       .then((r) => r.json())
       .then((body) => {
         setData(body);

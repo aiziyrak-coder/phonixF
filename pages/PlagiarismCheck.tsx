@@ -105,6 +105,18 @@ const PlagiarismCheck: React.FC = () => {
   const STORAGE_KEY_TRANSACTION_ID = 'plagiarism_pending_transaction_id';
   const STORAGE_KEY_ARTICLE_ID = 'plagiarism_pending_article_id';
 
+  /** Jurnal tanlash: oldindan nashr to'lovi talab qilinmasa — antiplagiat uchun maqola yaratish osonlashadi */
+  const pickJournalForPlagiarism = (journals: any[]): any | null => {
+    if (!journals?.length) return null;
+    const withoutPrepayFee = journals.find((j) => {
+      const fee = Number(j.publication_fee ?? 0) || 0;
+      const perPage = Number(j.price_per_page ?? 0) || 0;
+      const isPre = j.payment_model === 'pre-payment';
+      return !isPre || (fee <= 0 && perPage <= 0);
+    });
+    return withoutPrepayFee || journals[0];
+  };
+
   // Cleanup timer on unmount
   React.useEffect(() => {
       return () => {
@@ -173,7 +185,7 @@ const PlagiarismCheck: React.FC = () => {
       }
 
       console.log('[DEBUG] availableJournals:', availableJournals);
-      const selectedJournal = availableJournals[0];
+      const selectedJournal = pickJournalForPlagiarism(availableJournals);
       console.log('[DEBUG] selectedJournal:', selectedJournal);
       console.log('[DEBUG] selectedJournal?.id:', selectedJournal?.id);
       

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Article, User, ArticleStatus } from '../types';
 import { CertificateBackground, CertificateQRBlock, CertificateBrandBlock, CERT_COLOR_DARK, CERT_COLOR_TEAL, CERT_COLOR_TEXT } from './CertificateLayout';
 import { MOCK_JOURNALS } from '../data/mockData';
+import { apiService } from '../services/apiService';
 
 const getStatusDisplayData = (status: ArticleStatus): { text: string; color: string } => {
     const map: Record<ArticleStatus, { text: string; color: string }> = {
@@ -36,10 +37,29 @@ const AuthorArticleReport: React.FC<AuthorArticleReportProps> = ({ articles, aut
     const listArticles = articles;
     const documentDate = new Date().toLocaleDateString('uz-UZ', { year: 'numeric', month: 'long', day: 'numeric' });
     const documentNumber = `MAQ-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
-    // QR kod: aynan shu hisobot sahifasini ochish (PDF/print ko'rinishi)
-    const qrData = typeof window !== 'undefined'
-        ? window.location.href
-        : `https://ilmiyfaoliyat.uz/#/articles?report=author`;
+    /** Skaner qilganda brauzerda to'g'ridan-to'g'ri PDF ochiladi (backend imzoli havola) */
+    const [pdfOpenUrl, setPdfOpenUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        apiService.articles
+            .getAuthorMalumotnomaSignedUrl()
+            .then((res: { url?: string }) => {
+                if (!cancelled && res?.url) setPdfOpenUrl(res.url);
+            })
+            .catch(() => {
+                if (!cancelled && typeof window !== 'undefined') {
+                    setPdfOpenUrl(window.location.href);
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const qrPayload =
+        pdfOpenUrl ||
+        (typeof window !== 'undefined' ? window.location.href : 'https://ilmiyfaoliyat.uz/#/articles');
 
     const getJournalName = (article: Article): string =>
         article.journalName || MOCK_JOURNALS.find((j) => j.id === article.journalId)?.name || '-';
@@ -193,8 +213,8 @@ const AuthorArticleReport: React.FC<AuthorArticleReportProps> = ({ articles, aut
                 <div className="mt-auto pt-6 flex items-end justify-between gap-8 flex-wrap">
                     <CertificateBrandBlock />
                     <CertificateQRBlock
-                        qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrData)}&bgcolor=ffffff`}
-                        label="Ushbu ma'lumotnomani ochish uchun QR kodni skanerlang"
+                        qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrPayload)}&bgcolor=ffffff`}
+                        label="PDF faylni ochish uchun QR kodni skanerlang"
                     />
                 </div>
             </div>

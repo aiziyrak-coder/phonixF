@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import Button from '../components/ui/Button';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiService } from '../services/apiService';
+import { getArticleJournalIdFromApi } from '../utils/articleIds';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const CHART_COLORS = ['#3b82f6', '#eab308', '#22c55e', '#ef4444', '#8b5cf6', '#06b6d4'];
@@ -400,6 +401,14 @@ const Dashboard: React.FC = () => {
                             articlesForReview.slice(0, 5).map((article: any) => {
                                 const author = users.find((u: any) => u.id === article.author);
                                 const journal = journals.find((j: any) => j.id === article.journal);
+                                const authorLabel =
+                                    (article.author_name && String(article.author_name).trim()) ||
+                                    (author ? `${author.first_name} ${author.last_name}` : '') ||
+                                    "Noma'lum";
+                                const journalLabel =
+                                    (article.journal_name && String(article.journal_name).trim()) ||
+                                    (journal ? journal.name : '') ||
+                                    "Noma'lum";
                                 return (
                                     <div key={article.id} className="p-4 bg-white/5 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                         <div>
@@ -411,7 +420,7 @@ const Dashboard: React.FC = () => {
                                                 )}
                                                 <p className="font-semibold text-blue-400">{article.title}</p>
                                             </div>
-                                            <p className="text-sm text-gray-400 mt-1">Muallif: {author ? `${author.first_name} ${author.last_name}` : 'Noma\'lum'} | Jurnal: {journal ? journal.name : 'Noma\'lum'}</p>
+                                            <p className="text-sm text-gray-400 mt-1">Muallif: {authorLabel} | Jurnal: {journalLabel}</p>
                                         </div>
                                         <Button onClick={() => navigate(`/articles/${article.id}`)} variant="secondary" className="w-full sm:w-auto">
                                             Ko'rib chiqish <ArrowRight className="ml-2 h-4 w-4"/>
@@ -544,18 +553,27 @@ const Dashboard: React.FC = () => {
     const renderJournalAdminDashboard = () => {
         const journalAdminId = (j: any) => j.journal_admin ?? j.journalAdminId ?? j.journal_admin_id;
         const managedJournals = journals.filter(j => journalAdminId(j) === user.id);
-        const managedJournalIds = managedJournals.map(j => j.id);
+        const managedJournalIds = managedJournals.map((j) => String(j.id));
+        const managedJournalIdSet = new Set(managedJournalIds.map((id) => String(id).toLowerCase()));
         const validArticles = Array.isArray(articles) ? articles : [];
+        /** Backend journal_admin uchun allaqachon journal__journal_admin bo'yicha filtrlangan. */
+        const isManagedArticle = (a: any) => {
+            if (managedJournalIdSet.size === 0) return true;
+            const jid = getArticleJournalIdFromApi(a).toLowerCase();
+            if (!jid) return false;
+            return managedJournalIdSet.has(jid);
+        };
 
-        const pendingPublicationCount = validArticles.filter(a =>
-            managedJournalIds.includes(a.journal) && a.status === 'NashrgaYuborilgan'
+        const pendingPublicationCount = validArticles.filter(
+            (a) => isManagedArticle(a) && a.status === 'NashrgaYuborilgan'
         ).length;
-        // Yangi kelganlar: status 'Yangi' (muallif yuborgan maqolalar)
-        const newSubmissionsCount = validArticles.filter(a =>
-            managedJournalIds.includes(a.journal) && (a.status === 'Yangi' || a.status === 'Draft')
+        const newSubmissionsCount = validArticles.filter(
+            (a) => isManagedArticle(a) && (a.status === 'Yangi' || a.status === 'Draft')
         ).length;
 
-        const totalPublishedCount = validArticles.filter(a => managedJournalIds.includes(a.journal) && a.status === 'Published').length;
+        const totalPublishedCount = validArticles.filter(
+            (a) => isManagedArticle(a) && a.status === 'Published'
+        ).length;
 
         return (
             <div className="space-y-8">

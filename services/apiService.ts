@@ -4,22 +4,13 @@
  */
 
 import { getUserFriendlyError, isAuthError } from '../utils/errorHandler';
+import { API_V1_BASE_URL, API_MEDIA_BASE_URL, isProductionHost } from '../config/apiBase';
 
-// Production API URL - always use production URL in built version
-// In development, use VITE_API_BASE_URL from .env, otherwise use production
-// IMPORTANT: Production build'da har doim production URL ishlatiladi
-const isProduction = import.meta.env.PROD || window.location.hostname === 'ilmiyfaoliyat.uz' || window.location.hostname === 'www.ilmiyfaoliyat.uz';
+/** @deprecated Use API_V1_BASE_URL — nom mosligi uchun */
+const API_BASE_URL = API_V1_BASE_URL;
+const MEDIA_URL = API_MEDIA_BASE_URL;
 
-const API_BASE_URL = isProduction 
-  ? 'https://api.ilmiyfaoliyat.uz/api/v1'
-  : (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1');
-
-const MEDIA_URL = isProduction
-  ? 'https://api.ilmiyfaoliyat.uz/media/'
-  : (import.meta.env.VITE_MEDIA_URL || 'http://127.0.0.1:8000/media/');
-
-// Debug: API URL only in development (production'da log chiqarilmaydi)
-if (typeof window !== 'undefined' && !isProduction) {
+if (typeof window !== 'undefined' && !isProductionHost) {
   console.log(`[API] API_BASE_URL: ${API_BASE_URL}`);
 }
 
@@ -76,7 +67,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
 
   try {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
-    if (!isProduction) {
+    if (!isProductionHost) {
       console.log(`[API] Request: ${options.method || 'GET'} ${fullUrl}`);
     }
     const response = await fetch(fullUrl, config);
@@ -137,7 +128,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
     const isSessionExpired = error?.status === 401 || error?.message?.includes('sessiya');
     const isForbiddenExpected = error?.status === 403 && (error?.message?.includes('huquq') || error?.message?.includes('egasiz'));
-    if (!isProduction && !isSessionExpired && !isForbiddenExpected) {
+    if (!isProductionHost && !isSessionExpired && !isForbiddenExpected) {
       console.error(`[API] Request failed:`, fullUrl, error?.message || error);
     }
     
@@ -210,8 +201,39 @@ export const apiService = {
         method: 'PUT',
         body: JSON.stringify(userData),
       }),
-      
+
     stats: () => apiFetch('/auth/stats/'),
+
+    /**
+     * JWT access yangilash (SimpleJWT). Refresh token alohida yuboriladi.
+     */
+    refreshAccessToken: async () => {
+      const refresh = localStorage.getItem('refresh_token');
+      if (!refresh) {
+        throw new Error('Refresh token yo\'q');
+      }
+      const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh }),
+      });
+      const text = await response.text();
+      let data: { access?: string; detail?: string };
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error('Token yangilash javobi noto\'g\'ri');
+      }
+      if (!response.ok) {
+        const err: Error & { status?: number } = new Error(data.detail || 'Sessiya yangilanmadi');
+        err.status = response.status;
+        throw err;
+      }
+      if (data.access) {
+        setToken(data.access);
+      }
+      return data;
+    },
   },
 
   // Users
@@ -262,13 +284,19 @@ export const apiService = {
       }),
 
     list: (params?: Record<string, string>) => {
-      const query = params ? `?${new URLSearchParams(params)}` : '';
-      return apiFetch(`/articles/${query}`);
+      if (!params || Object.keys(params).length === 0) {
+        return apiFetch('/articles/');
+      }
+      return apiFetch(`/articles/?${new URLSearchParams(params)}`);
     },
 
     get: (id: string) => apiFetch(`/articles/${id}/`),
 
     getPublic: (id: string) => apiFetch(`/articles/public/${id}/`),
+
+    /** Muallif maqolalar ro'yxati PDF — QR uchun imzoli to'g'ridan-to'g'ri PDF havolasi */
+    getAuthorMalumotnomaSignedUrl: () =>
+      apiFetch('/articles/reports/author-malumotnoma-signed-url/'),
 
     create: async (articleData: any, files?: { mainFile?: File, additionalFile?: File }) => {
       if (files && (files.mainFile || files.additionalFile)) {
@@ -1053,6 +1081,22 @@ export const apiService = {
         method: 'POST',
         body: JSON.stringify(reviewData),
       }),
+
+    /** Taqriz natijasini matn sifatida yuklab olish (backend: GET review-document) */
+    downloadReviewDocument: async (id: string): Promise<void> => {
+      const token = getToken();
+      const res = await fetch(`${API_BASE_URL}/reviews/${id}/review-document/`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error('Taqriz hujjatini yuklab bo\'lmadi');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `taqriz_${id}.txt`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
   },
 
   // Notifications
@@ -1132,9 +1176,11 @@ export const apiService = {
 
   // Conferences
   conferences: {
-    list: (params?: any) => {
-      const query = params ? `?${new URLSearchParams(params)}` : '';
-      return apiFetch(`/journals/conferences/${query}`);
+    list: (params?: Record<string, string>) => {
+      if (!params || Object.keys(params).length === 0) {
+        return apiFetch('/journals/conferences/');
+      }
+      return apiFetch(`/journals/conferences/?${new URLSearchParams(params)}`);
     },
     get: (id: string) => apiFetch(`/journals/conferences/${id}/`),
     create: (conferenceData: any) =>
@@ -1155,9 +1201,11 @@ export const apiService = {
 
   // Author Publications
   authorPublications: {
-    list: (params?: any) => {
-      const query = params ? `?${new URLSearchParams(params)}` : '';
-      return apiFetch(`/journals/author-publications/${query}`);
+    list: (params?: Record<string, string>) => {
+      if (!params || Object.keys(params).length === 0) {
+        return apiFetch('/journals/author-publications/');
+      }
+      return apiFetch(`/journals/author-publications/?${new URLSearchParams(params)}`);
     },
     get: (id: string) => apiFetch(`/journals/author-publications/${id}/`),
     create: (publicationData: any) =>
@@ -1181,3 +1229,5 @@ export const apiService = {
 };
 
 export default apiService;
+
+export { API_V1_BASE_URL, API_MEDIA_BASE_URL, isProductionHost } from '../config/apiBase';

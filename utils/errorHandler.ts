@@ -1,3 +1,5 @@
+import { API_V1_BASE_URL } from '../config/apiBase';
+
 /**
  * Centralized error handling utility
  * Provides user-friendly error messages in Uzbek
@@ -151,7 +153,13 @@ export function getUserFriendlyError(error: any): string {
   if (typeof status === 'number' && status >= 500 && status < 600) {
     const body = error?.response;
     const detail = body?.detail;
-    if (detail && typeof detail === 'string' && detail.length < 200) {
+    if (
+      detail &&
+      typeof detail === 'string' &&
+      detail.length < 200 &&
+      !detail.includes('<!DOCTYPE') &&
+      !detail.includes('<html')
+    ) {
       return detail;
     }
     return 'Server xatosi. Iltimos, keyinroq urinib ko\'ring.';
@@ -161,7 +169,7 @@ export function getUserFriendlyError(error: any): string {
     if (import.meta.env.PROD) {
       return 'Serverga ulanib bo\'lmadi. Iltimos, internet aloqasini tekshiring yoki keyinroq urinib ko\'ring.';
     } else {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.ilmiyfaoliyat.uz/api/v1';
+      const apiUrl = API_V1_BASE_URL;
       return `Serverga ulanib bo'lmadi. Iltimos, internet aloqasini tekshiring yoki keyinroq urinib ko'ring. (API: ${apiUrl})`;
     }
   }
