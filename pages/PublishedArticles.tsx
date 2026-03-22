@@ -4,7 +4,7 @@ import Button from '../components/ui/Button';
 import { useAuth, useNotifications } from '../contexts/AuthContext';
 import { apiService } from '../services/apiService';
 import { ArticleStatus, Role, Issue } from '../types';
-import { Archive, UploadCloud, Send, Link as LinkIcon, Loader2, Share2 } from 'lucide-react';
+import { UploadCloud, Send, Link as LinkIcon, Loader2, Share2, ExternalLink, Download, FileCheck } from 'lucide-react';
 
 const MONTH_NAMES = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
 const currentYear = new Date().getFullYear();
@@ -33,6 +33,9 @@ function getArticleJournalId(a: { journal?: unknown }): string {
 const PublishedArticles: React.FC = () => {
     const { user } = useAuth();
     const { addNotification } = useNotifications();
+    const userRole = typeof user?.role === 'string' ? user.role.toLowerCase() : user?.role;
+    const isJournalAdminUser = userRole === 'journal_admin' || user?.role === Role.JournalAdmin;
+    const isSuperAdminUser = userRole === 'super_admin' || user?.role === Role.SuperAdmin;
     const [issues, setIssues] = useState<Issue[]>([]);
     const [journals, setJournals] = useState<any[]>([]);
     const [articles, setArticles] = useState<any[]>([]);
@@ -45,16 +48,20 @@ const PublishedArticles: React.FC = () => {
     const [collectionUrl, setCollectionUrl] = useState('');
     const [collectionPdf, setCollectionPdf] = useState<File | null>(null);
     const [copiedArticleId, setCopiedArticleId] = useState<string | null>(null);
+    /** Nashr havolasi / sertifikat — muallifga yuborish (har bir maqola) */
+    const [pubUrlByArticle, setPubUrlByArticle] = useState<Record<string, string>>({});
+    const [certFileByArticle, setCertFileByArticle] = useState<Record<string, File | null>>({});
+    const [sendingDeliveryId, setSendingDeliveryId] = useState<string | null>(null);
 
     const managedJournals = useMemo(() => {
         if (!user) return [];
-        if (user.role === Role.SuperAdmin) return journals;
-        if (user.role === Role.JournalAdmin) {
+        if (isSuperAdminUser) return journals;
+        if (isJournalAdminUser) {
             const uid = String(user.id);
             return journals.filter((j) => getJournalAdminIdFromJournal(j as Record<string, unknown>) === uid);
         }
         return [];
-    }, [user, journals]);
+    }, [user, journals, isJournalAdminUser, isSuperAdminUser]);
 
     const selectedJournal = useMemo(
         () => managedJournals.find((j) => j.id === selectedJournalId) ?? null,
@@ -71,7 +78,7 @@ const PublishedArticles: React.FC = () => {
     // Fetch data from API (JournalAdmin / SuperAdmin)
     useEffect(() => {
         const fetchData = async () => {
-            if (!user || (user.role !== Role.JournalAdmin && user.role !== Role.SuperAdmin)) return;
+            if (!user || (!isJournalAdminUser && !isSuperAdminUser)) return;
             
             setLoading(true);
             setError(null);
@@ -105,7 +112,7 @@ const PublishedArticles: React.FC = () => {
         };
         
         fetchData();
-    }, [user]);
+    }, [user, isJournalAdminUser, isSuperAdminUser]);
 
     const activeIssue = useMemo(() => {
         return issues.find((issue) => {
@@ -157,7 +164,53 @@ const PublishedArticles: React.FC = () => {
         }
     };
 
-    if (!user || (user.role !== Role.JournalAdmin && user.role !== Role.SuperAdmin)) {
+    const handleSendPublicationDelivery = async (articleId: string) => {
+        const article = articles.find((a) => a.id === articleId);
+        const draftUrl = (pubUrlByArticle[articleId] ?? (article as any)?.publication_url ?? '').trim();
+        const file = certFileByArticle[articleId] ?? null;
+        if (!draftUrl && !file) {
+            alert("Kamida bittasini kiriting: nashr havolasi (URL) yoki sertifikat fayli.");
+            return;
+        }
+        if (file) {
+            const ok = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'].includes(file.type);
+            if (!ok) {
+                alert("Sertifikat faqat PDF yoki JPG/PNG bo'lishi kerak.");
+                return;
+            }
+        }
+        setSendingDeliveryId(articleId);
+        try {
+            const fd = new FormData();
+            if (draftUrl) fd.append('publication_url', draftUrl);
+            if (file) fd.append('certificate', file);
+            await apiService.articles.sendPublicationDelivery(articleId, fd);
+            addNotification({
+                message: 'Nashr havolasi/sertifikat saqlandi, muallifga bildirishnoma yuborildi.',
+                link: '/published-articles',
+            });
+            const articlesData = await apiService.articles.list();
+            setArticles(articlesData.results || articlesData);
+            setCertFileByArticle((prev) => {
+                const next = { ...prev };
+                delete next[articleId];
+                return next;
+            });
+            setPubUrlByArticle((prev) => {
+                const next = { ...prev };
+                delete next[articleId];
+                return next;
+            });
+            alert("Ma'lumotlar saqlandi va muallifga xabar yuborildi.");
+        } catch (err: any) {
+            console.error(err);
+            alert(err?.message || 'Yuborishda xatolik.');
+        } finally {
+            setSendingDeliveryId(null);
+        }
+    };
+
+    if (!user || (!isJournalAdminUser && !isSuperAdminUser)) {
         return <Card title="Ruxsat Rad Etildi"><p>Ushbu sahifani ko'rish uchun sizda yetarli ruxsat yo'q.</p></Card>;
     }
     
@@ -262,7 +315,7 @@ const PublishedArticles: React.FC = () => {
         <Card title="Oylik Sonlar va Arxiv">
             <p className="text-gray-300 mb-4 -mt-4">
                 Bu yerda <strong className="text-white">o‘z jurnallaringiz</strong> uchun oylik to‘plamlarni boshqarishingiz mumkin.
-                {user?.role === Role.SuperAdmin && (
+                {isSuperAdminUser && (
                     <span className="block mt-1 text-amber-200/90 text-sm">Super admin: barcha jurnallardan birini tanlashingiz mumkin.</span>
                 )}
             </p>
@@ -348,24 +401,111 @@ const PublishedArticles: React.FC = () => {
 
                 <div className="space-y-3">
                     {Array.isArray(articlesForNewIssue) && articlesForNewIssue.length > 0 ? (
-                        articlesForNewIssue.map((article) => (
-                            <div key={article.id} className="p-4 bg-white/5 border border-white/10 rounded-lg flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                                <div>
-                                    <h4 className="text-white font-medium">{article.title}</h4>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        {new Date(article.submission_date).toLocaleDateString()}
-                                    </p>
+                        articlesForNewIssue.map((article) => {
+                            const pubLink = (article as any).publication_link as string | undefined;
+                            const certLink = (article as any).certificate_download_link as string | undefined;
+                            const rawUrl = (article as any).publication_url as string | undefined;
+                            const urlInput =
+                                pubUrlByArticle[article.id] ?? (typeof rawUrl === 'string' ? rawUrl : '');
+                            return (
+                            <div key={article.id} className="p-4 bg-white/5 border border-white/10 rounded-lg space-y-4">
+                                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                                    <div className="min-w-0 flex-1">
+                                        <h4 className="text-white font-medium">{article.title}</h4>
+                                        <p className="text-xs text-gray-400 mt-1">
+                                            {new Date(article.submission_date).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                    <Button
+                                        onClick={() => handleShareArticle(article.id)}
+                                        variant="secondary"
+                                        className="w-full md:w-auto shrink-0"
+                                    >
+                                        <Share2 className="mr-2 h-4 w-4" />
+                                        {copiedArticleId === article.id ? 'Havola nusxalandi' : 'Ochiq sahifa havolasi'}
+                                    </Button>
                                 </div>
-                                <Button
-                                    onClick={() => handleShareArticle(article.id)}
-                                    variant="secondary"
-                                    className="w-full md:w-auto"
-                                >
-                                    <Share2 className="mr-2 h-4 w-4" />
-                                    {copiedArticleId === article.id ? 'Havola nusxalandi' : 'Maqolani ulashish'}
-                                </Button>
+
+                                {(pubLink || certLink) && (
+                                    <div className="flex flex-wrap gap-3 text-sm border-t border-white/10 pt-3">
+                                        {pubLink ? (
+                                            <a
+                                                href={pubLink}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300"
+                                            >
+                                                <ExternalLink className="h-4 w-4" /> Nashr havolasi
+                                            </a>
+                                        ) : null}
+                                        {certLink ? (
+                                            <a
+                                                href={certLink}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300"
+                                            >
+                                                <Download className="h-4 w-4" /> Sertifikat
+                                            </a>
+                                        ) : null}
+                                    </div>
+                                )}
+
+                                <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-3">
+                                    <p className="text-xs font-semibold text-amber-200/90 flex items-center gap-2">
+                                        <FileCheck className="h-4 w-4" /> Muallifga nashr havolasi va sertifikat
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                        Jurnal saytidagi maqola havolasini kiriting va/yoki sertifikat faylini yuklang.
+                                        Saqlagach muallifga bildirishnoma boradi.
+                                    </p>
+                                    <div>
+                                        <label className="text-xs text-gray-500 block mb-1">Nashr havolasi (URL)</label>
+                                        <input
+                                            type="url"
+                                            className="w-full bg-gray-900/80 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+                                            placeholder="https://jurnal.uz/article/..."
+                                            value={urlInput}
+                                            onChange={(e) =>
+                                                setPubUrlByArticle((p) => ({ ...p, [article.id]: e.target.value }))
+                                            }
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-500 block mb-1">Sertifikat (PDF / JPG / PNG)</label>
+                                        <input
+                                            type="file"
+                                            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                                            className="text-sm text-gray-300 w-full file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-white/10 file:text-white"
+                                            onChange={(e) =>
+                                                setCertFileByArticle((p) => ({
+                                                    ...p,
+                                                    [article.id]: e.target.files?.[0] ?? null,
+                                                }))
+                                            }
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="primary"
+                                        className="w-full sm:w-auto"
+                                        disabled={sendingDeliveryId === article.id}
+                                        onClick={() => handleSendPublicationDelivery(article.id)}
+                                    >
+                                        {sendingDeliveryId === article.id ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Yuborilmoqda...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Send className="mr-2 h-4 w-4" /> Muallifga yuborish
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
                             </div>
-                        ))
+                            );
+                        })
                     ) : (
                         <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-400">
                             Tanlangan oy uchun nashr etilgan maqolalar topilmadi.

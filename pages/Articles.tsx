@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Article, ArticleStatus, ARTICLE_STATUS_LABELS, Role, TranslationRequest, TranslationStatus, User } from '../types';
 import Card from '../components/ui/Card';
@@ -187,6 +187,10 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
         user?.role === Role.Author || String(user?.role ?? '').toLowerCase() === 'author';
     const authorWorkflowSteps = isAuthor && isAuthorRole ? getAuthorWorkflowStepsFromStatus(currentStatus) : [];
     const authorStageHint = isAuthor && isAuthorRole ? getAuthorWorkflowStageLabel(currentStatus) : '';
+    const viewerRoleNorm =
+        typeof user?.role === 'string' ? user.role.toLowerCase() : String(user?.role ?? '');
+    const showPlagiarismBadges =
+        viewerRoleNorm === 'journal_admin' || viewerRoleNorm === 'super_admin';
 
     const handleShare = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -355,7 +359,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                 </div>
             )}
             {/* Antiplagiat foizlari faqat jurnal admin va super admin uchun (muallifda ko'rinmasin) */}
-            {(user?.role === 'journal_admin' || user?.role === 'super_admin' || user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && (
+            {showPlagiarismBadges && (
                 <div className="mt-3">
                     <PlagiarismBadges
                         plagiarism={Number(article.plagiarism_percentage ?? 0)}
@@ -421,6 +425,7 @@ const Articles: React.FC = () => {
     const [filterPlagiarism, setFilterPlagiarism] = useState('');
     const [filterDateFrom, setFilterDateFrom] = useState('');
     const [filterDateTo, setFilterDateTo] = useState('');
+    const [searchParams] = useSearchParams();
     const [articles, setArticles] = useState<ArticleApiResponse[]>([]);
     const [translations, setTranslations] = useState<TranslationRequestApiResponse[]>([]);
     const [journals, setJournals] = useState<JournalApiResponse[]>([]);
@@ -501,10 +506,14 @@ const Articles: React.FC = () => {
 
     const translationsToShow: TranslationRequestApiResponse[] = useMemo(() => {
         if (!isReviewer || activeTab !== 'translations') return [];
-        return translations.filter(tr => 
-            tr.status === TranslationStatus.Yangi || 
-            (tr.reviewer === user.id && tr.status === TranslationStatus.Jarayonda)
-        );
+        return translations.filter((tr) => {
+            if (tr.status === TranslationStatus.Yangi) return true;
+            if (tr.status === TranslationStatus.Jarayonda) {
+                if (!tr.reviewer) return true;
+                return String(tr.reviewer) === String(user?.id);
+            }
+            return false;
+        });
     }, [user, activeTab, translations, isReviewer]);
 
     const filteredTranslations = useMemo(() => {
@@ -559,9 +568,14 @@ const Articles: React.FC = () => {
         return reviewerTabs.map(tab => {
             let count = 0;
             if (tab.id === 'translations') {
-                count = translations.filter(tr => 
-                    (tab.statuses as TranslationStatus[]).includes(tr.status) && (!tr.reviewer || tr.reviewer === user.id)
-                ).length;
+                count = translations.filter((tr) => {
+                    if (tr.status === TranslationStatus.Yangi) return true;
+                    if (tr.status === TranslationStatus.Jarayonda) {
+                        if (!tr.reviewer) return true;
+                        return String(tr.reviewer) === String(user.id);
+                    }
+                    return false;
+                }).length;
             } else if (tab.statuses) {
                 count = articles.filter(a => {
                     const statusMatch = (tab.statuses as ArticleStatus[]).includes(a.status);
@@ -574,7 +588,7 @@ const Articles: React.FC = () => {
             }
             return { id: tab.id, count };
         });
-    }, [articles, translations, reviewerTabs]);
+    }, [articles, translations, reviewerTabs, user?.id]);
 
     const journalAdminTabCounts = useMemo(() => {
         const managedJournalIds = journals.map(j => j.id);
@@ -666,6 +680,11 @@ const Articles: React.FC = () => {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    useEffect(() => {
+        const jid = searchParams.get('journal');
+        if (jid) setFilterJournal(jid);
+    }, [searchParams]);
 
     // Handle early returns after all hooks are declared
     if (!user) return null;

@@ -559,8 +559,22 @@ const Dashboard: React.FC = () => {
     };
     
     const renderJournalAdminDashboard = () => {
-        const journalAdminId = (j: any) => j.journal_admin ?? j.journalAdminId ?? j.journal_admin_id;
-        const managedJournals = journals.filter(j => journalAdminId(j) === user.id);
+        /** journal_admin FK ba'zan UUID string, ba'zan { id } ko'rinishida keladi */
+        const journalAdminUserIdFromJournal = (j: any): string => {
+            const raw = j?.journal_admin ?? j?.journalAdminId ?? j?.journal_admin_id;
+            if (raw == null || raw === '') return '';
+            if (typeof raw === 'object' && raw !== null && 'id' in raw) {
+                return String((raw as { id: string }).id);
+            }
+            return String(raw);
+        };
+        const journalsList = Array.isArray(journals) ? journals : [];
+        /** Backend journal_admin uchun ro'yxatni allaqachon filtrlaydi; qo'shimcha ID tekshiruvi noto'g'ri bo'lsa ham jurnallar ko'rinsin */
+        const managedJournals = journalsList.filter((j) => {
+            const aid = journalAdminUserIdFromJournal(j);
+            if (!aid) return true;
+            return aid === String(user.id);
+        });
         const managedJournalIds = managedJournals.map((j) => String(j.id));
         const managedJournalIdSet = new Set(managedJournalIds.map((id) => String(id).toLowerCase()));
         const validArticles = Array.isArray(articles) ? articles : [];
@@ -591,6 +605,49 @@ const Dashboard: React.FC = () => {
                    <StatCard icon={Clock} title="Nashrni kutmoqda" value={pendingPublicationCount} gradient="bg-gradient-to-r from-yellow-500 to-orange-400" to="/articles" />
                    <StatCard icon={CheckCircle} title="Jami nashrlar" value={totalPublishedCount} gradient="bg-gradient-to-r from-green-500 to-emerald-400" to="/published-articles" />
                 </div>
+
+                <Card title="Mening jurnallarim">
+                    <p className="text-gray-400 text-sm mb-4">Sizga biriktirilgan barcha jurnallar. Maqolalar uchun jurnalni tanlang.</p>
+                    {managedJournals.length === 0 ? (
+                        <p className="text-gray-400 py-6 text-center border border-white/10 rounded-xl bg-white/[0.08]">
+                            Hozircha sizga biriktirilgan jurnal yo&apos;q. Super administrator bilan bog&apos;laning.
+                        </p>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {managedJournals.map((j: any) => (
+                                <div
+                                    key={j.id}
+                                    className="rounded-xl border border-white/10 bg-white/[0.06] p-5 flex flex-col gap-3 hover:border-blue-500/40 transition-colors"
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2.5 rounded-lg bg-blue-500/20 shrink-0">
+                                            <BookOpen className="h-6 w-6 text-blue-300" />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <h3 className="font-semibold text-white text-lg leading-snug line-clamp-2">{j.name || '—'}</h3>
+                                            <p className="text-xs text-gray-500 mt-1">ISSN: {j.issn || '—'}</p>
+                                            {(j.category_name || j.category) && (
+                                                <p className="text-sm text-gray-400 mt-1 line-clamp-2">{j.category_name || (typeof j.category === 'object' && j.category?.name) || j.category}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 justify-end mt-auto pt-2 border-t border-white/10">
+                                        <Button
+                                            variant="secondary"
+                                            className="text-sm"
+                                            onClick={() => navigate(`/articles?journal=${encodeURIComponent(String(j.id))}`)}
+                                        >
+                                            Maqolalar <ArrowRight className="ml-1 h-4 w-4" />
+                                        </Button>
+                                        <Link to="/published-articles">
+                                            <Button variant="secondary" className="text-sm">Nashr etilganlar</Button>
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Card>
             </div>
         );
     };

@@ -73,7 +73,8 @@ export interface User {
   email: string;
   phone: string;
   password?: string; // Added for login
-  role: Role;
+  /** API ba'zan kichik harf yoki qo‘shimcha qiymat yuborishi mumkin */
+  role: Role | string;
   orcidId?: string;
   affiliation: string;
   gamificationProfile: GamificationProfile;

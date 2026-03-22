@@ -53,7 +53,7 @@ async function refreshAccessTokenFromApi(): Promise<boolean> {
         body: JSON.stringify({ refresh }),
       });
       const text = await r.text();
-      const data = text ? JSON.parse(text) : {};
+      const data = (text ? JSON.parse(text) : {}) as { access?: string; refresh?: string };
       if (!r.ok || !data.access) {
         return false;
       }
@@ -91,7 +91,7 @@ export const apiFetch = async (
   endpoint: string,
   options: RequestInit = {},
   _isRetryAfterRefresh = false
-): Promise<unknown> => {
+): Promise<any> => {
   const token = getToken();
   const publicAuth = isPublicAuthEndpoint(endpoint);
 
@@ -557,6 +557,29 @@ export const apiService = {
     /** Nashr qilish: sertifikat yuklash, status Published, muallifga bildirishnoma */
     completePublication: (id: string, formData: FormData) =>
       fetch(`${API_BASE_URL}/articles/${id}/complete_publication/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: formData,
+      }).then(async (r) => {
+        const text = await r.text();
+        if (!r.ok) {
+          let err: { error?: string; detail?: string } = {};
+          try {
+            err = JSON.parse(text);
+          } catch {
+            err = { detail: text };
+          }
+          throw Object.assign(
+            new Error((err as any).error || (err as any).detail || 'Xatolik'),
+            { status: r.status, response: err }
+          );
+        }
+        return text ? JSON.parse(text) : {};
+      }),
+
+    /** Nashr etilgan maqola: havola va/yoki sertifikat, muallifga bildirishnoma */
+    sendPublicationDelivery: (id: string, formData: FormData) =>
+      fetch(`${API_BASE_URL}/articles/${id}/send_publication_delivery/`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${getToken()}` },
         body: formData,
@@ -1099,27 +1122,27 @@ export const apiService = {
     },
 
     update: (id: string, translationData: any) => {
-      // Handle file uploads for translations
-      if (translationData.file) {
+      const file = translationData.file as File | undefined;
+      if (file) {
         const formData = new FormData();
-        if (translationData.file) {
-          formData.append('translated_file_path', translationData.file);
-        }
-        Object.keys(translationData).forEach(key => {
-          if (key !== 'file') {
-            formData.append(key, translationData[key]);
-          }
-        });
+        formData.append('translated_file_path', file);
+        const appendIf = (k: string, v: unknown) => {
+          if (v !== undefined && v !== null && v !== '') formData.append(k, String(v));
+        };
+        appendIf('status', translationData.status);
+        appendIf('reviewer', translationData.reviewer);
+        appendIf('completion_date', translationData.completion_date);
         return apiFetch(`/translations/${id}/`, {
-          method: 'PUT',
+          method: 'PATCH',
           body: formData,
-          headers: {}, // Let fetch set Content-Type for FormData
+          headers: {},
         });
       }
-      
+      const { file: _f, ...rest } = translationData;
       return apiFetch(`/translations/${id}/`, {
-        method: 'PUT',
-        body: JSON.stringify(translationData),
+        method: 'PATCH',
+        body: JSON.stringify(rest),
+        headers: { 'Content-Type': 'application/json' },
       });
     },
     

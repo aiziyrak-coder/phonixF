@@ -293,6 +293,10 @@ const ArticleDetail: React.FC = () => {
 
     const statusData = getStatusDisplayData(article.status);
     const StatusIcon = statusData.icon;
+    const viewerRoleNorm =
+        typeof user?.role === 'string' ? user.role.toLowerCase() : String(user?.role ?? '');
+    const showPlagiarismForAdmin =
+        viewerRoleNorm === 'journal_admin' || viewerRoleNorm === 'super_admin';
     const apiWorkflowSteps = Array.isArray(article.workflow_steps) ? article.workflow_steps : [];
     const fallbackSteps = getAuthorWorkflowStepsFromStatus(article.status);
     const workflowSteps = apiWorkflowSteps.length > 0 ? apiWorkflowSteps : fallbackSteps;
@@ -384,7 +388,7 @@ const ArticleDetail: React.FC = () => {
                     </Card>
 
                     {/* Plagiarism Report — faqat jurnal admin / super admin uchun (muallifda ko'rinmasin) */}
-                    {(user?.role === 'journal_admin' || user?.role === 'super_admin' || user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && (
+                    {showPlagiarismForAdmin && (
                         <Card title="Antiplagiat & AI Detektor">
                             <PlagiarismReport
                                 plagiarismPercentage={article.plagiarism_percentage ?? 0}

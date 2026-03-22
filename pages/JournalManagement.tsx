@@ -6,6 +6,13 @@ import Button from '../components/ui/Button';
 import { Edit, Trash2, PlusCircle, X, Check, UploadCloud } from 'lucide-react';
 import { apiService } from '../services/apiService';
 
+/** Form may hold number | undefined; avoid comparing number to '' for tsc */
+function optionalJournalPercent(v: unknown): number | null {
+    if (v === undefined || v === null || v === '') return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+}
+
 const JournalManagement: React.FC = () => {
     const { user } = useAuth();
     const [journals, setJournals] = useState<Journal[]>([]);
@@ -280,9 +287,9 @@ const JournalManagement: React.FC = () => {
                     pricing_type: formData.pricingType || JournalPricingType.Fixed,
                     publication_fee: Number(formData.publicationFee) || 0,
                     price_per_page: Number(formData.pricePerPage) || 0,
-                    plagiarism_max_percent: formData.plagiarism_max_percent != null && formData.plagiarism_max_percent !== '' ? Number(formData.plagiarism_max_percent) : null,
-                    ai_content_max_percent: formData.ai_content_max_percent != null && formData.ai_content_max_percent !== '' ? Number(formData.ai_content_max_percent) : null,
-                    originality_min_percent: formData.originality_min_percent != null && formData.originality_min_percent !== '' ? Number(formData.originality_min_percent) : null,
+                    plagiarism_max_percent: optionalJournalPercent(formData.plagiarism_max_percent),
+                    ai_content_max_percent: optionalJournalPercent(formData.ai_content_max_percent),
+                    originality_min_percent: optionalJournalPercent(formData.originality_min_percent),
                 };
                 
                 // Only include additional_document_config if it exists and has content
@@ -323,9 +330,9 @@ const JournalManagement: React.FC = () => {
                     pricing_type: formData.pricingType || JournalPricingType.Fixed,
                     publication_fee: Number(formData.publicationFee) || 0,
                     price_per_page: Number(formData.pricePerPage) || 0,
-                    plagiarism_max_percent: formData.plagiarism_max_percent != null && formData.plagiarism_max_percent !== '' ? Number(formData.plagiarism_max_percent) : null,
-                    ai_content_max_percent: formData.ai_content_max_percent != null && formData.ai_content_max_percent !== '' ? Number(formData.ai_content_max_percent) : null,
-                    originality_min_percent: formData.originality_min_percent != null && formData.originality_min_percent !== '' ? Number(formData.originality_min_percent) : null,
+                    plagiarism_max_percent: optionalJournalPercent(formData.plagiarism_max_percent),
+                    ai_content_max_percent: optionalJournalPercent(formData.ai_content_max_percent),
+                    originality_min_percent: optionalJournalPercent(formData.originality_min_percent),
                 };
                 
                 // Only include additional_document_config if it exists and has content
