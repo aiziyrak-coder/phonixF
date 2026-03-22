@@ -10,6 +10,26 @@ const MONTH_NAMES = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul",
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 10 }, (_, i) => currentYear - i);
 
+/** API journal_admin (UUID string yoki nested) / journalAdminId — bitta string ID */
+function getJournalAdminIdFromJournal(j: Record<string, unknown>): string {
+    const ja = j.journal_admin;
+    if (ja != null && typeof ja === 'object' && ja !== null && 'id' in (ja as object)) {
+        return String((ja as { id: string }).id);
+    }
+    if (typeof ja === 'string' || typeof ja === 'number') {
+        return String(ja);
+    }
+    const raw = j.journalAdminId ?? j.journal_admin_id;
+    return raw != null && raw !== '' ? String(raw) : '';
+}
+
+function getArticleJournalId(a: { journal?: unknown }): string {
+    const j = a.journal;
+    if (typeof j === 'string') return j;
+    if (j && typeof j === 'object' && 'id' in (j as object)) return String((j as { id: string }).id);
+    return '';
+}
+
 const PublishedArticles: React.FC = () => {
     const { user } = useAuth();
     const { addNotification } = useNotifications();
@@ -27,9 +47,19 @@ const PublishedArticles: React.FC = () => {
     const [copiedArticleId, setCopiedArticleId] = useState<string | null>(null);
 
     const managedJournals = useMemo(() => {
-        if (user?.role !== Role.JournalAdmin) return [];
-        return journals.filter(j => j.journal_admin === user.id);
+        if (!user) return [];
+        if (user.role === Role.SuperAdmin) return journals;
+        if (user.role === Role.JournalAdmin) {
+            const uid = String(user.id);
+            return journals.filter((j) => getJournalAdminIdFromJournal(j as Record<string, unknown>) === uid);
+        }
+        return [];
     }, [user, journals]);
+
+    const selectedJournal = useMemo(
+        () => managedJournals.find((j) => j.id === selectedJournalId) ?? null,
+        [managedJournals, selectedJournalId]
+    );
 
     // Set initial selected journal
     useEffect(() => {
@@ -38,10 +68,10 @@ const PublishedArticles: React.FC = () => {
         }
     }, [managedJournals, selectedJournalId]);
 
-    // Fetch data from API (JournalAdmin: users list returns 403, so fetch users separately)
+    // Fetch data from API (JournalAdmin / SuperAdmin)
     useEffect(() => {
         const fetchData = async () => {
-            if (!user || user.role !== Role.JournalAdmin) return;
+            if (!user || (user.role !== Role.JournalAdmin && user.role !== Role.SuperAdmin)) return;
             
             setLoading(true);
             setError(null);
@@ -78,22 +108,31 @@ const PublishedArticles: React.FC = () => {
     }, [user]);
 
     const activeIssue = useMemo(() => {
-        return issues.find(issue => {
-            const journalId = issue.journalId ?? (issue as any).journal;
+        return issues.find((issue) => {
+            const rawJ = issue.journalId ?? (issue as any).journal;
+            const journalId =
+                typeof rawJ === 'object' && rawJ !== null && 'id' in rawJ
+                    ? String((rawJ as { id: string }).id)
+                    : rawJ != null
+                      ? String(rawJ)
+                      : '';
             const pubDate = issue.publicationDate ?? (issue as any).publication_date;
             if (!journalId || !pubDate) return false;
             const d = new Date(pubDate);
-            return journalId === selectedJournalId && d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
+            return journalId === String(selectedJournalId) && d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
         });
     }, [issues, selectedJournalId, selectedYear, selectedMonth]);
 
     const articlesForNewIssue = useMemo(() => {
-        return articles.filter(article => 
-            article.journal === selectedJournalId &&
-            (article.status === 'Published' || article.status === 'published') &&
-            new Date(article.submission_date).getFullYear() === selectedYear &&
-            new Date(article.submission_date).getMonth() === selectedMonth
-        );
+        return articles.filter((article) => {
+            const jId = getArticleJournalId(article);
+            return (
+                jId === selectedJournalId &&
+                (article.status === 'Published' || article.status === 'published') &&
+                new Date(article.submission_date).getFullYear() === selectedYear &&
+                new Date(article.submission_date).getMonth() === selectedMonth
+            );
+        });
     }, [selectedJournalId, selectedYear, selectedMonth, articles]);
 
     const getPublicShareLink = (articleId: string) => {
@@ -118,7 +157,7 @@ const PublishedArticles: React.FC = () => {
         }
     };
 
-    if (!user || user.role !== Role.JournalAdmin) {
+    if (!user || (user.role !== Role.JournalAdmin && user.role !== Role.SuperAdmin)) {
         return <Card title="Ruxsat Rad Etildi"><p>Ushbu sahifani ko'rish uchun sizda yetarli ruxsat yo'q.</p></Card>;
     }
     
@@ -221,20 +260,53 @@ const PublishedArticles: React.FC = () => {
 
     return (
         <Card title="Oylik Sonlar va Arxiv">
-            <p className="text-gray-300 mb-6 -mt-4">Bu yerda jurnallaringiz uchun oylik to'plamlarni boshqarishingiz mumkin.</p>
+            <p className="text-gray-300 mb-4 -mt-4">
+                Bu yerda <strong className="text-white">o‘z jurnallaringiz</strong> uchun oylik to‘plamlarni boshqarishingiz mumkin.
+                {user?.role === Role.SuperAdmin && (
+                    <span className="block mt-1 text-amber-200/90 text-sm">Super admin: barcha jurnallardan birini tanlashingiz mumkin.</span>
+                )}
+            </p>
+
+            {managedJournals.length === 0 && !loading && (
+                <div className="mb-6 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-100 text-sm">
+                    <strong>Sizga biriktirilgan jurnal topilmadi.</strong> Agar bu xato bo‘lsa, super admin jurnal sozlamalarida sizni &quot;jurnal administratori&quot; sifatida biriktirganini tekshiring.
+                </div>
+            )}
+
+            {managedJournals.length > 0 && (
+                <div className="mb-4 p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 text-sm text-gray-300">
+                    <span className="text-gray-400">Siz boshqaradigan jurnal{managedJournals.length > 1 ? 'lar' : ''} </span>
+                    <span className="text-white font-medium">
+                        {managedJournals.map((j) => j.name).join(' · ')}
+                    </span>
+                    {managedJournals.length > 1 && (
+                        <span className="text-gray-500"> ({managedJournals.length} ta)</span>
+                    )}
+                </div>
+            )}
             
             <div className="p-4 bg-white/5 rounded-lg mb-6 flex flex-col md:flex-row gap-4">
-                {managedJournals.length > 1 && (
-                    <div>
-                        <label className="text-sm">Jurnal</label>
+                {managedJournals.length > 0 && (
+                    <div className="md:min-w-[220px] flex-1">
+                        <label className="block text-xs text-gray-400 mb-1">Jurnal (shu bo‘yicha son va maqolalar)</label>
                         <select 
                             value={selectedJournalId} 
                             onChange={e => setSelectedJournalId(e.target.value)} 
-                            className="w-full"
+                            className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
                             disabled={loading}
                         >
-                            {managedJournals.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
+                            {managedJournals.map(j => (
+                                <option key={j.id} value={j.id}>
+                                    {j.name}{j.issn ? ` — ISSN ${j.issn}` : ''}
+                                </option>
+                            ))}
                         </select>
+                        {selectedJournal && (
+                            <p className="text-xs text-gray-500 mt-1.5">
+                                Tanlangan: <span className="text-gray-300">{selectedJournal.name}</span>
+                                {selectedJournal.issn ? ` · ISSN: ${selectedJournal.issn}` : ''}
+                            </p>
+                        )}
                     </div>
                 )}
                 <div>

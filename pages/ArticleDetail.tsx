@@ -9,6 +9,7 @@ import PlagiarismReport, { PlagiarismReportData } from '../components/Plagiarism
 import QabulCertificate, { QabulCertificateData } from '../components/QabulCertificate';
 import { apiService } from '../services/apiService';
 import { toast } from 'react-toastify';
+import { getAuthorWorkflowStepsFromStatus, getAuthorWorkflowProgressPercent } from '../utils/articleAuthorWorkflow';
 
 // Type for the API response which has different field names
 interface ArticleApiResponse {
@@ -292,10 +293,15 @@ const ArticleDetail: React.FC = () => {
 
     const statusData = getStatusDisplayData(article.status);
     const StatusIcon = statusData.icon;
-    const workflowSteps = Array.isArray(article.workflow_steps) ? article.workflow_steps : [];
-    const workflowProgress = workflowSteps.length > 0
-        ? Math.round((workflowSteps.filter(s => s.done || s.current).length / workflowSteps.length) * 100)
-        : 0;
+    const apiWorkflowSteps = Array.isArray(article.workflow_steps) ? article.workflow_steps : [];
+    const fallbackSteps = getAuthorWorkflowStepsFromStatus(article.status);
+    const workflowSteps = apiWorkflowSteps.length > 0 ? apiWorkflowSteps : fallbackSteps;
+    const workflowProgress =
+        apiWorkflowSteps.length > 0
+            ? Math.round(
+                  (apiWorkflowSteps.filter((s) => s.done || s.current).length / apiWorkflowSteps.length) * 100
+              )
+            : getAuthorWorkflowProgressPercent(article.status);
     const statusTimeline = Array.isArray(article.status_timeline) ? article.status_timeline : [];
 
     return (
@@ -331,7 +337,12 @@ const ArticleDetail: React.FC = () => {
                         <div className="space-y-4">
                             <div>
                                 <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-gray-300">Joriy bosqich: {article.workflow_stage || 'Topshirildi'}</span>
+                                    <span className="text-gray-300">
+                                        Joriy bosqich:{' '}
+                                        {article.workflow_stage ||
+                                            fallbackSteps.find((s) => s.current)?.name ||
+                                            statusData.text}
+                                    </span>
                                     <span className="text-blue-300 font-semibold">{workflowProgress}%</span>
                                 </div>
                                 <div className="w-full bg-white/10 rounded-full h-2.5">

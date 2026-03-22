@@ -9,6 +9,7 @@ import AuthorArticleReport from '../components/AuthorArticleReport';
 import NashrHisobotCertificate, { NashrHisobotData, PublishedArticle } from '../components/NashrHisobotCertificate';
 import { PlagiarismBadges } from '../components/PlagiarismReport';
 import { downloadNashrHisobotDocx } from '../utils/exportNashrHisobotDocx';
+import { getAuthorWorkflowStepsFromStatus, getAuthorWorkflowStageLabel } from '../utils/articleAuthorWorkflow';
 import { apiService } from '../services/apiService';
 import { toast } from 'react-toastify';
 
@@ -70,6 +71,50 @@ function getArticleJournalId(a: ArticleApiResponse): string {
     if (j && typeof j === 'object' && typeof j.id === 'string') return j.id;
     return '';
 }
+
+/** Admin / super-admin: drafts and payment stages (not yet "Yangi" in workflow) */
+const journalAdminTabsBase = [
+    {
+        id: 'draft-payment',
+        label: "Qoralama / to'lov",
+        statuses: [
+            ArticleStatus.Draft,
+            ArticleStatus.PaymentCompleted,
+            ArticleStatus.ContractProcessing,
+            ArticleStatus.IsbnProcessing,
+            ArticleStatus.AuthorDataVerified,
+            ArticleStatus.WritingInProgress,
+        ],
+    },
+    { id: 'new', label: 'Yangi Kelganlar', statuses: [ArticleStatus.Yangi] },
+    { id: 'with-editor', label: 'Redaktorda', statuses: [ArticleStatus.WithEditor] },
+    { id: 'in-review', label: 'Tekshiruvda', statuses: [ArticleStatus.QabulQilingan] },
+    { id: 'plagiarism-review', label: 'Antiplagiat (bosh admin)', statuses: [ArticleStatus.PlagiarismReview] },
+    { id: 'ready', label: 'Nashrga Tayyorlar', statuses: [ArticleStatus.NashrgaYuborilgan] },
+    { id: 'published', label: 'Nashr etilgan', statuses: [ArticleStatus.Published] },
+    { id: 'all', label: 'Barcha Maqolalar', statuses: [] },
+];
+
+const authorArticleTabs: { id: string; label: string; statuses: ArticleStatus[] }[] = [
+    {
+        id: 'draft-payment',
+        label: "To'lov va qoralama",
+        statuses: [
+            ArticleStatus.Draft,
+            ArticleStatus.PaymentCompleted,
+            ArticleStatus.ContractProcessing,
+            ArticleStatus.IsbnProcessing,
+            ArticleStatus.AuthorDataVerified,
+            ArticleStatus.WritingInProgress,
+        ],
+    },
+    { id: 'journal', label: 'Jurnalda', statuses: [ArticleStatus.Yangi, ArticleStatus.WithEditor] },
+    { id: 'plagiarism', label: 'Antiplagiat', statuses: [ArticleStatus.PlagiarismReview] },
+    { id: 'review', label: 'Taqriz', statuses: [ArticleStatus.QabulQilingan, ArticleStatus.Revision] },
+    { id: 'publish', label: 'Nashrga', statuses: [ArticleStatus.Accepted, ArticleStatus.NashrgaYuborilgan] },
+    { id: 'done', label: 'Nashr / yakun', statuses: [ArticleStatus.Published, ArticleStatus.Rejected] },
+    { id: 'all', label: 'Barchasi', statuses: [] },
+];
 
 // Convert API response to Article type for AuthorArticleReport
 const convertToArticleType = (apiArticle: ArticleApiResponse): Article => {
@@ -138,6 +183,10 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
     // Determine if user can update status
     const canUpdateStatus = isAdmin || (isJournalAdmin && journalIds && journalIds.includes(article.journal));
     const isAuthor = (userId || user?.id) === article.author;
+    const isAuthorRole =
+        user?.role === Role.Author || String(user?.role ?? '').toLowerCase() === 'author';
+    const authorWorkflowSteps = isAuthor && isAuthorRole ? getAuthorWorkflowStepsFromStatus(currentStatus) : [];
+    const authorStageHint = isAuthor && isAuthorRole ? getAuthorWorkflowStageLabel(currentStatus) : '';
 
     const handleShare = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -276,6 +325,35 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                 </div>
             </div>
             <p className="text-sm text-gray-400 mt-2 line-clamp-2">{article.abstract}</p>
+            {authorWorkflowSteps.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-xs text-gray-500 mb-2">Jarayon: <span className="text-blue-300">{authorStageHint}</span></p>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center">
+                        {authorWorkflowSteps.map((step, i) => (
+                            <div key={step.name} className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                                <span
+                                    title={step.name}
+                                    className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded-md truncate max-w-[72px] sm:max-w-none ${
+                                        step.done
+                                            ? 'bg-emerald-500/20 text-emerald-300'
+                                            : step.current
+                                              ? 'bg-blue-500/25 text-blue-200 ring-1 ring-blue-400/50'
+                                              : 'bg-white/5 text-gray-500'
+                                    }`}
+                                >
+                                    {step.name}
+                                </span>
+                                {i < authorWorkflowSteps.length - 1 && (
+                                    <span className="text-gray-600 hidden sm:inline" aria-hidden>
+                                        →
+                                    </span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-2">Batafsil bosqichlar uchun maqolani oching.</p>
+                </div>
+            )}
             {/* Antiplagiat foizlari faqat jurnal admin va super admin uchun (muallifda ko'rinmasin) */}
             {(user?.role === 'journal_admin' || user?.role === 'super_admin' || user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && (
                 <div className="mt-3">
@@ -350,21 +428,12 @@ const Articles: React.FC = () => {
     const clearFilters = () => { setFilterJournal(''); setFilterPlagiarism(''); setFilterDateFrom(''); setFilterDateTo(''); };
 
     // Different tabs for different roles
-    const authorTabs = []; // No tabs for author view on this page
     // FIX: Explicitly type the array to allow a union of statuses and avoid type errors.
     const reviewerTabs: { id: string; label: string; statuses: (ArticleStatus | TranslationStatus)[] }[] = [
         { id: 'reviews', label: 'Maqola Taqrizlari', statuses: [ArticleStatus.QabulQilingan] },
         { id: 'translations', label: 'Tarjimalar', statuses: [TranslationStatus.Yangi, TranslationStatus.Jarayonda] },
     ];
-    const journalAdminTabs = [
-        { id: 'new', label: 'Yangi Kelganlar', statuses: [ArticleStatus.Yangi] },
-        { id: 'with-editor', label: 'Redaktorda', statuses: [ArticleStatus.WithEditor] },
-        { id: 'in-review', label: 'Tekshiruvda', statuses: [ArticleStatus.QabulQilingan] },
-        { id: 'plagiarism-review', label: 'Antiplagiat (bosh admin)', statuses: [ArticleStatus.PlagiarismReview] },
-        { id: 'ready', label: 'Nashrga Tayyorlar', statuses: [ArticleStatus.NashrgaYuborilgan] },
-        { id: 'published', label: 'Nashr etilgan', statuses: [ArticleStatus.Published] },
-        { id: 'all', label: 'Barcha Maqolalar', statuses: [] },
-    ];
+    const journalAdminTabs = journalAdminTabsBase;
 
     let title = "Maqolalar";
     switch (userRole) {
@@ -407,9 +476,16 @@ const Articles: React.FC = () => {
             return articles.filter(a => selectedTab.id === 'all' || (selectedTab.statuses && selectedTab.statuses.includes(a.status as ArticleStatus)))
                 .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
         }
+        if (userRole === Role.Author || userRole === 'author') {
+            const selectedTab = authorArticleTabs.find(t => t.id === activeTab);
+            if (!selectedTab) return articles;
+            const list =
+                selectedTab.id === 'all'
+                    ? articles
+                    : articles.filter(a => selectedTab.statuses.includes(a.status as ArticleStatus));
+            return list.sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
+        }
         switch (user.role) {
-            case Role.Author:
-                return articles;
             case Role.Reviewer:
                 if (activeTab === 'reviews') {
                     const selectedTab = reviewerTabs.find(t => t.id === activeTab);
@@ -421,7 +497,7 @@ const Articles: React.FC = () => {
             default:
                 return [];
         }
-    }, [user, activeTab, articles, journals, isJournalAdmin]);
+    }, [user, userRole, activeTab, articles, journals, isJournalAdmin]);
 
     const translationsToShow: TranslationRequestApiResponse[] = useMemo(() => {
         if (user.role !== Role.Reviewer || activeTab !== 'translations') return [];
@@ -524,6 +600,16 @@ const Articles: React.FC = () => {
             return { id: tab.id, count };
         });
     }, [articles, journalAdminTabs]);
+
+    const authorTabCounts = useMemo(() => {
+        return authorArticleTabs.map(tab => {
+            const count =
+                tab.id === 'all'
+                    ? articles.length
+                    : articles.filter(a => tab.statuses.includes(a.status as ArticleStatus)).length;
+            return { id: tab.id, count };
+        });
+    }, [articles]);
 
     const fetchData = useCallback(async () => {
         if (!user) return;
@@ -731,6 +817,7 @@ const Articles: React.FC = () => {
                     </div>
                 )}
                 {user.role === Role.Reviewer && renderTabs(reviewerTabs, reviewerTabCounts)}
+                {(userRole === Role.Author || userRole === 'author') && renderTabs(authorArticleTabs, authorTabCounts)}
                 {isJournalAdmin && renderTabs(journalAdminTabs, journalAdminTabCounts)}
                 {user.role === Role.SuperAdmin && renderTabs(journalAdminTabs, superAdminTabCounts)}
 
@@ -835,8 +922,8 @@ const Articles: React.FC = () => {
             )}
 
             {showNashrHisobotModal && user && (() => {
-                // Faqat nashr etilgan maqolalarni olamiz
-                const publishedArticles = articlesToShow.filter(a => a.status === ArticleStatus.Published);
+                // Faqat nashr etilgan maqolalarni olamiz (muallifda tab filtri emas — barcha nashrlar)
+                const publishedArticles = articles.filter(a => a.status === ArticleStatus.Published);
                 
                 const nashrHisobotData: NashrHisobotData = {
                     documentNumber: `HSB-${Date.now().toString(36).toUpperCase()}`,
