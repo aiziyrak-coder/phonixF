@@ -26,6 +26,48 @@ const removeToken = () => {
   localStorage.removeItem('refresh_token');
 };
 
+/** Login/register: eski Bearer yuborilmasin (noto‘g‘ri JWT 401 berishi mumkin). */
+function isPublicAuthEndpoint(endpoint: string): boolean {
+  return (
+    endpoint.startsWith('/auth/login/') ||
+    endpoint.startsWith('/auth/register/')
+  );
+}
+
+let refreshInFlight: Promise<boolean> | null = null;
+
+/**
+ * SimpleJWT refresh — parallel so‘rovlarda bitta marta bajariladi.
+ */
+async function refreshAccessTokenFromApi(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight;
+  const refresh = localStorage.getItem('refresh_token');
+  if (!refresh) {
+    return false;
+  }
+  refreshInFlight = (async (): Promise<boolean> => {
+    try {
+      const r = await fetch(`${API_BASE_URL}/token/refresh/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh }),
+      });
+      const text = await r.text();
+      const data = text ? JSON.parse(text) : {};
+      if (!r.ok || !data.access) {
+        return false;
+      }
+      setToken(data.access);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
+}
+
 /** Build user-visible message from API 400 body (detail string or DRF field errors object). */
 function formatApiErrorMessage(error: Record<string, unknown>, status: number): string {
   const detail = error.detail;
@@ -45,8 +87,13 @@ function formatApiErrorMessage(error: Record<string, unknown>, status: number): 
 }
 
 // Base fetch with authentication
-export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
+export const apiFetch = async (
+  endpoint: string,
+  options: RequestInit = {},
+  _isRetryAfterRefresh = false
+): Promise<unknown> => {
   const token = getToken();
+  const publicAuth = isPublicAuthEndpoint(endpoint);
 
   const isFormDataBody = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers = new Headers(options.headers || {});
@@ -56,7 +103,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     headers.set('Content-Type', 'application/json');
   }
 
-  if (token && !headers.has('Authorization')) {
+  if (token && !headers.has('Authorization') && !publicAuth) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
@@ -72,10 +119,39 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     }
     const response = await fetch(fullUrl, config);
 
-    // Handle 401 Unauthorized - token expired
     if (response.status === 401) {
+      if (publicAuth) {
+        const errorText = await response.text();
+        let error: Record<string, unknown> = {};
+        try {
+          error = errorText ? JSON.parse(errorText) : {};
+        } catch {
+          error = { detail: errorText || 'Kirish rad etildi' };
+        }
+        const errorMessage = getUserFriendlyError({ response: error, status: 401 });
+        const apiError: Error & { status?: number; response?: unknown } = new Error(errorMessage);
+        apiError.status = 401;
+        apiError.response = error;
+        throw apiError;
+      }
+      if (!_isRetryAfterRefresh) {
+        const refreshed = await refreshAccessTokenFromApi();
+        if (refreshed) {
+          const newHeaders = new Headers(options.headers || {});
+          if (!isFormDataBody && !newHeaders.has('Content-Type')) {
+            newHeaders.set('Content-Type', 'application/json');
+          }
+          const newToken = getToken();
+          if (newToken) {
+            newHeaders.set('Authorization', `Bearer ${newToken}`);
+          }
+          return apiFetch(endpoint, { ...options, headers: newHeaders }, true);
+        }
+      }
       removeToken();
-      const err: any = new Error('Sizning sessiyangiz muddati tugagan. Iltimos, qayta kiring.');
+      const err: Error & { status?: number } = new Error(
+        'Sizning sessiyangiz muddati tugagan. Iltimos, qayta kiring.'
+      );
       err.status = 401;
       window.location.href = '/#/login';
       throw err;

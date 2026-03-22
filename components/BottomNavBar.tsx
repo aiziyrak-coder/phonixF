@@ -45,24 +45,33 @@ const BottomNavBar: React.FC = () => {
       ],
     };
 
-    const navLinks = navLinksConfig[user.role] || [];
-    
+    const navLinks =
+        navLinksConfig[user.role as keyof typeof navLinksConfig] ||
+        navLinksConfig[Role.Author];
+
     const linkBaseClass =
-        'flex flex-1 min-w-0 flex-col items-center justify-center text-center text-gray-400 hover:text-blue-400 transition-colors h-full px-0.5';
+        'flex min-w-[3.75rem] max-w-[5.5rem] shrink-0 flex-col items-center justify-center text-center text-gray-400 hover:text-blue-400 transition-colors h-full px-1 py-1';
     const activeClass = 'text-blue-400';
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 min-h-[4.5rem] pb-[max(0.25rem,env(safe-area-inset-bottom))] bg-black/30 backdrop-blur-xl border-t border-white/10 flex justify-between items-center z-40 px-1">
-            {navLinks.map((link) => (
-                <NavLink
-                    key={link.to}
-                    to={link.to}
-                    className={({ isActive }) => `${linkBaseClass} ${isActive ? activeClass : ''}`}
-                >
-                    <link.icon className="w-6 h-6 sm:w-7 sm:h-7 mb-0.5 shrink-0" />
-                    <span className="text-[10px] sm:text-xs font-medium leading-tight line-clamp-2">{link.label}</span>
-                </NavLink>
-            ))}
+        <nav className="fixed bottom-0 left-0 right-0 z-40 min-h-[4.5rem] pb-[max(0.25rem,env(safe-area-inset-bottom))] bg-black/30 backdrop-blur-xl border-t border-white/10">
+            <div
+                className="flex h-full w-full flex-nowrap items-stretch justify-start gap-0 overflow-x-auto overflow-y-hidden px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+                {navLinks.map((link) => (
+                    <NavLink
+                        key={link.to}
+                        to={link.to}
+                        className={({ isActive }) => `${linkBaseClass} ${isActive ? activeClass : ''}`}
+                    >
+                        <link.icon className="w-6 h-6 sm:w-7 sm:h-7 mb-0.5 shrink-0" />
+                        <span className="text-[10px] sm:text-xs font-medium leading-tight line-clamp-2">
+                            {link.label}
+                        </span>
+                    </NavLink>
+                ))}
+            </div>
         </nav>
     );
 };
