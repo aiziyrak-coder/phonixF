@@ -208,8 +208,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // If no user data in response, try to fetch it
         try {
           const profileResponse = await apiService.auth.getProfile();
-          if (profileResponse?.data) {
-            const profileData = profileResponse.data;
+          const profileData = profileResponse?.data ?? profileResponse;
+          if (profileData?.id) {
             const user: User = {
               id: profileData.id,
               firstName: profileData.first_name || profileData.firstName || '',
@@ -243,11 +243,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } catch (error: any) {
       let errorMessage = 'Kirishda xatolik. Telefon raqam va parolni tekshiring.';
-      
-      if (error?.response?.data) {
-        // Handle Axios error response
-        const errorData = error.response.data;
-        errorMessage = errorData.detail || errorData.message || JSON.stringify(errorData);
+      const body = error?.response;
+      if (body && typeof body === 'object' && body !== null) {
+        const nested = (body as { data?: unknown }).data;
+        const src =
+          nested && typeof nested === 'object'
+            ? (nested as Record<string, unknown>)
+            : (body as Record<string, unknown>);
+        const nfe = src.non_field_errors;
+        if (Array.isArray(nfe) && nfe.length > 0) {
+          errorMessage = String(nfe[0]);
+        } else if (typeof src.detail === 'string' && src.detail) {
+          errorMessage = src.detail;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
       } else if (error?.message) {
         errorMessage = error.message;
       } else if (typeof error === 'string') {
