@@ -48,7 +48,7 @@ const OperatorDashboard: React.FC = () => {
       
       // Parallel API calls for all data
       const [udkRes, doiRes, samplesRes, transRes, usersRes, txRes] = await Promise.all([
-        apiService.udc.list(),
+        apiService.udc.requests.list(),
         apiService.articles.getDoiRequests(),
         apiService.articles.getArticleSampleRequests(),
         apiService.translations.list(),

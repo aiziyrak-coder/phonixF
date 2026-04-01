@@ -114,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
-          navigate('/login');
+          setTimeout(() => navigate('/login'), 0);
         }
       } catch (error: any) {
         const msg = error?.message ?? '';
@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        navigate('/login');
+        setTimeout(() => navigate('/login'), 0);
       } finally {
         setLoading(false);
       }
@@ -201,7 +201,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
           
           setUser(user);
-          navigate('/dashboard');
           return true;
         }
         
@@ -229,12 +228,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             setUser(user);
           }
-          navigate('/dashboard');
           return true;
         } catch (profileError) {
           console.error('Failed to fetch user profile:', profileError);
-          // Still consider login successful if we have tokens
-          navigate('/dashboard');
           return true;
         }
       }

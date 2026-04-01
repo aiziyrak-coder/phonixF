@@ -974,6 +974,8 @@ export const apiService = {
 
   // UDC (UDK) — Universal Decimal Classification, teacode.com + O'zbekiston
   udc: {
+    /** UDK so'rovlari ro'yxati — `udc.requests.list()` bilan bir xil */
+    list: () => apiFetch('/udc/requests/'),
     price: () => apiFetch('/udc/price/'),
     root: () => apiFetch('/udc/root/'),
     children: (path: string) => apiFetch(`/udc/children/?path=${encodeURIComponent(path)}`),
