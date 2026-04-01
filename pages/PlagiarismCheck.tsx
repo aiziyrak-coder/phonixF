@@ -100,21 +100,34 @@ const PlagiarismCheck: React.FC = () => {
   const [articleId, setArticleId] = useState<string | null>(null);
   /** True when user returned from payment page and payment is verified completed (so we can run check). */
   const [paymentVerifiedCompleted, setPaymentVerifiedCompleted] = useState(false);
+  const [pendingPlagiarismPayment, setPendingPlagiarismPayment] = useState<{
+    transactionId: string;
+    articleId: string;
+  } | null>(null);
   const paymentTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const STORAGE_KEY_TRANSACTION_ID = 'plagiarism_pending_transaction_id';
   const STORAGE_KEY_ARTICLE_ID = 'plagiarism_pending_article_id';
 
+  const JOURNAL_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  const journalIdValid = (j: any): string | null => {
+    const id = String(j?.id ?? '').trim();
+    return JOURNAL_UUID_RE.test(id) ? id : null;
+  };
+
   /** Jurnal tanlash: oldindan nashr to'lovi talab qilinmasa — antiplagiat uchun maqola yaratish osonlashadi */
   const pickJournalForPlagiarism = (journals: any[]): any | null => {
     if (!journals?.length) return null;
-    const withoutPrepayFee = journals.find((j) => {
+    const valid = journals.filter((j) => journalIdValid(j));
+    if (!valid.length) return null;
+    const withoutPrepayFee = valid.find((j) => {
       const fee = Number(j.publication_fee ?? 0) || 0;
       const perPage = Number(j.price_per_page ?? 0) || 0;
       const isPre = j.payment_model === 'pre-payment';
       return !isPre || (fee <= 0 && perPage <= 0);
     });
-    return withoutPrepayFee || journals[0];
+    return withoutPrepayFee || valid[0];
   };
 
   // Cleanup timer on unmount
@@ -130,7 +143,7 @@ const PlagiarismCheck: React.FC = () => {
       const fetchJournals = async () => {
           if (!user) return;
           try {
-              const journalsData = await apiService.journals.list();
+              const journalsData = await apiService.journals.list({ pageSize: 500 });
               const journalsArray = Array.isArray(journalsData)
                   ? journalsData
                   : (journalsData?.results || journalsData?.data || []);
@@ -150,30 +163,80 @@ const PlagiarismCheck: React.FC = () => {
       setAuthorLastName(prev => (prev.trim() ? prev : (user.lastName || '')));
   }, [user]);
 
-  // On mount: if user returned from payment page, check whether payment was completed
+  // To'lov sahifasidan qaytish: tranzaksiya holatini aniq ID bo'yicha tekshiramiz (ro'yxat paginatsiyasi xatosiz).
+  // pending bo'lsa sessionStorage ni SAQLAB qolamiz — avvalgi kodda har safar o'chirilardi va UI "o'ylanib" qolardi.
   React.useEffect(() => {
       const pendingTxId = sessionStorage.getItem(STORAGE_KEY_TRANSACTION_ID);
       const pendingArticleId = sessionStorage.getItem(STORAGE_KEY_ARTICLE_ID);
       if (!pendingTxId || !pendingArticleId) return;
 
       let cancelled = false;
-      paymentService.checkPaymentStatus(pendingTxId).then((res) => {
-          if (cancelled) return;
-          sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
-          sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
-          if (res.payment_status === 2) {
+      (async () => {
+          try {
+              const res = await paymentService.checkPaymentStatus(pendingTxId);
+              if (cancelled) return;
+              if (res.payment_status === 2) {
+                  sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
+                  sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
+                  setArticleId(pendingArticleId);
+                  setPendingPlagiarismPayment(null);
+                  setPaymentVerifiedCompleted(true);
+                  toast.success('To\'lov tasdiqlandi. Endi "Tekshirishni davom ettirish" tugmasini bosing.');
+                  return;
+              }
+              if (res.payment_status === -1) {
+                  sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
+                  sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
+                  setPendingPlagiarismPayment(null);
+                  toast.error('To\'lov bekor qilindi yoki muvaffaqiyatsiz.');
+                  return;
+              }
+              // pending — bank callback kechikishi mumkin
               setArticleId(pendingArticleId);
-              setPaymentVerifiedCompleted(true);
-              toast.success('To\'lov tasdiqlandi. Endi "Tekshirishni davom ettirish" tugmasini bosing.');
+              setPendingPlagiarismPayment({ transactionId: pendingTxId, articleId: pendingArticleId });
+              toast.info(
+                  'To\'lov hali tizimda tasdiqlanmagan. Agar Clickda to\'lov qilgan bo\'lsangiz, 1–2 daqiqa kutib "To\'lov holatini tekshirish" tugmasini bosing.',
+                  { autoClose: 9000 }
+              );
+          } catch {
+              if (!cancelled) {
+                  toast.warning('To\'lov holatini tekshirib bo\'lmadi. Internetni tekshirib, sahifani yangilang.');
+              }
           }
-      }).catch(() => {
-          if (!cancelled) {
-              sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
-              sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
-          }
-      });
+      })();
       return () => { cancelled = true; };
   }, []);
+
+  const recheckPlagiarismPayment = async () => {
+      const txId = pendingPlagiarismPayment?.transactionId || sessionStorage.getItem(STORAGE_KEY_TRANSACTION_ID);
+      const artId = pendingPlagiarismPayment?.articleId || sessionStorage.getItem(STORAGE_KEY_ARTICLE_ID);
+      if (!txId || !artId) {
+          toast.warning('Kutilayotgan to\'lov topilmadi.');
+          return;
+      }
+      try {
+          const res = await paymentService.checkPaymentStatus(txId);
+          if (res.payment_status === 2) {
+              sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
+              sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
+              setArticleId(artId);
+              setPendingPlagiarismPayment(null);
+              setPaymentVerifiedCompleted(true);
+              toast.success('To\'lov tasdiqlandi. "Tekshirishni davom ettirish" tugmasini bosing.');
+              return;
+          }
+          if (res.payment_status === -1) {
+              sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
+              sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
+              setPendingPlagiarismPayment(null);
+              toast.error('To\'lov bekor qilindi yoki muvaffaqiyatsiz.');
+              return;
+          }
+          toast.info('To\'lov hali tasdiqlanmagan. Bir ozdan keyin yana urinib ko\'ring.');
+      } catch {
+          toast.error('Holatni tekshirishda xatolik. Qayta urinib ko\'ring.');
+      }
+  };
 
   const ensureArticleForPlagiarism = async (): Promise<string> => {
       if (!file || !user) {
@@ -181,7 +244,10 @@ const PlagiarismCheck: React.FC = () => {
       }
 
       if (articleId) {
-          return articleId;
+          const aid = String(articleId).trim();
+          if (JOURNAL_UUID_RE.test(aid)) {
+              return aid;
+          }
       }
 
       console.log('[DEBUG] availableJournals:', availableJournals);
@@ -189,22 +255,16 @@ const PlagiarismCheck: React.FC = () => {
       console.log('[DEBUG] selectedJournal:', selectedJournal);
       console.log('[DEBUG] selectedJournal?.id:', selectedJournal?.id);
       
-      if (!selectedJournal?.id) {
-          throw new Error('Jurnal topilmadi. Iltimos, avval jurnal yarating yoki administratorga murojaat qiling.');
-      }
-      
-      // Validate that journal ID is a valid UUID
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!uuidRegex.test(selectedJournal.id)) {
-          console.error('[ERROR] Journal ID is not a valid UUID:', selectedJournal.id);
-          throw new Error('Jurnal ID noto\'g\'ri formatda.');
+      const journalPk = journalIdValid(selectedJournal);
+      if (!journalPk) {
+          throw new Error('Jurnal topilmadi yoki jurnal ID noto\'g\'ri. Administratorga murojaat qiling.');
       }
 
       const articleData = {
           title: documentName.trim() || `Plagiarism Check - ${file.name}`,
           abstract: documentDescription.trim() || `Hujjat turi: ${documentType || '—'}. Tekshiruv uchun yuborilgan.`,
           keywords: ['plagiarism', 'check', documentType || 'document'],
-          journal: selectedJournal.id,
+          journal: journalPk,
           page_count: 1,
           fast_track: false,
       };
@@ -212,13 +272,14 @@ const PlagiarismCheck: React.FC = () => {
 
       const articleResponse = await apiService.articles.create(articleData, { mainFile: file });
       const createdArticle = articleResponse?.data || articleResponse;
+      const newId = String(createdArticle?.id ?? '').trim();
 
-      if (!createdArticle?.id) {
-          throw new Error('Antiplagiat uchun maqola yaratilmadi.');
+      if (!newId || !JOURNAL_UUID_RE.test(newId)) {
+          throw new Error('Antiplagiat uchun maqola yaratilmadi yoki server noto\'g\'ri javob qaytardi.');
       }
 
-      setArticleId(createdArticle.id);
-      return createdArticle.id;
+      setArticleId(newId);
+      return newId;
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,6 +289,10 @@ const PlagiarismCheck: React.FC = () => {
           setCertificateData(null);
           setProgress(0);
           setArticleId(null);
+          setPendingPlagiarismPayment(null);
+          setPaymentVerifiedCompleted(false);
+          sessionStorage.removeItem(STORAGE_KEY_TRANSACTION_ID);
+          sessionStorage.removeItem(STORAGE_KEY_ARTICLE_ID);
       }
   };
   
@@ -533,6 +598,16 @@ const PlagiarismCheck: React.FC = () => {
                       </Button>
                   </div>
               )}
+              {pendingPlagiarismPayment && !paymentVerifiedCompleted && (
+                  <div className="p-4 bg-amber-500/15 border border-amber-500/35 rounded-lg mt-4 max-w-md mx-auto text-center">
+                      <p className="text-amber-100 text-sm mb-3">
+                          To&apos;lov Clickda qilingan bo&apos;lsa, tizimga kelishi biroz vaqt olishi mumkin.
+                      </p>
+                      <Button type="button" variant="secondary" onClick={recheckPlagiarismPayment} className="w-full sm:w-auto">
+                          To&apos;lov holatini tekshirish
+                      </Button>
+                  </div>
+              )}
           </div>
 
           {isChecking && (
@@ -652,7 +727,10 @@ const PlagiarismCheck: React.FC = () => {
                   {paymentStatus === 'processing' && (
                       <div className="text-center">
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                          <p className="mt-4 text-lg font-medium text-gray-200">To'lov tasdiqlanmoqda...</p>
+                          <p className="mt-4 text-lg font-medium text-gray-200">To&apos;lovga tayyorlanmoqda…</p>
+                          <p className="mt-2 text-sm text-gray-400 max-w-xs mx-auto">
+                              Maqola yaratilmoqda va tranzaksiya ochilmoqda. Bu 30–60 soniya davom etishi mumkin; iltimos kuting yoki oynani yopmang.
+                          </p>
                       </div>
                   )}
                   {paymentStatus === 'success' && (

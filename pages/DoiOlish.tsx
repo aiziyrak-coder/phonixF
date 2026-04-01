@@ -158,8 +158,9 @@ const DoiOlish: React.FC = () => {
 
             <Button
               type="submit"
+              variant="cyan"
               disabled={submitting || !firstName.trim() || !lastName.trim() || !file}
-              className="w-full sm:w-auto"
+              className="w-full sm:min-w-[240px] sm:w-auto mt-1"
             >
               {submitting ? (
                 <><Loader2 className="inline h-4 w-4 animate-spin mr-2" />Yuborilmoqda…</>

@@ -98,32 +98,42 @@ class PaymentService {
   }
 
   /**
-   * Check payment status for a transaction
+   * Check payment status for a transaction.
+   * Aniq ID bo'yicha GET — ro'yxat paginatsiyasi (masalan 20 ta) tufayli yangi tranzaksiya topilmasligi xatosini oldini oladi.
    */
   async checkPaymentStatus(transactionId: string): Promise<PaymentStatusResponse> {
     try {
-      // First get transaction details
-      const transactions = await apiService.payments.listTransactions();
-      const transaction = transactions.find((t: any) => t.id === transactionId);
-      
-      if (!transaction) {
+      const transaction = await apiService.payments.getTransaction(transactionId);
+
+      if (!transaction?.id) {
         return {
           error_code: -5,
-          error_note: 'Transaction not found'
+          error_note: 'Transaction not found',
         };
       }
 
+      const st = transaction.status as string;
       return {
         error_code: 0,
         error_note: 'Success',
-        payment_status: transaction.status === 'completed' ? 2 : 
-                       transaction.status === 'failed' ? -1 : 0
+        payment_status:
+          st === 'completed'
+            ? 2
+            : st === 'failed' || st === 'cancelled'
+              ? -1
+              : 0,
       };
     } catch (error: any) {
       console.error('Error checking payment status:', error);
+      if (error?.status === 404) {
+        return {
+          error_code: -5,
+          error_note: 'Transaction not found',
+        };
+      }
       return {
         error_code: -9,
-        error_note: error.message || 'Failed to check payment status'
+        error_note: error.message || 'Failed to check payment status',
       };
     }
   }

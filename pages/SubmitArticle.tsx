@@ -241,16 +241,26 @@ const SubmitArticle: React.FC = () => {
 
     const selectedJournal = journals.find((j) => j.id === formData.journalId);
     const isPrePayment = selectedJournal?.payment_model === 'pre-payment';
-    const isFixed = selectedJournal?.pricing_type === 'fixed' || (selectedJournal?.publication_fee != null && selectedJournal.publication_fee > 0 && !selectedJournal.price_per_page);
-    const amount = isFixed
-      ? (selectedJournal?.publication_fee ?? 0)
-      : (selectedJournal?.price_per_page ?? 0) * 1;
+    const pubFee = selectedJournal?.publication_fee != null ? Number(selectedJournal.publication_fee) : 0;
+    const perPage = selectedJournal?.price_per_page != null ? Number(selectedJournal.price_per_page) : 0;
+    // Backend bilan mos: publication_fee yoki price_per_page > 0 bo'lsa oldindan to'lov talab qilinishi mumkin
+    const hasFee = pubFee > 0 || perPage > 0;
+    const isPerPage = selectedJournal?.pricing_type === 'per_page';
+    const pages = Math.max(1, 1);
+    const amountForPayment =
+      isPerPage && perPage > 0
+        ? perPage * pages
+        : pubFee > 0
+          ? pubFee
+          : perPage > 0
+            ? perPage * pages
+            : 0;
 
-    if (isPrePayment && amount > 0) {
+    if (isPrePayment && hasFee && amountForPayment > 0) {
       setLoading(true);
       try {
         const result = await paymentService.createTransactionAndPay(
-          amount,
+          amountForPayment,
           'UZS',
           'publication_fee',
           undefined,

@@ -389,6 +389,9 @@ export const apiService = {
         Object.keys(articleData).forEach(key => {
           const value = articleData[key];
           if (value !== null && value !== undefined) {
+            if (key === 'journal' && typeof value === 'string' && !String(value).trim()) {
+              return;
+            }
             if (Array.isArray(value)) {
               // Handle arrays by stringifying them
               formData.append(key, JSON.stringify(value));
@@ -425,13 +428,27 @@ export const apiService = {
         
         if (!response.ok) {
           const errorText = await response.text();
-          let error;
+          let error: { detail?: string; message?: string };
           try {
             error = JSON.parse(errorText);
-          } catch (e) {
-            error = { detail: errorText || 'Unknown error' };
+          } catch {
+            if (errorText.includes('<!DOCTYPE html>') || errorText.includes('<html')) {
+              const errorMatch = errorText.match(/<pre class="exception_value">(.*?)<\/pre>/s);
+              error = {
+                detail: errorMatch
+                  ? errorMatch[1].trim().slice(0, 500)
+                  : `Server xatosi (${response.status})`,
+              };
+            } else {
+              error = { detail: errorText || 'Unknown error' };
+            }
           }
-          throw new Error(error.detail || error.message || `API request failed with status ${response.status}`);
+          const apiError: Error & { status?: number; response?: unknown } = new Error(
+            error.detail || error.message || `API request failed with status ${response.status}`
+          );
+          apiError.status = response.status;
+          apiError.response = error;
+          throw apiError;
         }
         
         const text = await response.text();
@@ -460,6 +477,9 @@ export const apiService = {
         Object.keys(articleData).forEach(key => {
           const value = articleData[key];
           if (value !== null && value !== undefined) {
+            if (key === 'journal' && typeof value === 'string' && !String(value).trim()) {
+              return;
+            }
             if (Array.isArray(value)) {
               // Convert arrays to JSON strings
               formData.append(key, JSON.stringify(value));
@@ -549,10 +569,17 @@ export const apiService = {
         body: JSON.stringify({ status, reason }),
       }),
 
-    checkPlagiarism: (id: string) =>
-      apiFetch(`/articles/${id}/check_plagiarism/`, {
+    checkPlagiarism: (id: string) => {
+      const clean = String(id ?? '')
+        .trim()
+        .replace(/^["']|["']$/g, '');
+      if (!clean || clean === 'undefined' || clean === 'null') {
+        return Promise.reject(new Error('Maqola identifikatori yo\'q. Sahifani yangilab, qayta urinib ko\'ring.'));
+      }
+      return apiFetch(`/articles/${clean}/check_plagiarism/`, {
         method: 'POST',
-      }),
+      });
+    },
 
     /** Nashr qilish: sertifikat yuklash, status Published, muallifga bildirishnoma */
     completePublication: (id: string, formData: FormData) =>
@@ -645,7 +672,12 @@ export const apiService = {
   journals: {
     listCategories: () => apiFetch('/journals/categories/'),
     
-    list: () => apiFetch('/journals/journals/'),
+    list: (opts?: { pageSize?: number }) =>
+      apiFetch(
+        opts?.pageSize
+          ? `/journals/journals/?page_size=${encodeURIComponent(String(opts.pageSize))}`
+          : '/journals/journals/'
+      ),
     
     get: (id: string) => apiFetch(`/journals/journals/${id}/`),
     

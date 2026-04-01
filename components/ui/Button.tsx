@@ -2,7 +2,7 @@ import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'danger' | 'accent';
+  variant?: 'primary' | 'secondary' | 'danger' | 'accent' | 'cyan';
   isLoading?: boolean;
 }
 
@@ -24,6 +24,9 @@ const Button: React.FC<ButtonProps> = ({
     /** Qorong‘i fon ustida yaxshi ko‘rinadigan asosiy harakat tugmasi */
     accent:
       'bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 hover:from-amber-400 hover:to-orange-400 focus:ring-amber-400/60 border border-amber-300/80 shadow-lg shadow-amber-500/25',
+    /** DOI / xizmatlar: narx va sarlavha bilan mos cyan-teal */
+    cyan:
+      'bg-gradient-to-r from-cyan-600 to-teal-500 text-white hover:from-cyan-500 hover:to-teal-400 focus:ring-cyan-500/50 border border-cyan-400/40 shadow-lg shadow-cyan-500/25',
   };
 
   const mergedClassName = [baseClasses, variantClasses[variant], className].filter(Boolean).join(' ');

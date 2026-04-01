@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { Send, AlertCircle } from 'lucide-react';
+import { Send, AlertCircle, FileText } from 'lucide-react';
 import apiService from '../services/apiService';
 import { paymentService } from '../services/paymentService';
 
@@ -146,9 +146,13 @@ const MaqolaNamunaOlish: React.FC = () => {
     }
   };
 
+  /* Ko‘k tugma (To‘lov qilish va yuborish) bilan bir xil fokus / chegara palitrasi; brauzer :invalid qizilini bosish */
   const inputClass =
-    'w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-white/30 text-white placeholder-gray-400';
-  const labelClass = 'block text-sm font-medium mb-1 text-white';
+    'w-full px-3 py-2 rounded-lg bg-white/[0.08] border border-white/20 text-white placeholder-gray-400 ' +
+    'outline-none transition-all duration-150 hover:border-blue-400/40 ' +
+    'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/70 ' +
+    'invalid:border-blue-500/45 invalid:ring-1 invalid:ring-blue-500/25 invalid:shadow-none';
+  const labelClass = 'block text-sm font-medium mb-1 text-gray-200';
 
   if (loading) {
     return (
@@ -168,10 +172,17 @@ const MaqolaNamunaOlish: React.FC = () => {
   return (
     <div className="w-full min-h-screen px-4 sm:px-6 lg:px-8 py-6">
       <div className="max-w-[1600px] mx-auto">
-        <h1 className="text-3xl font-bold mb-2 text-white">Maqola namuna olish</h1>
-        <p className="text-gray-200 mb-8 max-w-3xl">
-          Talablar va maqola ma'lumotlarini kiriting. To'lovdan so'ng so'rov taqrizchiga yuboriladi.
-        </p>
+        <div className="flex items-start gap-4 mb-6">
+          <div className="p-3 rounded-xl bg-blue-600/20 border border-blue-500/30 shrink-0">
+            <FileText className="h-8 w-8 text-blue-400" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold mb-2 text-white">Maqola namuna olish</h1>
+            <p className="text-gray-300 max-w-3xl">
+              Talablar va maqola ma&apos;lumotlarini kiriting. To&apos;lovdan so&apos;ng so&apos;rov taqrizchiga yuboriladi.
+            </p>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {error && (
@@ -183,21 +194,30 @@ const MaqolaNamunaOlish: React.FC = () => {
 
           {/* Narxlar va izoh (muallif uchun ma'lumot) */}
           {prices && (
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold mb-3 text-white">Narxlar (1 bet)</h2>
+            <Card className="p-6 border border-blue-500/20 bg-blue-950/20">
+              <h2 className="text-lg font-semibold mb-3 text-white flex items-center gap-2">
+                <span className="text-blue-400">Narxlar</span>
+                <span className="text-sm font-normal text-gray-400">(1 bet)</span>
+              </h2>
               <ul className="space-y-2 text-gray-200 mb-4">
-                <li>Quyi sifatli — {prices.quyi?.toLocaleString('uz-UZ')} so'm</li>
-                <li>O'rta sifatli — {prices.orta?.toLocaleString('uz-UZ')} so'm</li>
-                <li>Yuqori sifatli — {prices.yuqori?.toLocaleString('uz-UZ')} so'm</li>
+                <li>
+                  Quyi sifatli — <span className="font-semibold text-blue-300">{prices.quyi?.toLocaleString('uz-UZ')} so&apos;m</span>
+                </li>
+                <li>
+                  O&apos;rta sifatli — <span className="font-semibold text-blue-300">{prices.orta?.toLocaleString('uz-UZ')} so&apos;m</span>
+                </li>
+                <li>
+                  Yuqori sifatli — <span className="font-semibold text-blue-300">{prices.yuqori?.toLocaleString('uz-UZ')} so&apos;m</span>
+                </li>
               </ul>
-              <p className="text-sm text-gray-400 border-t border-white/10 pt-4">
-                Muallif uchun ma'lumot: hujjat formati — Word; shrift — 14 pt, Times New Roman; bet formati — A4 albomiy.
+              <p className="text-sm text-gray-400 border-t border-blue-500/15 pt-4">
+                Muallif uchun ma&apos;lumot: hujjat formati — Word; shrift — 14 pt, Times New Roman; bet formati — A4 albomiy.
               </p>
             </Card>
           )}
 
           {/* Bitta kartada barcha talablar va ma'lumotlar */}
-          <Card className="p-6 sm:p-8">
+          <Card className="p-6 sm:p-8 border border-white/10">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className={labelClass}>Til talabi *</label>
@@ -266,14 +286,20 @@ const MaqolaNamunaOlish: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-8 pt-6 border-t border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-8 pt-6 px-4 py-5 -mx-1 sm:mx-0 rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-600/15 to-blue-900/20 shadow-lg shadow-blue-950/40">
               <p className="text-lg font-semibold text-white">
-                Jami: <span className="text-white font-bold">{totalAmount.toLocaleString('uz-UZ')} so'm</span>
-                <span className="text-sm font-normal text-white/90 ml-2">
-                  ({pages} bet × {pricePerPage.toLocaleString('uz-UZ')} so'm)
+                Jami:{' '}
+                <span className="text-blue-200 font-bold tabular-nums">{totalAmount.toLocaleString('uz-UZ')} so&apos;m</span>
+                <span className="text-sm font-normal text-blue-200/80 ml-2 block sm:inline sm:ml-2">
+                  ({pages} bet × {pricePerPage.toLocaleString('uz-UZ')} so&apos;m)
                 </span>
               </p>
-              <Button type="submit" disabled={submitting}>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={submitting}
+                className="w-full sm:w-auto min-w-[220px] shadow-md shadow-blue-600/25 border border-blue-400/40"
+              >
                 <Send className="w-4 h-4 mr-2" />
                 {submitting ? 'Yuborilmoqda…' : "To'lov qilish va yuborish"}
               </Button>

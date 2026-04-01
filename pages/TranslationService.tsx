@@ -12,6 +12,8 @@ interface FileAnalysis {
   wordCount: number;
   cost: number;
   fileName: string;
+  /** Backenddan: ServicePrice translation_per_word */
+  pricePerWord: number;
 }
 
 const TranslationService: React.FC = () => {
@@ -129,10 +131,12 @@ const TranslationService: React.FC = () => {
     try {
       const response = await apiService.translations.analyzeFile(file);
       
+      const ppw = Number(response.price_per_word ?? 100);
       setAnalysisResult({
         wordCount: response.word_count,
         cost: response.cost,
         fileName: file.name,
+        pricePerWord: Number.isFinite(ppw) && ppw > 0 ? ppw : 100,
       });
 
       toast.success('Fayl tahlili tugallandi!');
@@ -387,8 +391,12 @@ const TranslationService: React.FC = () => {
               <div>
                 <h4 className="font-medium text-blue-300">Muhim Ma'lumot</h4>
                 <p className="mt-1 text-sm text-gray-300">
-                  Tarjima xizmati uchun narx so'zlar soniga qarab hisoblanadi. Hozirgi narx:
-                  500 so'm har bir so'z uchun. Sifatli tarjima mutaxassislarning qo'lidan chiqadi.
+                  Tarjima xizmati uchun narx so&apos;zlar soniga qarab hisoblanadi. Hozirgi narx:{' '}
+                  <span className="font-semibold text-blue-200">
+                    {analysisResult ? analysisResult.pricePerWord.toLocaleString('uz-UZ') : '100'} so&apos;m
+                  </span>{' '}
+                  har bir so&apos;z uchun. Jami: so&apos;zlar soni × bu narx. Sifatli tarjima mutaxassislarning
+                  qo&apos;lidan chiqadi.
                 </p>
               </div>
             </div>
