@@ -322,9 +322,11 @@ const UdkOlish: React.FC = () => {
               </div>
             </div>
             <Button
+              type="button"
+              variant="accent"
               onClick={handleStandaloneRequest}
               disabled={requestingStandalone || !standaloneTitle.trim() || !standaloneAbstract.trim() || !authorFirstName.trim() || !authorLastName.trim()}
-              className="flex items-center gap-2 mt-2"
+              className="mt-3 w-full sm:w-auto min-h-[48px] px-8 text-base gap-2 ring-2 ring-amber-400/30"
             >
               {requestingStandalone ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileCheck className="h-4 w-4" />}
               UDK so'rovi yuborish ({udkPrice?.toLocaleString()} so'm)
