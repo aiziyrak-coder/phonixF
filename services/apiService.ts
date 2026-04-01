@@ -599,6 +599,12 @@ export const apiService = {
         }
         return text ? JSON.parse(text) : {};
       }),
+
+    /** DOI so'rovlari ro'yxati (operator uchun) */
+    getDoiRequests: () => apiFetch('/articles/doi-requests/'),
+
+    /** Maqola namuna so'rovlari ro'yxati (operator uchun) */
+    getArticleSampleRequests: () => apiFetch('/articles/article-sample-requests/'),
   },
 
   // DOI raqami olish
@@ -939,6 +945,8 @@ export const apiService = {
   // Payments
   payments: {
     listTransactions: () => apiFetch('/payments/transactions/'),
+
+    getTransactions: () => apiFetch('/payments/transactions/'),
 
     getTransaction: (id: string) => apiFetch(`/payments/transactions/${id}/`),
 

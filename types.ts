@@ -6,6 +6,7 @@ export enum Role {
   JournalAdmin = 'journal_admin',
   SuperAdmin = 'super_admin',
   Accountant = 'accountant',
+  Operator = 'operator',
 }
 
 /** Backend status keys (use these for API and comparisons). */

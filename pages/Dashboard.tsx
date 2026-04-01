@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Role, ArticleStatus, ARTICLE_STATUS_LABELS } from '../types';
 import Card from '../components/ui/Card';
-import { FileText, Edit3, UserCheck, CheckCircle, Users, Inbox, Clock, XCircle, DollarSign, User as UserIcon, Timer, ArrowRight, Wallet, Rocket, Shield, Bot, Eye, Download, TrendingUp, BarChart3, PieChart as PieChartIcon, Upload, BookOpen, Archive, ChevronRight, Languages, ExternalLink } from 'lucide-react';
+import { FileText, Edit3, UserCheck, CheckCircle, Users, Inbox, Clock, XCircle, DollarSign, User as UserIcon, Timer, ArrowRight, Wallet, Rocket, Shield, Bot, Eye, Download, TrendingUp, BarChart3, PieChart as PieChartIcon, Upload, BookOpen, Archive, ChevronRight, Languages, ExternalLink, Library } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Button from '../components/ui/Button';
 import { useNavigate, Link } from 'react-router-dom';
@@ -50,6 +50,13 @@ const StatCard: React.FC<{
 const Dashboard: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    
+    // Operator uchun maxsus dashboard'ga yo'naltirish
+    if (user?.role === Role.Operator) {
+        navigate('/operator-dashboard');
+        return null;
+    }
+    
     const [articles, setArticles] = useState<any[]>([]);
     const [journals, setJournals] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
@@ -1079,6 +1086,87 @@ const Dashboard: React.FC = () => {
         );
     };
 
+    const renderOperatorDashboard = () => {
+        return (
+            <div className="space-y-6">
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <Card className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-blue-300 mb-1">Jami so'rovlar</p>
+                                <p className="text-3xl font-bold text-white">{stats?.totalRequests || 0}</p>
+                            </div>
+                            <FileText className="w-12 h-12 text-blue-400 opacity-50" />
+                        </div>
+                    </Card>
+                    
+                    <Card className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border-yellow-500/30">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-yellow-300 mb-1">Tekshiruvda</p>
+                                <p className="text-3xl font-bold text-white">{stats?.pendingRequests || 0}</p>
+                            </div>
+                            <Clock className="w-12 h-12 text-yellow-400 opacity-50" />
+                        </div>
+                    </Card>
+                    
+                    <Card className="bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-green-300 mb-1">Yakunlangan</p>
+                                <p className="text-3xl font-bold text-white">{stats?.completedRequests || 0}</p>
+                            </div>
+                            <CheckCircle className="w-12 h-12 text-green-400 opacity-50" />
+                        </div>
+                    </Card>
+                    
+                    <Card className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-purple-300 mb-1">Rad etilgan</p>
+                                <p className="text-3xl font-bold text-white">{stats?.rejectedRequests || 0}</p>
+                            </div>
+                            <XCircle className="w-12 h-12 text-purple-400 opacity-50" />
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Quick Actions */}
+                <Card title="Tezkor Amallar">
+                    <div className="flex flex-wrap gap-4">
+                        <Link
+                            to="/all-requests"
+                            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                        >
+                            <FileText className="w-5 h-5 mr-2" />
+                            Barcha So'rovlar
+                        </Link>
+                        <Link
+                            to="/doi-requests"
+                            className="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors"
+                        >
+                            <Bot className="w-5 h-5 mr-2" />
+                            DOI So'rovlari
+                        </Link>
+                        <Link
+                            to="/udk-requests"
+                            className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors"
+                        >
+                            <Library className="w-5 h-5 mr-2" />
+                            UDK So'rovlari
+                        </Link>
+                    </div>
+                </Card>
+
+                {/* Recent Requests */}
+                <Card title="Oxirgi So'rovlar">
+                    <p className="text-gray-300">Bu yerda oxirgi so'rovlar ko'rsatiladi...</p>
+                </Card>
+            </div>
+        );
+    };
+
     const renderDefaultDashboard = () => (
         <Card>
             <h2 className="text-3xl font-bold text-white">Xush kelibsiz, {user.firstName}!</h2>
@@ -1097,6 +1185,8 @@ const Dashboard: React.FC = () => {
             return renderSuperAdminDashboard();
         case 'accountant':
             return renderAccountantDashboard();
+        case 'operator':
+            return renderOperatorDashboard();
         default:
             return renderDefaultDashboard();
     }

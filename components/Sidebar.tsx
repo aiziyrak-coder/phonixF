@@ -51,6 +51,14 @@ const sidebarLinks: Record<Role, NavLinkItem[]> = {
         { to: '/doi-requests', icon: Bot, label: 'DOI so\'rovlari' },
         { to: '/profile', icon: UserCircle, label: 'Profilim' },
     ],
+    [Role.Operator]: [
+        { to: '/operator-dashboard', icon: LayoutDashboard, label: 'Operator Paneli' },
+        { to: '/all-requests', icon: FileText, label: 'Barcha so\'rovlar' },
+        { to: '/doi-requests', icon: Bot, label: 'DOI so\'rovlari' },
+        { to: '/udk-requests', icon: Library, label: 'UDK so\'rovlari' },
+        { to: '/article-sample-requests', icon: FilePlus, label: 'Maqola namuna so\'rovlari' },
+        { to: '/profile', icon: UserCircle, label: 'Profilim' },
+    ],
     [Role.Accountant]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
         { to: '/financials', icon: DollarSign, label: 'Moliya' },
