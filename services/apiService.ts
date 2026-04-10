@@ -49,6 +49,7 @@ async function refreshAccessTokenFromApi(): Promise<boolean> {
     try {
       const r = await fetch(`${API_BASE_URL}/token/refresh/`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh }),
       });
@@ -107,9 +108,14 @@ export const apiFetch = async (
     headers.set('Authorization', `Bearer ${token}`);
   }
 
+  if (!headers.has('X-Request-ID') && typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    headers.set('X-Request-ID', crypto.randomUUID());
+  }
+
   const config: RequestInit = {
     ...options,
     headers,
+    credentials: options.credentials ?? 'include',
   };
 
   try {
@@ -263,7 +269,18 @@ export const apiService = {
       return data;
     },
 
-    logout: () => {
+    logout: async () => {
+      const refresh = localStorage.getItem('refresh_token');
+      try {
+        await fetch(`${API_BASE_URL}/auth/logout/`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(refresh ? { refresh } : {}),
+        });
+      } catch {
+        /* ignore network errors on logout */
+      }
       removeToken();
     },
 
@@ -290,6 +307,7 @@ export const apiService = {
       }
       const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh }),
       });
@@ -632,6 +650,18 @@ export const apiService = {
 
     /** Maqola namuna so'rovlari ro'yxati (operator uchun) */
     getArticleSampleRequests: () => apiFetch('/articles/article-sample-requests/'),
+
+    /** Muallif ↔ operator chat: oxirgi faol yozishmalar (operator / super_admin) */
+    getOperatorChatInbox: () => apiFetch('/articles/operator-chat-inbox/'),
+
+    getOperatorChatMessages: (articleId: string) =>
+      apiFetch(`/articles/${articleId}/operator-chat/`),
+
+    sendOperatorChatMessage: (articleId: string, body: string) =>
+      apiFetch(`/articles/${articleId}/operator-chat/`, {
+        method: 'POST',
+        body: JSON.stringify({ body }),
+      }),
   },
 
   // DOI raqami olish

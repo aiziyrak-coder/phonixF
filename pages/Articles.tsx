@@ -415,6 +415,7 @@ const Articles: React.FC = () => {
     const isJournalAdmin = userRole === Role.JournalAdmin || userRole === 'journal_admin' || userRole === 'journaladmin';
     /** API ba'zan role ni boshqa registrda yuborishi mumkin; switch(user.role) bo'sh ro'yxat qaytardi */
     const isReviewer = userRole === 'reviewer' || user?.role === Role.Reviewer;
+    const isOperator = userRole === 'operator' || user?.role === Role.Operator;
 
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState(isReviewer ? 'reviews' : isJournalAdmin ? 'new' : 'all');
@@ -462,6 +463,10 @@ const Articles: React.FC = () => {
         case 'superadmin': 
             title = "Tizimdagi Barcha Maqolalar"; 
             break;
+        case Role.Operator:
+        case 'operator':
+            title = 'Maqolalar (muallif chatlari uchun)';
+            break;
     }
     
     const articlesToShow: ArticleApiResponse[] = useMemo(() => {
@@ -483,6 +488,13 @@ const Articles: React.FC = () => {
             return articles.filter(a => selectedTab.id === 'all' || (selectedTab.statuses && selectedTab.statuses.includes(a.status as ArticleStatus)))
                 .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
         }
+        if (isOperator) {
+            const selectedTab = journalAdminTabs.find(t => t.id === activeTab);
+            if (!selectedTab) return articles;
+            return articles
+                .filter(a => selectedTab.id === 'all' || (selectedTab.statuses && selectedTab.statuses.includes(a.status as ArticleStatus)))
+                .sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
+        }
         if (userRole === Role.Author || userRole === 'author') {
             const selectedTab = authorArticleTabs.find(t => t.id === activeTab);
             if (!selectedTab) return articles;
@@ -502,7 +514,7 @@ const Articles: React.FC = () => {
             return [];
         }
         return [];
-    }, [user, userRole, activeTab, articles, journals, isJournalAdmin, isReviewer]);
+    }, [user, userRole, activeTab, articles, journals, isJournalAdmin, isReviewer, isOperator]);
 
     const translationsToShow: TranslationRequestApiResponse[] = useMemo(() => {
         if (!isReviewer || activeTab !== 'translations') return [];
@@ -839,6 +851,7 @@ const Articles: React.FC = () => {
                 {(userRole === Role.Author || userRole === 'author') && renderTabs(authorArticleTabs, authorTabCounts)}
                 {isJournalAdmin && renderTabs(journalAdminTabs, journalAdminTabCounts)}
                 {user.role === Role.SuperAdmin && renderTabs(journalAdminTabs, superAdminTabCounts)}
+                {isOperator && renderTabs(journalAdminTabs, superAdminTabCounts)}
 
                 {/* Jurnal admin bir nechta jurnalda: jurnal bo'yicha filtrlash (alohida-alohida) */}
                 {isJournalAdmin && journals.length > 1 && (

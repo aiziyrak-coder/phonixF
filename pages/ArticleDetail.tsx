@@ -10,6 +10,7 @@ import QabulCertificate, { QabulCertificateData } from '../components/QabulCerti
 import { apiService } from '../services/apiService';
 import { toast } from 'react-toastify';
 import { getAuthorWorkflowStepsFromStatus, getAuthorWorkflowProgressPercent } from '../utils/articleAuthorWorkflow';
+import AuthorOperatorChat from '../components/AuthorOperatorChat';
 
 // Type for the API response which has different field names
 interface ArticleApiResponse {
@@ -702,6 +703,17 @@ const ArticleDetail: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {(viewerRoleNorm === 'author' ||
+                viewerRoleNorm === 'operator' ||
+                viewerRoleNorm === 'super_admin') &&
+                id && (
+                    <AuthorOperatorChat
+                        articleId={id}
+                        viewerIsAuthor={viewerRoleNorm === 'author'}
+                        authorDisplayName={article.author_name}
+                    />
+                )}
 
             {/* Tahrirga qaytarish — izoh modali */}
             {showRevisionModal && (

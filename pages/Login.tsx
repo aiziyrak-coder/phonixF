@@ -56,12 +56,10 @@ const Login: React.FC = () => {
             }
             
             console.log('Attempting login with phone:', fullPhone);
-            const success = await login(fullPhone, password);
+            const result = await login(fullPhone, password);
             
-            if (success) {
-                // The useEffect will handle the redirect when the user state updates
-            } else {
-                setError('Telefon raqam yoki parol xato.');
+            if (!result.ok) {
+                setError(result.message || 'Kirish amalga oshmadi.');
             }
         } catch (err: any) {
             // Use centralized error handler
@@ -92,6 +90,7 @@ const Login: React.FC = () => {
         [Role.JournalAdmin]: 'Jurnal administratori',
         [Role.SuperAdmin]: 'Bosh administrator',
         [Role.Accountant]: 'Moliyachi',
+        [Role.Operator]: 'Operator',
     };
 
     return (

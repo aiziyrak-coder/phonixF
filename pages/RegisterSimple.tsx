@@ -7,7 +7,8 @@ import { UserPlus, ArrowRight, ArrowLeft } from 'lucide-react';
 import { apiService } from '../services/apiService';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserFriendlyError, getFieldError } from '../utils/errorHandler';
+import { getUserFriendlyError, formatDrfValidationErrors } from '../utils/errorHandler';
+import { Eye, EyeOff } from 'lucide-react';
 
 const RegisterSimple: React.FC = () => {
     const navigate = useNavigate();
@@ -28,6 +29,7 @@ const RegisterSimple: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     
     // Redirect if user is already logged in
     useEffect(() => {
@@ -95,55 +97,53 @@ const RegisterSimple: React.FC = () => {
         setIsLoading(true);
         
         try {
-            // Telefon raqamni to'liq formatlash
             const fullPhone = phone.startsWith('998') ? phone : `998${phone}`;
+
+            const em = email.trim();
+            if (em) {
+                const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+                if (!ok) {
+                    setError('Email noto‘g‘ri formatda.');
+                    setIsLoading(false);
+                    return;
+                }
+            }
             
-            const userData: any = {
+            const userData: Record<string, string> = {
                 phone: fullPhone,
-                email: email.trim() || `${fullPhone}@temp.phoenix.uz`, // Email bo'lmasa, temp email
                 first_name: firstName.trim(),
                 last_name: lastName.trim(),
-                affiliation: affiliation.trim() || 'N/A', // Bo'lmasa default
-                password: password,
-                password_confirm: passwordConfirm
+                affiliation: affiliation.trim() || 'N/A',
+                password,
+                password_confirm: passwordConfirm,
             };
+            if (em) {
+                userData.email = em.toLowerCase();
+            }
             
             const response = await apiService.auth.register(userData);
             
             if (response.access && response.user) {
                 toast.success('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!', { autoClose: 2000 });
                 
-                // Auto login
                 try {
-                    const loginSuccess = await login(fullPhone, password);
-                    if (loginSuccess) {
+                    const loginResult = await login(fullPhone, password);
+                    if (loginResult.ok) {
                         navigate('/dashboard');
                     } else {
+                        toast.info('Hisob yaratildi. Iltimos, alohida kirish qiling.', { autoClose: 4000 });
                         navigate('/login');
                     }
-                } catch (loginError) {
-                    console.error('Auto login failed:', loginError);
+                } catch {
                     navigate('/login');
                 }
             } else {
                 throw new Error('Ro\'yxatdan o\'tishda xatolik yuz berdi.');
             }
-        } catch (err: any) {
-            const phoneError = getFieldError(err, 'phone');
-            const emailError = getFieldError(err, 'email');
-            const passwordError = getFieldError(err, 'password');
-            
-            let errorMessage = 'Ro\'yxatdan o\'tishda xatolik yuz berdi.';
-            
-            if (phoneError) {
-                errorMessage = `Telefon raqam: ${phoneError}`;
-            } else if (emailError) {
-                errorMessage = `Email: ${emailError}`;
-            } else if (passwordError) {
-                errorMessage = `Parol: ${passwordError}`;
-            } else {
-                errorMessage = getUserFriendlyError(err);
-            }
+        } catch (err: unknown) {
+            const apiErr = err as { response?: Record<string, unknown> };
+            const formatted = apiErr?.response ? formatDrfValidationErrors(apiErr.response) : null;
+            const errorMessage = formatted || getUserFriendlyError(err);
             
             setError(errorMessage);
             toast.error(errorMessage, { autoClose: 5000 });
@@ -181,7 +181,9 @@ const RegisterSimple: React.FC = () => {
                                     className="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
                                     placeholder="90 123 45 67"
                                     required
-                                    maxLength={12}
+                                    autoComplete="tel"
+                                    inputMode="numeric"
+                                    maxLength={9}
                                 />
                             </div>
                             <p className="text-xs text-gray-400 mt-1">Faqat raqam kiriting (masalan: 901234567)</p>
@@ -218,18 +220,20 @@ const RegisterSimple: React.FC = () => {
                                 <input 
                                     type={showPassword ? "text" : "password"}
                                     required 
+                                    autoComplete="new-password"
                                     className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500 pr-10"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Kamida 6 ta belgi"
                                     minLength={6}
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                            <button
+                                type="button"
+                                aria-label={showPassword ? 'Parolni yashirish' : 'Parolni ko‘rsatish'}
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white p-1"
                                 >
-                                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
                             <p className="text-xs text-gray-400 mt-1">Kamida 6 ta belgi (har qanday belgilar)</p>
@@ -237,15 +241,26 @@ const RegisterSimple: React.FC = () => {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">Parolni tasdiqlang *</label>
-                            <input 
-                                type={showPassword ? "text" : "password"}
-                                required 
-                                className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                                value={passwordConfirm}
-                                onChange={(e) => setPasswordConfirm(e.target.value)}
-                                placeholder="Parolni qayta kiriting"
-                                minLength={6}
-                            />
+                            <div className="relative">
+                                <input 
+                                    type={showPasswordConfirm ? "text" : "password"}
+                                    required 
+                                    autoComplete="new-password"
+                                    className="w-full p-3 pr-10 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                    value={passwordConfirm}
+                                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                                    placeholder="Parolni qayta kiriting"
+                                    minLength={6}
+                                />
+                                <button
+                                    type="button"
+                                    aria-label={showPasswordConfirm ? 'Parolni yashirish' : 'Parolni ko‘rsatish'}
+                                    onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white p-1"
+                                >
+                                    {showPasswordConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
+                            </div>
                         </div>
 
                         <Button 
@@ -261,7 +276,7 @@ const RegisterSimple: React.FC = () => {
                         <div className="text-center mb-6">
                             <button
                                 type="button"
-                                onClick={() => setStep(1)}
+                                onClick={() => { setStep(1); setError(''); }}
                                 className="text-gray-400 hover:text-white mb-4 flex items-center gap-2 mx-auto"
                             >
                                 <ArrowLeft className="h-4 w-4" />
@@ -281,13 +296,14 @@ const RegisterSimple: React.FC = () => {
                             <label className="block text-sm font-medium text-gray-300 mb-2">
                                 Email <span className="text-gray-500 text-xs">(ixtiyoriy)</span>
                             </label>
-                            <input 
-                                type="email" 
-                                className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="email@example.com"
-                            />
+                                <input 
+                                    type="email" 
+                                    autoComplete="email"
+                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="email@example.com"
+                                />
                             <p className="text-xs text-gray-400 mt-1">Bo'sh qoldirish mumkin</p>
                         </div>
 

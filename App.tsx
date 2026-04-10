@@ -3,6 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Role } from './types';
 import Layout from './components/Layout';
 import RoleRoute from './components/RoleRoute';
@@ -19,6 +20,7 @@ import Profile from './pages/Profile';
 import ArticleDetail from './pages/ArticleDetail';
 import Login from './pages/LoginSimple';
 import Register from './pages/RegisterSimple';
+import ForgotPassword from './pages/ForgotPassword';
 import ClickPayment from './pages/ClickPayment';
 import JournalManagement from './pages/JournalManagement';
 import PublishedArticles from './pages/PublishedArticles';
@@ -74,6 +76,7 @@ const AppContent: React.FC = () => {
         <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/payment/click" element={<ClickPayment />} />
             <Route path="/udk-verify" element={<UdkVerify />} />
             <Route path="/public/article/:id" element={<PublicArticleShare />} />
@@ -130,6 +133,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
     return (
         <HashRouter>
+            <ErrorBoundary>
             <AuthProvider>
                 <AppContent />
                 <ToastContainer
@@ -145,6 +149,7 @@ const App: React.FC = () => {
                     theme="light"
                 />
             </AuthProvider>
+            </ErrorBoundary>
         </HashRouter>
     );
 };

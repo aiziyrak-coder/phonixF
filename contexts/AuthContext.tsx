@@ -4,10 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { User, Notification } from '../types';
 import { apiService } from '../services/apiService';
 
+export interface LoginResult {
+  ok: boolean;
+  message: string | null;
+}
+
 interface AuthContextType {
   user: User | null;
-  login: (phone: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  login: (phone: string, password: string) => Promise<LoginResult>;
+  logout: () => Promise<void>;
   loading: boolean;
   error: string | null;
   // Notification state and functions
@@ -21,8 +26,8 @@ interface AuthContextType {
 // Create the context with a default value that matches AuthContextType
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  login: async () => false,
-  logout: () => {},
+  login: async () => ({ ok: false, message: null }),
+  logout: async () => {},
   loading: false,
   error: null,
   notifications: [],
@@ -139,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadUser();
   }, [navigate]);
 
-  const login = async (phone: string, password: string): Promise<boolean> => {
+  const login = async (phone: string, password: string): Promise<LoginResult> => {
     setLoading(true);
     setError(null);
     
@@ -151,18 +156,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 9 digits: 907863888 -> backend will add 998
       // 12 digits: 998907863888 -> backend will use as-is
       if (!cleanPhone || cleanPhone.length < 9 || cleanPhone.length > 12) {
-        setError('Iltimos, to\'g\'ri telefon raqamni kiriting (9-12 ta raqam).');
+        const msg = 'Iltimos, to\'g\'ri telefon raqamni kiriting (9-12 ta raqam).';
+        setError(msg);
         setLoading(false);
-        return false;
+        return { ok: false, message: msg };
       }
       
       if (!password || password.trim().length === 0) {
-        setError('Iltimos, parolni kiriting.');
+        const msg = 'Iltimos, parolni kiriting.';
+        setError(msg);
         setLoading(false);
-        return false;
+        return { ok: false, message: msg };
       }
-      
-      console.log('Login attempt - phone:', cleanPhone, 'has password:', !!password);
       
       const response = await apiService.auth.login(cleanPhone, password);
       
@@ -201,7 +206,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
           
           setUser(user);
-          return true;
+          setError(null);
+          return { ok: true, message: null };
         }
         
         // If no user data in response, try to fetch it
@@ -228,15 +234,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             setUser(user);
           }
-          return true;
+          setError(null);
+          return { ok: true, message: null };
         } catch (profileError) {
           console.error('Failed to fetch user profile:', profileError);
-          return true;
+          return { ok: true, message: null };
         }
       }
       
-      setError('Server response did not include access token');
-      return false;
+      const msg = 'Server javobida token topilmadi. Iltimos, qayta urinib ko\'ring.';
+      setError(msg);
+      return { ok: false, message: msg };
     } catch (error: any) {
       let errorMessage = 'Kirishda xatolik. Telefon raqam va parolni tekshiring.';
       const body = error?.response;
@@ -251,6 +259,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           errorMessage = String(nfe[0]);
         } else if (typeof src.detail === 'string' && src.detail) {
           errorMessage = src.detail;
+        } else if (Array.isArray(src.phone) && src.phone.length > 0) {
+          errorMessage = String(src.phone[0]);
+        } else if (Array.isArray(src.password) && src.password.length > 0) {
+          errorMessage = String(src.password[0]);
         } else if (error?.message) {
           errorMessage = error.message;
         }
@@ -261,17 +273,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       setError(errorMessage);
-      return false;
+      return { ok: false, message: errorMessage };
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+  const logout = useCallback(async () => {
+    await apiService.auth.logout();
     setUser(null);
-    apiService.auth.logout();
     navigate('/login');
   }, [navigate]);
 

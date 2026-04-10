@@ -5,7 +5,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Role } from '../types';
 // FIX: Import DollarSign icon and add Accountant role to sidebar links.
-import { LayoutDashboard, FileText, Upload, Users, Library, UserCircle, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages, BookOpen, FilePlus, FolderArchive, Bot, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, FileText, Upload, Users, Library, UserCircle, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages, BookOpen, FilePlus, FolderArchive, Bot, TrendingUp, MessageSquare } from 'lucide-react';
 
 type NavLinkItem = {
     to: string;
@@ -53,6 +53,7 @@ const sidebarLinks: Record<Role, NavLinkItem[]> = {
     ],
     [Role.Operator]: [
         { to: '/operator-dashboard', icon: LayoutDashboard, label: 'Operator Paneli' },
+        { to: '/articles', icon: MessageSquare, label: 'Maqolalar va chat' },
         { to: '/all-requests', icon: FileText, label: 'Barcha so\'rovlar' },
         { to: '/doi-requests', icon: Bot, label: 'DOI so\'rovlari' },
         { to: '/udk-requests', icon: Library, label: 'UDK so\'rovlari' },

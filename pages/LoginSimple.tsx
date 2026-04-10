@@ -48,34 +48,25 @@ const LoginSimple: React.FC = () => {
         setIsLoading(true);
         
         try {
-            // Phone endi faqat 9 ta raqam bo'ladi (masalan: 907863888), +998 alohida ko'rsatiladi
             if (!phone || phone.length !== 9) {
                 setError('Iltimos, telefon raqamni to\'liq kiriting (9 ta raqam, masalan: 901234567)');
-                setIsLoading(false);
                 return;
             }
             
-            // To'liq telefon raqamini yaratish (998 + 9 ta raqam)
             const fullPhone = `998${phone}`;
-            
-            console.log('Login attempt - phone input:', phone, 'full phone:', fullPhone);
             
             if (!password || password.trim().length === 0) {
                 setError('Iltimos, parolni kiriting.');
-                setIsLoading(false);
                 return;
             }
             
-            const success = await login(fullPhone, password);
+            const result = await login(fullPhone, password);
             
-            if (success) {
-                // Success - redirect handled by useEffect
-            } else {
-                setError('Telefon raqam yoki parol xato.');
+            if (!result.ok) {
+                setError(result.message || 'Kirish amalga oshmadi. Ma\'lumotlarni tekshiring.');
             }
-        } catch (err: any) {
-            const errorMessage = getUserFriendlyError(err);
-            setError(errorMessage);
+        } catch (err: unknown) {
+            setError(getUserFriendlyError(err));
         } finally {
             setIsLoading(false);
         }
@@ -111,10 +102,14 @@ const LoginSimple: React.FC = () => {
                                 className="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
                                 placeholder="90 123 45 67"
                                 required
-                                maxLength={12}
+                                autoComplete="tel"
+                                inputMode="numeric"
+                                maxLength={9}
+                                aria-invalid={!!error}
+                                aria-describedby="phone-hint"
                             />
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">Faqat raqam kiriting</p>
+                        <p id="phone-hint" className="text-xs text-gray-400 mt-1">9 ta raqam (masalan 901234567)</p>
                     </div>
 
                     <div>

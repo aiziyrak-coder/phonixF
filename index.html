@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Baseline CSP (Tailwind CDN uchun keng ruxsat); productionda nginx/build bilan qattiqroq qilish tavsiya etiladi. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https: http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:*;" />
     <title>Phoenix Ilmiy Nashrlar Markazi</title>
     <!-- Tailwind CSS CDN - Production warning suppressed. -->
     <script>

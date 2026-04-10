@@ -47,6 +47,10 @@ export interface PlagiarismReportData {
   ai_detection: AiDetection;
   stylometric: Stylometric;
   recommendations: string[];
+  /** hybrid | heuristic_only | insufficient_text */
+  analysis_mode?: string;
+  llm_model?: string | null;
+  disclaimer_uz?: string;
 }
 
 interface Props {
@@ -221,6 +225,25 @@ const PlagiarismReport: React.FC<Props> = ({ plagiarismPercentage, aiContentPerc
           <p className="text-xs text-gray-500">{report?.word_count || 0} so'z · {report?.sentence_count || 0} gap</p>
         </div>
       </div>
+
+      {(report?.disclaimer_uz || report?.analysis_mode) && (
+        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-sm text-amber-100/95">
+          {report?.analysis_mode && (
+            <p className="text-xs text-amber-200/90 mb-2 font-medium">
+              Tahlil rejimi:{' '}
+              {report.analysis_mode === 'hybrid'
+                ? 'lokal heuristic + Gemini (LLM)'
+                : report.analysis_mode === 'heuristic_only'
+                  ? 'faqat lokal heuristic (API kaliti yo‘q yoki LLM xato)'
+                  : report.analysis_mode === 'insufficient_text'
+                    ? 'matn yetarli emas'
+                    : report.analysis_mode}
+              {report.llm_model ? ` · ${report.llm_model}` : ''}
+            </p>
+          )}
+          {report?.disclaimer_uz && <p className="text-amber-50/90 leading-relaxed">{report.disclaimer_uz}</p>}
+        </div>
+      )}
 
       {/* ── Three Main Gauges ── */}
       <div className="grid grid-cols-3 gap-4">

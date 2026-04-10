@@ -86,6 +86,42 @@ export function getErrorMessage(error: any): string {
 /**
  * Get error message for specific field
  */
+/**
+ * DRF 400 body: { field: ["msg"], non_field_errors: [...], detail: "..." }
+ */
+export function formatDrfValidationErrors(responseBody: Record<string, unknown> | null | undefined): string | null {
+  if (!responseBody || typeof responseBody !== 'object' || Array.isArray(responseBody)) {
+    return null;
+  }
+  const skip = new Set(['detail', 'message', 'error', 'error_note', 'html']);
+  const label: Record<string, string> = {
+    phone: 'Telefon',
+    email: 'Email',
+    password: 'Parol',
+    password_confirm: 'Parol tasdiq',
+    first_name: 'Ism',
+    last_name: 'Familiya',
+    affiliation: 'Tashkilot',
+    non_field_errors: '',
+  };
+  const parts: string[] = [];
+  const nfe = responseBody.non_field_errors;
+  if (Array.isArray(nfe) && nfe.length > 0) {
+    parts.push(String(nfe[0]));
+  }
+  for (const [k, v] of Object.entries(responseBody)) {
+    if (skip.has(k) || k === 'non_field_errors') continue;
+    if (Array.isArray(v) && v.length > 0) {
+      const lab = label[k] || k;
+      parts.push(lab ? `${lab}: ${v[0]}` : String(v[0]));
+    } else if (typeof v === 'string' && v.trim()) {
+      const lab = label[k] || k;
+      parts.push(lab ? `${lab}: ${v}` : v);
+    }
+  }
+  return parts.length ? parts.join(' · ') : null;
+}
+
 export function getFieldError(error: any, fieldName: string): string | null {
   if (error?.response?.[fieldName]) {
     const fieldError = error.response[fieldName];

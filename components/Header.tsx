@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link, NavLink } from 'react-router-dom';
 import { useAuth, useNotifications } from '../contexts/AuthContext';
-import { LogOut, Bell, LayoutDashboard, FileText, Upload, Users, Library, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages, FolderArchive } from 'lucide-react';
+import { LogOut, Bell, LayoutDashboard, FileText, Upload, Users, Library, BookMarked, CheckCircle, Sparkles, DollarSign, Archive, Languages, FolderArchive, MessageSquare, Bot, FilePlus } from 'lucide-react';
 import { Role, Notification } from '../types';
 
 const roleNames: Record<Role, string> = {
@@ -10,6 +10,7 @@ const roleNames: Record<Role, string> = {
     [Role.JournalAdmin]: 'Jurnal administratori',
     [Role.SuperAdmin]: 'Bosh administrator',
     [Role.Accountant]: 'Moliyachi',
+    [Role.Operator]: 'Operator',
 };
 
 type NavLinkItem = {
@@ -47,6 +48,14 @@ const mainNavLinks: Record<Role, NavLinkItem[]> = {
     [Role.Accountant]: [
         { to: '/dashboard', icon: LayoutDashboard, label: 'Boshqaruv paneli' },
         { to: '/financials', icon: DollarSign, label: 'Moliya' },
+    ],
+    [Role.Operator]: [
+        { to: '/operator-dashboard', icon: LayoutDashboard, label: 'Operator paneli' },
+        { to: '/articles', icon: MessageSquare, label: 'Maqolalar va chat' },
+        { to: '/all-requests', icon: FileText, label: 'Barcha so\'rovlar' },
+        { to: '/doi-requests', icon: Bot, label: 'DOI so\'rovlari' },
+        { to: '/udk-requests', icon: Library, label: 'UDK so\'rovlari' },
+        { to: '/article-sample-requests', icon: FilePlus, label: 'Maqola namuna' },
     ],
 };
 

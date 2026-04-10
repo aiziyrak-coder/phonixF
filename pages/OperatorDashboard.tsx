@@ -37,6 +37,9 @@ const OperatorDashboard: React.FC = () => {
   const [doiRequests, setDoiRequests] = useState<any[]>([]);
   const [articleSamples, setArticleSamples] = useState<any[]>([]);
   const [translations, setTranslations] = useState<any[]>([]);
+  const [chatInbox, setChatInbox] = useState<
+    { id: string; title: string; author_name: string; journal_name: string; last_message_at: string | null }[]
+  >([]);
 
   useEffect(() => {
     fetchOperatorData();
@@ -108,6 +111,13 @@ const OperatorDashboard: React.FC = () => {
       setDoiRequests(doiData);
       setArticleSamples(samplesData);
       setTranslations(transData);
+
+      try {
+        const inboxRaw = await apiService.articles.getOperatorChatInbox();
+        setChatInbox(Array.isArray(inboxRaw) ? inboxRaw : []);
+      } catch {
+        setChatInbox([]);
+      }
 
     } catch (error) {
       console.error('Error fetching operator data:', error);
@@ -264,6 +274,50 @@ const OperatorDashboard: React.FC = () => {
         />
       </div>
 
+      <Card className="mb-8 border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-gray-900/80">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-cyan-400" />
+            Muallif chatlari (oxirgi xabarlar)
+          </h3>
+          <Link to="/articles">
+            <Button variant="secondary" className="!px-4 !py-2 text-sm">
+              Barcha maqolalar
+            </Button>
+          </Link>
+        </div>
+        <p className="text-sm text-gray-400 mb-4">
+          Har bir maqola alohida yozishma. Muallif yozganida barcha operatorlarga bildirishnoma boradi.
+        </p>
+        {chatInbox.length === 0 ? (
+          <p className="text-gray-500 text-sm py-4 text-center">Hozircha faol chatlar yo‘q. Maqolalar ro‘yxatidan oching.</p>
+        ) : (
+          <ul className="space-y-2 max-h-64 overflow-y-auto">
+            {chatInbox.slice(0, 15).map((row) => (
+              <li key={row.id}>
+                <Link
+                  to={`/articles/${row.id}`}
+                  className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-800/60 hover:bg-gray-700/60 border border-white/5 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-white truncate">{row.title}</p>
+                    <p className="text-xs text-gray-400 truncate">
+                      {row.author_name}
+                      {row.journal_name ? ` · ${row.journal_name}` : ''}
+                    </p>
+                  </div>
+                  <span className="text-xs text-gray-500 shrink-0">
+                    {row.last_message_at
+                      ? new Date(row.last_message_at).toLocaleString('uz-UZ')
+                      : ''}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
       {/* Recent Activity */}
       <Card className="mb-8">
         <div className="flex items-center justify-between mb-6">
@@ -271,9 +325,9 @@ const OperatorDashboard: React.FC = () => {
             <Activity className="h-5 w-5 text-blue-400" />
             Oxirgi Faollik
           </h3>
-          <Button variant="ghost" size="sm">
+          <Button variant="secondary" className="!px-4 !py-2 text-sm">
             Barchasini ko'rish
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
         <div className="space-y-3">

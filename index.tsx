@@ -1,7 +1,9 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { initClientMonitoring } from './utils/monitoring';
+
+initClientMonitoring();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
