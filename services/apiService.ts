@@ -108,7 +108,13 @@ export const apiFetch = async (
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  if (!headers.has('X-Request-ID') && typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+  // Login/register: maxsus sarlavha qo‘ymaslik — CORS preflight sodda bo‘ladi (x-request-id ba’zi serverlarda bloklangan).
+  if (
+    !publicAuth &&
+    !headers.has('X-Request-ID') &&
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
     headers.set('X-Request-ID', crypto.randomUUID());
   }
 
