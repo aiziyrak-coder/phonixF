@@ -14,7 +14,7 @@ const Layout: React.FC = () => {
         <ScrollingBanner />
         <Header />
         <main
-          className="flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-6 md:p-8 pb-32 md:pb-8 transition-[padding] duration-200 ease-out"
+          className="phoenix-main flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-6 md:p-8 pb-32 md:pb-8 transition-[padding] duration-200 ease-out motion-safe:animate-[phoenix-main-in_0.45s_ease-out_both]"
           style={mainRightInset > 0 ? { paddingRight: mainRightInset } : undefined}
         >
           <Outlet />

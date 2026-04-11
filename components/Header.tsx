@@ -70,9 +70,9 @@ useState(false);
   
   const links = user ? mainNavLinks[user.role] || [] : [];
   const linkClass =
-    'flex items-center px-3 py-2 text-sm font-medium text-slate-600 rounded-xl hover:bg-white/80 hover:text-slate-900 transition-colors';
+    'flex items-center px-3 py-2 text-sm font-medium text-slate-600 rounded-xl hover:bg-gradient-to-r hover:from-white/90 hover:to-indigo-50/80 hover:text-slate-900 hover:shadow-sm hover:ring-1 hover:ring-indigo-100/80 transition-all duration-300';
   const activeLinkClass =
-    'flex items-center px-3 py-2 text-sm font-semibold text-blue-800 bg-blue-500/15 rounded-xl ring-1 ring-blue-200/60 shadow-sm';
+    'flex items-center px-3 py-2 text-sm font-semibold text-indigo-900 bg-gradient-to-r from-blue-100/90 via-indigo-50/95 to-cyan-50/80 rounded-xl ring-1 ring-indigo-200/70 shadow-sm';
 
 
   useEffect(() => {
@@ -101,13 +101,16 @@ useState(false);
 
   return (
     <>
-      <header className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 h-20 bg-white/70 backdrop-blur-xl border-b border-slate-200/70 shadow-[0_1px_0_rgba(255,255,255,0.8)_inset] sticky top-0 z-30">
+      <header className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 h-20 bg-gradient-to-r from-white/85 via-indigo-50/40 to-cyan-50/35 backdrop-blur-xl border-b border-indigo-100/50 shadow-[0_4px_30px_-12px_rgba(79,70,229,0.12)] sticky top-0 z-30">
         <div className="flex items-center gap-6">
-            <Link to="/dashboard" className="text-2xl font-bold text-slate-900 tracking-wider flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-xl shadow-md">
+            <Link
+              to="/dashboard"
+              className="text-2xl font-extrabold tracking-tight flex items-center gap-3 group/logo"
+            >
+                <div className="phoenix-logo-glow w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-lg font-black text-white shadow-lg ring-2 ring-white/60 transition-transform duration-300 group-hover/logo:scale-105">
                     P
                 </div>
-                <span className="hidden lg:block">PINM</span>
+                <span className="hidden lg:block phoenix-gradient-title">PINM</span>
             </Link>
             <nav className="hidden md:flex items-center gap-2">
                 {links.map(link => (

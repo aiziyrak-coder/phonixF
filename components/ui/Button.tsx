@@ -15,19 +15,19 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseClasses =
-    'px-6 py-3 font-semibold rounded-full focus:outline-none focus:ring-4 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center transform active:scale-95 shadow-md hover:shadow-lg';
+    'px-6 py-3 font-semibold rounded-full focus:outline-none focus:ring-4 transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 inline-flex items-center justify-center active:scale-[0.97] hover:scale-[1.02] shadow-md hover:shadow-xl';
 
   const variantClasses = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-500/50 border border-blue-500/30',
+    primary:
+      'bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white hover:from-blue-500 hover:via-indigo-500 hover:to-violet-500 focus:ring-indigo-400/45 border border-white/20 shadow-indigo-500/25 hover:shadow-indigo-500/35',
     secondary:
-      'bg-white/85 text-slate-800 hover:bg-white focus:ring-slate-300/40 backdrop-blur-md border border-slate-200/90 shadow-sm',
-    danger: 'bg-red-600 text-white hover:bg-red-500 focus:ring-red-500/50',
-    /** Qorong‘i fon ustida yaxshi ko‘rinadigan asosiy harakat tugmasi */
+      'bg-gradient-to-br from-white/95 to-slate-50/90 text-slate-800 hover:from-white hover:to-indigo-50/50 focus:ring-indigo-200/60 backdrop-blur-md border border-slate-200/80 shadow-sm hover:border-indigo-200/60',
+    danger:
+      'bg-gradient-to-r from-rose-600 to-red-600 text-white hover:from-rose-500 hover:to-red-500 focus:ring-rose-400/50 shadow-rose-500/20',
     accent:
-      'bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 hover:from-amber-400 hover:to-orange-400 focus:ring-amber-400/60 border border-amber-300/80 shadow-lg shadow-amber-500/25',
-    /** DOI / xizmatlar: narx va sarlavha bilan mos cyan-teal */
+      'bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-gray-950 hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 focus:ring-amber-400/50 border border-amber-200/90 shadow-lg shadow-amber-500/30',
     cyan:
-      'bg-gradient-to-r from-cyan-600 to-teal-500 text-white hover:from-cyan-500 hover:to-teal-400 focus:ring-cyan-500/50 border border-cyan-400/40 shadow-lg shadow-cyan-500/25',
+      'bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-600 text-white hover:from-cyan-400 hover:via-teal-400 hover:to-emerald-500 focus:ring-cyan-400/50 border border-cyan-300/40 shadow-lg shadow-cyan-500/30',
   };
 
   const mergedClassName = [baseClasses, variantClasses[variant], className].filter(Boolean).join(' ');
