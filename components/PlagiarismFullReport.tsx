@@ -98,7 +98,7 @@ const CoverPage: React.FC<{ data: PlagiarismFullReportData }> = ({ data }) => (
         {/* Header stripe */}
         <div className="h-16 bg-gradient-to-r from-[#0891b2] via-[#0e7490] to-[#164e63] flex items-center justify-between px-8">
             <PhoenixLogo size="sm" />
-            <span className="text-white text-sm font-medium">www.ilmiyfaoliyat.uz</span>
+            <span className="text-slate-900 text-sm font-medium">www.ilmiyfaoliyat.uz</span>
         </div>
         
         <div className="p-8">
@@ -111,9 +111,9 @@ const CoverPage: React.FC<{ data: PlagiarismFullReportData }> = ({ data }) => (
                     Tekshiruvchi: <strong>{data.checkerName}</strong> (ID: {data.checkerId})
                 </p>
                 {data.checkerOrganization && (
-                    <p className="text-gray-500 text-sm">Tashkilot: {data.checkerOrganization}</p>
+                    <p className="text-slate-500 text-sm">Tashkilot: {data.checkerOrganization}</p>
                 )}
-                <p className="text-xs text-gray-400 mt-2 italic">
+                <p className="text-xs text-slate-500 mt-2 italic">
                     Hisobot "Phoenix Antiplagiat" servisi tomonidan taqdim etilgan
                 </p>
             </div>
@@ -200,7 +200,7 @@ const CoverPage: React.FC<{ data: PlagiarismFullReportData }> = ({ data }) => (
 
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-r from-[#164e63] to-[#0891b2] flex items-center justify-center">
-            <span className="text-white text-xs">© Phoenix Nashriyoti — Ilmiy Faoliyat Platformasi</span>
+            <span className="text-slate-900 text-xs">© Phoenix Nashriyoti — Ilmiy Faoliyat Platformasi</span>
         </div>
     </div>
 );
@@ -216,7 +216,7 @@ const SourcesPage: React.FC<{ data: PlagiarismFullReportData; pageNum: number; s
             {/* Header */}
             <div className="h-12 bg-gradient-to-r from-[#0891b2] to-[#164e63] flex items-center justify-between px-6">
                 <PhoenixLogo size="sm" />
-                <span className="text-white text-xs">Sahifa {pageNum}</span>
+                <span className="text-slate-900 text-xs">Sahifa {pageNum}</span>
             </div>
 
             <div className="p-6">
@@ -224,7 +224,7 @@ const SourcesPage: React.FC<{ data: PlagiarismFullReportData; pageNum: number; s
                 
                 <table className="w-full text-xs border-collapse">
                     <thead>
-                        <tr className="bg-[#0891b2] text-white">
+                        <tr className="bg-[#0891b2] text-slate-900">
                             <th className="border border-[#0e7490] px-2 py-2 text-center w-10">№</th>
                             <th className="border border-[#0e7490] px-2 py-2 text-center w-16">Ulushi</th>
                             <th className="border border-[#0e7490] px-2 py-2 text-left">Manba</th>
@@ -240,7 +240,7 @@ const SourcesPage: React.FC<{ data: PlagiarismFullReportData; pageNum: number; s
                                 <td className="border border-gray-200 px-2 py-1.5 text-center">
                                     <span className={`font-semibold ${
                                         parseFloat(source.percentage) > 5 ? 'text-red-600' : 
-                                        parseFloat(source.percentage) > 0 ? 'text-yellow-600' : 'text-gray-400'
+                                        parseFloat(source.percentage) > 0 ? 'text-yellow-600' : 'text-slate-500'
                                     }`}>
                                         {source.percentage}
                                     </span>
@@ -268,7 +268,7 @@ const SourcesPage: React.FC<{ data: PlagiarismFullReportData; pageNum: number; s
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gray-100 flex items-center justify-between px-6 text-xs text-gray-500">
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gray-100 flex items-center justify-between px-6 text-xs text-slate-500">
                 <span>Hujjat: {data.documentNumber}</span>
                 <span>{data.uploadDate}</span>
             </div>
@@ -279,7 +279,7 @@ const SourcesPage: React.FC<{ data: PlagiarismFullReportData; pageNum: number; s
 // Info row component
 const InfoRow: React.FC<{ label: string; value: string | number; small?: boolean }> = ({ label, value, small }) => (
     <div className="flex">
-        <span className="text-gray-500 w-36 shrink-0">{label}:</span>
+        <span className="text-slate-500 w-36 shrink-0">{label}:</span>
         <span className={`text-gray-800 font-medium ${small ? 'text-xs' : ''} break-words`}>{value}</span>
     </div>
 );

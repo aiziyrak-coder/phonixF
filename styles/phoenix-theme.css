@@ -1,0 +1,17 @@
+/**
+ * Phoenix light + liquid glass — index.html dagi o‘zgaruvchilar bilan ishlaydi.
+ * index.tsx dan import qilinadi.
+ */
+
+/* Toastify light */
+.Toastify__toast-theme--light {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px);
+  color: #0f172a !important;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+}
+
+.Toastify__close-button {
+  color: #64748b !important;
+}

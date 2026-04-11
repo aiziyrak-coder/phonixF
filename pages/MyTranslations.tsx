@@ -37,7 +37,7 @@ const getStatusDisplayData = (status: TranslationStatus) => {
         case TranslationStatus.BekorQilindi:
             return { text: 'Bekor Qilindi', color: 'text-red-400', icon: XCircle };
         default:
-            return { text: status, color: 'text-gray-400', icon: FileText };
+            return { text: status, color: 'text-slate-500', icon: FileText };
     }
 };
 
@@ -108,7 +108,7 @@ const MyTranslations: React.FC = () => {
 
     return (
         <Card title="Mening Tarjimalarim">
-            <p className="text-gray-300 mb-6 -mt-4">Bu yerda siz buyurtma qilgan tarjimalaringiz holatini kuzatib borishingiz mumkin.</p>
+            <p className="text-slate-600 mb-6 -mt-4">Bu yerda siz buyurtma qilgan tarjimalaringiz holatini kuzatib borishingiz mumkin.</p>
             <div className="space-y-4">
                 {myRequests.length > 0 ? (
                     myRequests.map(req => {
@@ -116,20 +116,20 @@ const MyTranslations: React.FC = () => {
                         const StatusIcon = statusInfo.icon;
 
                         return (
-                            <div key={req.id} className="p-5 bg-white/5 rounded-xl border border-white/10">
+                            <div key={req.id} className="p-5 bg-slate-100/70 rounded-xl border border-slate-200/90">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                     <div>
-                                        <h3 className="text-lg font-semibold text-white flex items-center gap-3">
+                                        <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-3">
                                             <Languages className="text-indigo-400"/>
                                             {req.title}
                                         </h3>
-                                        <p className="text-sm text-gray-400 mt-2">
+                                        <p className="text-sm text-slate-500 mt-2">
                                             {req.source_language.toUpperCase()} → {req.target_language.toUpperCase()}
                                         </p>
-                                        <div className="text-xs text-gray-500 mt-2">
+                                        <div className="text-xs text-slate-500 mt-2">
                                             <span>Yuborilgan sana: {new Date(req.submission_date).toLocaleDateString()}</span>
                                             {req.status === TranslationStatus.Jarayonda && req.reviewer_name && (
-                                                <span className="ml-2 pl-2 border-l border-gray-600">
+                                                <span className="ml-2 pl-2 border-l border-slate-200">
                                                     Tarjimon: {req.reviewer_name}
                                                 </span>
                                             )}
@@ -154,9 +154,9 @@ const MyTranslations: React.FC = () => {
                     })
                 ) : (
                     <div className="text-center py-12">
-                        <Languages className="mx-auto h-16 w-16 text-gray-500" />
-                        <h3 className="mt-4 text-xl font-semibold text-white">Sizda Hozircha Tarjima Buyurtmalari Yo'q</h3>
-                        <p className="mt-2 text-sm text-gray-400">"Xizmatlar" bo'limi orqali yangi tarjima buyurtma qilishingiz mumkin.</p>
+                        <Languages className="mx-auto h-16 w-16 text-slate-500" />
+                        <h3 className="mt-4 text-xl font-semibold text-slate-900">Sizda Hozircha Tarjima Buyurtmalari Yo'q</h3>
+                        <p className="mt-2 text-sm text-slate-500">"Xizmatlar" bo'limi orqali yangi tarjima buyurtma qilishingiz mumkin.</p>
                     </div>
                 )}
             </div>

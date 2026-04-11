@@ -85,7 +85,7 @@ const DoiOlish: React.FC = () => {
 
   if (!user) return null;
 
-  const inputClass = 'w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const inputClass = 'w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500';
 
   return (
     <div className="space-y-6">
@@ -95,20 +95,20 @@ const DoiOlish: React.FC = () => {
             <Bot className="h-6 w-6 text-cyan-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">DOI Raqami Olish</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-xl font-bold text-slate-900">DOI Raqami Olish</h1>
+            <p className="text-sm text-slate-500">
               Maqolangiz uchun unikal raqamli obyekt identifikatorini (DOI) ro'yxatdan o'tkazish. Ma'lumotlarni kiriting va to'lovni amalga oshiring; so'rov taqrizchiga yuboriladi, DOI link tayyor bo'lgach arxivda ko'rinadi va bildirishnoma keladi.
             </p>
           </div>
         </div>
 
         {loading ? (
-          <p className="text-gray-400">Yuklanmoqda…</p>
+          <p className="text-slate-500">Yuklanmoqda…</p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Ism *</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Ism *</label>
                 <input
                   type="text"
                   value={firstName}
@@ -119,7 +119,7 @@ const DoiOlish: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Familya *</label>
+                <label className="block text-sm font-medium text-slate-600 mb-1">Familya *</label>
                 <input
                   type="text"
                   value={lastName}
@@ -132,10 +132,10 @@ const DoiOlish: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Maqola fayli (DOC yoki PDF) *</label>
-              <label className="flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg border-white/20 bg-white/5 hover:bg-white/10 cursor-pointer transition-colors">
-                <Upload className="w-10 h-10 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-400">
+              <label className="block text-sm font-medium text-slate-600 mb-1">Maqola fayli (DOC yoki PDF) *</label>
+              <label className="flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg border-slate-300/80 bg-slate-100/70 hover:bg-white/10 cursor-pointer transition-colors">
+                <Upload className="w-10 h-10 text-slate-500 mb-2" />
+                <span className="text-sm text-slate-500">
                   {file ? file.name : 'Faylni tanlang yoki shu yerga tortib tashlang'}
                 </span>
                 <input
@@ -147,11 +147,11 @@ const DoiOlish: React.FC = () => {
               </label>
             </div>
 
-            <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-              <p className="text-sm text-gray-300">
+            <div className="p-4 rounded-lg bg-slate-100/70 border border-slate-200/90">
+              <p className="text-sm text-slate-600">
                 <span className="font-semibold text-cyan-400">Narx:</span> {amount.toLocaleString()} so'm
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 To'lovdan keyin so'rov taqrizchiga yuboriladi. Taqrizchi DOI raqamini olib linkni yuklaydi; link arxivingizda va bildirishnomada chiqadi.
               </p>
             </div>

@@ -230,7 +230,7 @@ const AuthorPublications: React.FC = () => {
             <div>
               <label htmlFor="search" className="block text-sm font-medium mb-2">Qidiruv</label>
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
                 <input
                   id="search"
                   type="text"
@@ -594,7 +594,7 @@ const AuthorPublications: React.FC = () => {
             <div className="p-6">
               <h2 className="text-xl font-bold mb-4">QR Code Scanner</h2>
               <div className="text-center py-8">
-                <QrCode className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                <QrCode className="w-16 h-16 mx-auto mb-4 text-slate-500" />
                 <p className="text-gray-600 mb-4">QR code skaner bu yerda bo'ladi</p>
                 <Button onClick={() => setShowQRScanner(false)}>Yopish</Button>
               </div>

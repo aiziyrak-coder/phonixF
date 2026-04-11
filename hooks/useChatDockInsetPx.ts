@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
 
+/** Chat paneli kengligi — ekranning aynan 15% i (viewport) */
 const VIEWPORT_FRACTION = 0.15;
-const MIN_PX = 240;
 
 function measureChatPanelWidth(): number {
-  if (typeof window === 'undefined') return MIN_PX;
-  return Math.max(MIN_PX, Math.round(window.innerWidth * VIEWPORT_FRACTION));
+  if (typeof window === 'undefined') return 0;
+  return Math.round(window.innerWidth * VIEWPORT_FRACTION);
 }
 
-/**
- * O‘ng chat paneli kengligi: ekranning ~15%, juda tor bo‘lib qolmasligi uchun pastdan chegara.
- */
 export function useChatDockInsetPx(enabled: boolean): number {
-  const [px, setPx] = useState(measureChatPanelWidth);
+  const [px, setPx] = useState(() => (typeof window !== 'undefined' ? measureChatPanelWidth() : 0));
 
   useEffect(() => {
     if (!enabled) return;

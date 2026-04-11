@@ -96,14 +96,14 @@ const ClickPayment: React.FC = () => {
             <Card className="max-w-md w-full">
                 <div className="text-center mb-6">
                     <CreditCard className="h-16 w-16 mx-auto mb-4 text-blue-400" />
-                    <h2 className="text-2xl font-bold text-white mb-2">Click To'lov</h2>
-                    <p className="text-gray-400">To'lovni amalga oshirish uchun tugmani bosing</p>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Click To'lov</h2>
+                    <p className="text-slate-500">To'lovni amalga oshirish uchun tugmani bosing</p>
                 </div>
 
                 {isLoading && (
                     <div className="text-center py-8">
                         <Loader className="h-12 w-12 mx-auto animate-spin text-blue-400 mb-4" />
-                        <p className="text-gray-400">To'lov sahifasi tayyorlanmoqda...</p>
+                        <p className="text-slate-500">To'lov sahifasi tayyorlanmoqda...</p>
                     </div>
                 )}
 
@@ -123,7 +123,7 @@ const ClickPayment: React.FC = () => {
                                 <CheckCircle className="h-5 w-5" />
                                 <p className="font-semibold">Click to&apos;lov sahifasi tayyor</p>
                             </div>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-slate-500">
                                 {useMobileAutoFlow
                                     ? "Telefonda to'lov uchun avtomatik Click sahifasi ochiladi. Kompyuterdan kirgan bo'lsangiz, QR ni boshqa telefon bilan skanerlang."
                                     : "QR kodni telefon bilan skanerlang yoki tugma orqali Click rasmiy to'lov sahifasiga o'ting (my.click.uz)."}
@@ -132,12 +132,12 @@ const ClickPayment: React.FC = () => {
 
                         {/* Kompyuter: QR; mobil: avtomatik Click — QR kerak emas */}
                         {useMobileAutoFlow ? (
-                            <div className="flex flex-col items-center justify-center p-8 bg-white/5 rounded-xl border border-white/10 min-h-[140px]">
+                            <div className="flex flex-col items-center justify-center p-8 bg-slate-100/70 rounded-xl border border-slate-200/90 min-h-[140px]">
                                 <Loader className="h-10 w-10 animate-spin text-cyan-400 mb-3" />
-                                <p className="text-gray-200 text-sm text-center font-medium">
+                                <p className="text-slate-700 text-sm text-center font-medium">
                                     Click to&apos;lov sahifasiga yo&apos;naltirilmoqdasiz...
                                 </p>
-                                <p className="text-gray-500 text-xs mt-2 text-center">
+                                <p className="text-slate-500 text-xs mt-2 text-center">
                                     Ochilmasa, pastdagi tugmani bosing.
                                 </p>
                             </div>
@@ -159,14 +159,14 @@ const ClickPayment: React.FC = () => {
                                 <p className="text-gray-700 text-xs mt-3 text-center max-w-[280px] font-medium">
                                     Telefonda to&apos;lov uchun: <strong>Click ilovasini</strong> oching → «QR orqali to&apos;lash» yoki kamerani shu QR ga qarating. To&apos;lov to&apos;g&apos;ridan-to&apos;g&apos;ri Click ilovasida ochiladi (veb emas).
                                 </p>
-                                <p className="text-gray-500 text-xs mt-1 text-center max-w-[280px]">
+                                <p className="text-slate-500 text-xs mt-1 text-center max-w-[280px]">
                                     Ilova o&apos;rnatilgan bo&apos;lsa, telefon kamerasi orqali skanerlanganda ham tizim Click ilovasini ochishi mumkin.
                                 </p>
                             </div>
                         )}
 
-                        <div className="border-t border-white/10 pt-4">
-                            <p className="text-sm text-gray-400 text-center mb-3">
+                        <div className="border-t border-slate-200/90 pt-4">
+                            <p className="text-sm text-slate-500 text-center mb-3">
                                 {useMobileAutoFlow
                                     ? "Click ochilmagan bo'lsa:"
                                     : "Yoki kompyuterdan — Click sahifasini ochish:"}
@@ -200,7 +200,7 @@ const ClickPayment: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={refreshTransaction}
-                                className="text-sm text-gray-400 hover:text-white"
+                                className="text-sm text-slate-500 hover:text-slate-900"
                             >
                                 To&apos;lovni tekshirish
                             </button>
@@ -209,7 +209,7 @@ const ClickPayment: React.FC = () => {
                         <div className="text-center">
                             <button
                                 onClick={() => navigate('/dashboard')}
-                                className="text-sm text-gray-400 hover:text-white"
+                                className="text-sm text-slate-500 hover:text-slate-900"
                             >
                                 Orqaga qaytish
                             </button>
@@ -228,7 +228,7 @@ const ClickPayment: React.FC = () => {
                         <div className="text-center">
                             <button
                                 onClick={() => navigate('/dashboard')}
-                                className="text-sm text-gray-400 hover:text-white"
+                                className="text-sm text-slate-500 hover:text-slate-900"
                             >
                                 Orqaga qaytish
                             </button>

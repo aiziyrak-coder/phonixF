@@ -313,8 +313,8 @@ const PublishedArticles: React.FC = () => {
 
     return (
         <Card title="Oylik Sonlar va Arxiv">
-            <p className="text-gray-300 mb-4 -mt-4">
-                Bu yerda <strong className="text-white">o‘z jurnallaringiz</strong> uchun oylik to‘plamlarni boshqarishingiz mumkin.
+            <p className="text-slate-600 mb-4 -mt-4">
+                Bu yerda <strong className="text-slate-900">o‘z jurnallaringiz</strong> uchun oylik to‘plamlarni boshqarishingiz mumkin.
                 {isSuperAdminUser && (
                     <span className="block mt-1 text-amber-200/90 text-sm">Super admin: barcha jurnallardan birini tanlashingiz mumkin.</span>
                 )}
@@ -327,25 +327,25 @@ const PublishedArticles: React.FC = () => {
             )}
 
             {managedJournals.length > 0 && (
-                <div className="mb-4 p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 text-sm text-gray-300">
-                    <span className="text-gray-400">Siz boshqaradigan jurnal{managedJournals.length > 1 ? 'lar' : ''} </span>
-                    <span className="text-white font-medium">
+                <div className="mb-4 p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 text-sm text-slate-600">
+                    <span className="text-slate-500">Siz boshqaradigan jurnal{managedJournals.length > 1 ? 'lar' : ''} </span>
+                    <span className="text-slate-900 font-medium">
                         {managedJournals.map((j) => j.name).join(' · ')}
                     </span>
                     {managedJournals.length > 1 && (
-                        <span className="text-gray-500"> ({managedJournals.length} ta)</span>
+                        <span className="text-slate-500"> ({managedJournals.length} ta)</span>
                     )}
                 </div>
             )}
             
-            <div className="p-4 bg-white/5 rounded-lg mb-6 flex flex-col md:flex-row gap-4">
+            <div className="p-4 bg-slate-100/70 rounded-lg mb-6 flex flex-col md:flex-row gap-4">
                 {managedJournals.length > 0 && (
                     <div className="md:min-w-[220px] flex-1">
-                        <label className="block text-xs text-gray-400 mb-1">Jurnal (shu bo‘yicha son va maqolalar)</label>
+                        <label className="block text-xs text-slate-500 mb-1">Jurnal (shu bo‘yicha son va maqolalar)</label>
                         <select 
                             value={selectedJournalId} 
                             onChange={e => setSelectedJournalId(e.target.value)} 
-                            className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+                            className="w-full bg-white/50 border border-slate-200/90 rounded-lg px-3 py-2 text-sm text-slate-900"
                             disabled={loading}
                         >
                             {managedJournals.map(j => (
@@ -355,8 +355,8 @@ const PublishedArticles: React.FC = () => {
                             ))}
                         </select>
                         {selectedJournal && (
-                            <p className="text-xs text-gray-500 mt-1.5">
-                                Tanlangan: <span className="text-gray-300">{selectedJournal.name}</span>
+                            <p className="text-xs text-slate-500 mt-1.5">
+                                Tanlangan: <span className="text-slate-600">{selectedJournal.name}</span>
                                 {selectedJournal.issn ? ` · ISSN: ${selectedJournal.issn}` : ''}
                             </p>
                         )}
@@ -396,8 +396,8 @@ const PublishedArticles: React.FC = () => {
             ) : null}
 
             <div className="mt-6 space-y-6">
-                <h3 className="text-lg font-semibold text-white">{activeIssue ? "Ma'lumotlarni Yangilash" : "Yangi Son Yaratish"}</h3>
-                <p className="text-sm text-gray-400">Tanlangan oy uchun <strong className="text-white">{Array.isArray(articlesForNewIssue) ? articlesForNewIssue.length : 0}</strong> ta nashr etilgan maqola mavjud.</p>
+                <h3 className="text-lg font-semibold text-slate-900">{activeIssue ? "Ma'lumotlarni Yangilash" : "Yangi Son Yaratish"}</h3>
+                <p className="text-sm text-slate-500">Tanlangan oy uchun <strong className="text-slate-900">{Array.isArray(articlesForNewIssue) ? articlesForNewIssue.length : 0}</strong> ta nashr etilgan maqola mavjud.</p>
 
                 <div className="space-y-3">
                     {Array.isArray(articlesForNewIssue) && articlesForNewIssue.length > 0 ? (
@@ -408,11 +408,11 @@ const PublishedArticles: React.FC = () => {
                             const urlInput =
                                 pubUrlByArticle[article.id] ?? (typeof rawUrl === 'string' ? rawUrl : '');
                             return (
-                            <div key={article.id} className="p-4 bg-white/5 border border-white/10 rounded-lg space-y-4">
+                            <div key={article.id} className="p-4 bg-slate-100/70 border border-slate-200/90 rounded-lg space-y-4">
                                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                                     <div className="min-w-0 flex-1">
-                                        <h4 className="text-white font-medium">{article.title}</h4>
-                                        <p className="text-xs text-gray-400 mt-1">
+                                        <h4 className="text-slate-900 font-medium">{article.title}</h4>
+                                        <p className="text-xs text-slate-500 mt-1">
                                             {new Date(article.submission_date).toLocaleDateString()}
                                         </p>
                                     </div>
@@ -427,7 +427,7 @@ const PublishedArticles: React.FC = () => {
                                 </div>
 
                                 {(pubLink || certLink) && (
-                                    <div className="flex flex-wrap gap-3 text-sm border-t border-white/10 pt-3">
+                                    <div className="flex flex-wrap gap-3 text-sm border-t border-slate-200/90 pt-3">
                                         {pubLink ? (
                                             <a
                                                 href={pubLink}
@@ -455,15 +455,15 @@ const PublishedArticles: React.FC = () => {
                                     <p className="text-xs font-semibold text-amber-200/90 flex items-center gap-2">
                                         <FileCheck className="h-4 w-4" /> Muallifga nashr havolasi va sertifikat
                                     </p>
-                                    <p className="text-xs text-gray-400">
+                                    <p className="text-xs text-slate-500">
                                         Jurnal saytidagi maqola havolasini kiriting va/yoki sertifikat faylini yuklang.
                                         Saqlagach muallifga bildirishnoma boradi.
                                     </p>
                                     <div>
-                                        <label className="text-xs text-gray-500 block mb-1">Nashr havolasi (URL)</label>
+                                        <label className="text-xs text-slate-500 block mb-1">Nashr havolasi (URL)</label>
                                         <input
                                             type="url"
-                                            className="w-full bg-gray-900/80 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+                                            className="w-full bg-white/95 border border-slate-200/90 rounded-lg px-3 py-2 text-sm text-slate-900 shadow-sm"
                                             placeholder="https://jurnal.uz/article/..."
                                             value={urlInput}
                                             onChange={(e) =>
@@ -472,11 +472,11 @@ const PublishedArticles: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-xs text-gray-500 block mb-1">Sertifikat (PDF / JPG / PNG)</label>
+                                        <label className="text-xs text-slate-500 block mb-1">Sertifikat (PDF / JPG / PNG)</label>
                                         <input
                                             type="file"
                                             accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
-                                            className="text-sm text-gray-300 w-full file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-white/10 file:text-white"
+                                            className="text-sm text-slate-600 w-full file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-white/10 file:text-slate-900"
                                             onChange={(e) =>
                                                 setCertFileByArticle((p) => ({
                                                     ...p,
@@ -507,18 +507,18 @@ const PublishedArticles: React.FC = () => {
                             );
                         })
                     ) : (
-                        <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-400">
+                        <div className="p-4 bg-slate-100/70 border border-slate-200/90 rounded-lg text-sm text-slate-500">
                             Tanlangan oy uchun nashr etilgan maqolalar topilmadi.
                         </div>
                     )}
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">To'plam fayli (DOC/DOCX/PDF)</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-2">To'plam fayli (DOC/DOCX/PDF)</label>
                     <label htmlFor="collection-pdf-upload" className="cursor-pointer">
-                        <div className="p-8 border-2 border-dashed rounded-lg border-gray-600 text-center bg-white/5 hover:bg-white/10 transition-colors">
-                            <UploadCloud className="mx-auto h-10 w-10 text-gray-400" />
-                            <p className="mt-2 text-sm text-gray-400">{collectionPdf ? `Tanlangan: ${collectionPdf.name}` : 'DOC, DOCX yoki PDF faylni tanlang'}</p>
+                        <div className="p-8 border-2 border-dashed rounded-lg border-slate-200 text-center bg-slate-100/70 hover:bg-white/10 transition-colors">
+                            <UploadCloud className="mx-auto h-10 w-10 text-slate-500" />
+                            <p className="mt-2 text-sm text-slate-500">{collectionPdf ? `Tanlangan: ${collectionPdf.name}` : 'DOC, DOCX yoki PDF faylni tanlang'}</p>
                         </div>
                         <input 
                             id="collection-pdf-upload" 
@@ -531,9 +531,9 @@ const PublishedArticles: React.FC = () => {
                     </label>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">To'plam havolasi (ixtiyoriy)</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-2">To'plam havolasi (ixtiyoriy)</label>
                     <div className="relative">
-                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18}/>
+                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18}/>
                         <input 
                             type="text" 
                             className="w-full !pl-10"

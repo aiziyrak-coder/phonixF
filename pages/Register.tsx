@@ -151,7 +151,7 @@ const Register: React.FC = () => {
         <AuthLayout title="Yangi Hisob Yaratish">
             <Card>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <h2 className="text-2xl font-bold text-center text-white">Ro'yxatdan o'tish</h2>
+                    <h2 className="text-2xl font-bold text-center text-slate-900">Ro'yxatdan o'tish</h2>
                     
                     {error && (
                         <div className="p-3 bg-red-500/20 border border-red-500/30 rounded text-sm text-red-300">
@@ -161,22 +161,22 @@ const Register: React.FC = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Ism *</label>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">Ism *</label>
                             <input 
                                 type="text" 
                                 required 
-                                className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+                                className="w-full p-2 bg-white/50 border border-slate-200 rounded text-slate-900 focus:outline-none focus:border-blue-500"
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
                                 placeholder="Ismingiz"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Familiya *</label>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">Familiya *</label>
                             <input 
                                 type="text" 
                                 required 
-                                className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+                                className="w-full p-2 bg-white/50 border border-slate-200 rounded text-slate-900 focus:outline-none focus:border-blue-500"
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
                                 placeholder="Familiyangiz"
@@ -185,10 +185,10 @@ const Register: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Otasining ismi</label>
+                        <label className="block text-sm font-medium text-slate-600 mb-2">Otasining ismi</label>
                         <input 
                             type="text" 
-                            className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 bg-white/50 border border-slate-200 rounded text-slate-900 focus:outline-none focus:border-blue-500"
                             value={patronymic}
                             onChange={(e) => setPatronymic(e.target.value)}
                             placeholder="Otangizning ismi (ixtiyoriy)"
@@ -196,11 +196,11 @@ const Register: React.FC = () => {
                     </div>
                     
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
+                        <label className="block text-sm font-medium text-slate-600 mb-2">Email *</label>
                         <input 
                             type="email" 
                             required 
-                            className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 bg-white/50 border border-slate-200 rounded text-slate-900 focus:outline-none focus:border-blue-500"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="email@example.com"
@@ -208,11 +208,11 @@ const Register: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Ish yoki o'qish joyi *</label>
+                        <label className="block text-sm font-medium text-slate-600 mb-2">Ish yoki o'qish joyi *</label>
                         <input 
                             type="text" 
                             required 
-                            className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 bg-white/50 border border-slate-200 rounded text-slate-900 focus:outline-none focus:border-blue-500"
                             value={affiliation}
                             onChange={(e) => setAffiliation(e.target.value)}
                             placeholder="Tashkilot nomi..."
@@ -220,10 +220,10 @@ const Register: React.FC = () => {
                     </div>
                     
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">ORCID ID</label>
+                        <label className="block text-sm font-medium text-slate-600 mb-2">ORCID ID</label>
                         <input 
                             type="text" 
-                            className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 bg-white/50 border border-slate-200 rounded text-slate-900 focus:outline-none focus:border-blue-500"
                             value={orcidId}
                             onChange={(e) => setOrcidId(e.target.value)}
                             placeholder="ORCID ID (ixtiyoriy)"
@@ -231,14 +231,14 @@ const Register: React.FC = () => {
                     </div>
                     
                     <div>
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+                        <label htmlFor="phone" className="block text-sm font-medium text-slate-600 mb-2">
                             Telefon raqam *
                         </label>
                         <div className="flex items-center phone-input-group">
                             <select
                                 value={countryCode}
                                 onChange={(e) => setCountryCode(e.target.value)}
-                                className="shrink-0 p-2 bg-gray-800 border border-gray-700 rounded-l text-white focus:outline-none focus:border-blue-500"
+                                className="shrink-0 p-2 bg-white/50 border border-slate-200 rounded-l text-slate-900 focus:outline-none focus:border-blue-500"
                                 aria-label="Country code"
                             >
                                 {COUNTRIES.map(c => (
@@ -251,7 +251,7 @@ const Register: React.FC = () => {
                                 id="phone"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                                className="w-full p-2 bg-gray-800 border border-gray-700 border-l-0 rounded-r text-white focus:outline-none focus:border-blue-500"
+                                className="w-full p-2 bg-white/50 border border-slate-200 border-l-0 rounded-r text-slate-900 focus:outline-none focus:border-blue-500"
                                 placeholder="Raqamni kiriting"
                                 required
                             />
@@ -259,11 +259,11 @@ const Register: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Parol *</label>
+                        <label className="block text-sm font-medium text-slate-600 mb-2">Parol *</label>
                         <input 
                             type="password" 
                             required 
-                            className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 bg-white/50 border border-slate-200 rounded text-slate-900 focus:outline-none focus:border-blue-500"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Kamida 8 ta belgi (raqam va harf)"
@@ -271,11 +271,11 @@ const Register: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Parolni tasdiqlang *</label>
+                        <label className="block text-sm font-medium text-slate-600 mb-2">Parolni tasdiqlang *</label>
                         <input 
                             type="password" 
                             required 
-                            className="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+                            className="w-full p-2 bg-white/50 border border-slate-200 rounded text-slate-900 focus:outline-none focus:border-blue-500"
                             value={passwordConfirm}
                             onChange={(e) => setPasswordConfirm(e.target.value)}
                             placeholder="Parolni qayta kiriting"
@@ -295,7 +295,7 @@ const Register: React.FC = () => {
                     </div>
                 </form>
                 <div className="mt-4 text-center text-sm">
-                    <p className="text-gray-400">
+                    <p className="text-slate-500">
                         Hisobingiz bormi?{' '}
                         <Link to="/login" className="font-semibold text-blue-400 hover:text-blue-300">
                            Kirish

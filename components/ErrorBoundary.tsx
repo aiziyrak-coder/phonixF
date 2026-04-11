@@ -43,10 +43,10 @@ export class ErrorBoundary extends Component<Props, State> {
   render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
-          <div className="max-w-md w-full rounded-2xl border border-white/10 bg-gray-900/80 p-8 text-center shadow-xl">
-            <h1 className="text-xl font-bold text-white mb-2">Kutilmagan xatolik</h1>
-            <p className="text-sm text-gray-400 mb-6">
+        <div className="min-h-screen bg-slate-50/90 flex items-center justify-center p-6">
+          <div className="max-w-md w-full rounded-2xl border border-slate-200/90 bg-white/90 backdrop-blur-xl p-8 text-center shadow-[0_24px_80px_-24px_rgba(15,23,42,0.2)]">
+            <h1 className="text-xl font-bold text-slate-900 mb-2">Kutilmagan xatolik</h1>
+            <p className="text-sm text-slate-500 mb-6">
               Sahifani yangilang yoki bosh sahifaga qayting. Muammo takrorlansa, administratorga xabar bering.
             </p>
             {import.meta.env.DEV && (
@@ -64,7 +64,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </button>
               <Link
                 to="/dashboard"
-                className="px-5 py-2.5 rounded-xl border border-white/20 text-gray-200 hover:bg-white/5 font-semibold text-sm inline-flex items-center justify-center"
+                className="px-5 py-2.5 rounded-xl border border-slate-300/80 text-slate-700 hover:bg-slate-100/70 font-semibold text-sm inline-flex items-center justify-center"
               >
                 Bosh sahifa
               </Link>

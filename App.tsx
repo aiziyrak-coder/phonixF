@@ -53,10 +53,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-50/90 flex items-center justify-center">
                 <div className="text-center">
                     <div className="inline-block w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-                    <p className="text-gray-400">Yuklanmoqda...</p>
+                    <p className="text-slate-500">Yuklanmoqda...</p>
                 </div>
             </div>
         );

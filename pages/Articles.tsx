@@ -140,7 +140,7 @@ const convertToArticleType = (apiArticle: ArticleApiResponse): Article => {
 
 const getStatusDisplayData = (status: ArticleStatus | TranslationStatus): { text: string; color: string } => {
     const map: Record<ArticleStatus | TranslationStatus, { text: string; color: string }> = {
-        [ArticleStatus.Draft]: { text: 'Qoralama', color: 'bg-gray-500/20 text-gray-300' },
+        [ArticleStatus.Draft]: { text: 'Qoralama', color: 'bg-gray-500/20 text-slate-600' },
         [ArticleStatus.Yangi]: { text: 'Yangi', color: 'bg-blue-500/20 text-blue-300' },
         [ArticleStatus.WithEditor]: { text: 'Redaktorda', color: 'bg-indigo-500/20 text-indigo-300' },
         [ArticleStatus.QabulQilingan]: { text: 'Qabul Qilingan', color: 'bg-yellow-500/20 text-yellow-300' },
@@ -162,7 +162,7 @@ const getStatusDisplayData = (status: ArticleStatus | TranslationStatus): { text
     const entry = map[status as ArticleStatus | TranslationStatus];
     if (entry) return entry;
     const label = ARTICLE_STATUS_LABELS[status as string] || (status as string);
-    return { text: label, color: 'bg-gray-500/20 text-gray-300' };
+    return { text: label, color: 'bg-gray-500/20 text-slate-600' };
 };
 
 const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, isJournalAdmin?: boolean, userId?: string, journalIds?: string[], onStatusUpdate?: () => void }> = ({ 
@@ -260,7 +260,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
 
     return (
         <div 
-            className="p-4 sm:p-5 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-white/10"
+            className="p-4 sm:p-5 bg-slate-100/70 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-slate-200/90"
             onClick={() => navigate(`/articles/${article.id}`)}
         >
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
@@ -292,13 +292,13 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                                             e.stopPropagation();
                                             setIsStatusDropdownOpen(!isStatusDropdownOpen);
                                         }}
-                                        className="text-xs bg-gray-700 hover:bg-gray-600 rounded-full p-1.5 transition-colors"
+                                        className="text-xs bg-slate-100/90 hover:bg-gray-600 rounded-full p-1.5 transition-colors"
                                     >
                                         <ChevronDown size={14} />
                                     </button>
                                     
                                     {isStatusDropdownOpen && (
-                                        <div className="absolute right-0 mt-1 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10">
+                                        <div className="absolute right-0 mt-1 w-48 bg-white/50 border border-slate-200 rounded-lg shadow-lg z-10">
                                             <div className="py-1 max-h-60 overflow-y-auto">
                                                 {getAvailableStatusOptions().map((status) => (
                                                     <button
@@ -312,7 +312,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                                                         className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
                                                             currentStatus === status 
                                                                 ? 'bg-blue-600/30 text-blue-300' 
-                                                                : 'text-gray-300 hover:bg-gray-700/50'
+                                                                : 'text-slate-600 hover:bg-slate-100/80'
                                                         }`}
                                                     >
                                                         <Check size={14} className={currentStatus === status ? 'opacity-100' : 'opacity-0'} />
@@ -328,10 +328,10 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                     </div>
                 </div>
             </div>
-            <p className="text-sm text-gray-400 mt-2 line-clamp-2">{article.abstract}</p>
+            <p className="text-sm text-slate-500 mt-2 line-clamp-2">{article.abstract}</p>
             {authorWorkflowSteps.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
-                    <p className="text-xs text-gray-500 mb-2">Jarayon: <span className="text-blue-300">{authorStageHint}</span></p>
+                <div className="mt-3 pt-3 border-t border-slate-200/90" onClick={(e) => e.stopPropagation()}>
+                    <p className="text-xs text-slate-500 mb-2">Jarayon: <span className="text-blue-300">{authorStageHint}</span></p>
                     <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center">
                         {authorWorkflowSteps.map((step, i) => (
                             <div key={step.name} className="flex items-center gap-1.5 sm:gap-2 min-w-0">
@@ -342,7 +342,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                                             ? 'bg-emerald-500/20 text-emerald-300'
                                             : step.current
                                               ? 'bg-blue-500/25 text-blue-200 ring-1 ring-blue-400/50'
-                                              : 'bg-white/5 text-gray-500'
+                                              : 'bg-slate-100/70 text-slate-500'
                                     }`}
                                 >
                                     {step.name}
@@ -355,7 +355,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                             </div>
                         ))}
                     </div>
-                    <p className="text-[11px] text-gray-500 mt-2">Batafsil bosqichlar uchun maqolani oching.</p>
+                    <p className="text-[11px] text-slate-500 mt-2">Batafsil bosqichlar uchun maqolani oching.</p>
                 </div>
             )}
             {/* Antiplagiat foizlari faqat jurnal admin va super admin uchun (muallifda ko'rinmasin) */}
@@ -368,7 +368,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                     />
                 </div>
             )}
-            <div className="flex flex-wrap justify-between items-center mt-4 text-xs text-gray-500 gap-1">
+            <div className="flex flex-wrap justify-between items-center mt-4 text-xs text-slate-500 gap-1">
                 <span className="truncate max-w-[60%]">{article.author_name || 'Noma\'lum muallif'}</span>
                 <span>{new Date(article.submission_date).toLocaleDateString()}</span>
             </div>
@@ -382,7 +382,7 @@ const TranslationItem: React.FC<{ request: TranslationRequestApiResponse }> = ({
 
     return (
         <div 
-            className="p-4 sm:p-5 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-white/10"
+            className="p-4 sm:p-5 bg-slate-100/70 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-slate-200/90"
             onClick={() => navigate(`/translations/${request.id}`)}
         >
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
@@ -393,10 +393,10 @@ const TranslationItem: React.FC<{ request: TranslationRequestApiResponse }> = ({
             </div>
             <div className="flex justify-between items-end mt-4">
                 <div>
-                     <p className="text-sm text-gray-400 mt-2">
+                     <p className="text-sm text-slate-500 mt-2">
                         {request.source_language?.toUpperCase() || 'Noma\'lum'} <ArrowRight size={14} className="inline-block mx-1"/> {request.target_language?.toUpperCase() || 'Noma\'lum'}
                     </p>
-                    <div className="text-xs text-gray-500 mt-2">
+                    <div className="text-xs text-slate-500 mt-2">
                         <span>Muallif: {request.author_name || 'Noma\'lum'}</span>
                         <span className="mx-2">|</span>
                         <span>Sana: {new Date(request.submission_date).toLocaleDateString()}</span>
@@ -720,7 +720,7 @@ const Articles: React.FC = () => {
 
     const renderTabs = (tabs: {id: string, label: string, statuses?: (ArticleStatus | TranslationStatus)[]}[], tabCounts: {id: string, count: number}[]) => {
         return (
-             <div className="mb-6 border-b border-white/10 flex">
+             <div className="mb-6 border-b border-slate-200/90 flex">
                 {tabs.map(tab => {
                     const tabCount = tabCounts.find(tc => tc.id === tab.id)?.count || 0;
                     return (
@@ -730,10 +730,10 @@ const Articles: React.FC = () => {
                             className={`px-4 py-3 font-medium text-sm transition-colors ${
                                 activeTab === tab.id
                                     ? 'border-b-2 border-blue-400 text-blue-400'
-                                    : 'text-gray-400 hover:text-white'
+                                    : 'text-slate-500 hover:text-slate-900'
                             }`}
                         >
-                            {tab.label} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-blue-500/20 text-blue-300' : 'bg-white/10 text-gray-300'}`}>{tabCount}</span>
+                            {tab.label} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-blue-500/20 text-blue-300' : 'bg-white/10 text-slate-600'}`}>{tabCount}</span>
                         </button>
                     )
                 })}
@@ -752,7 +752,7 @@ const Articles: React.FC = () => {
                     {filteredTranslations.length > 0 ? (
                         filteredTranslations.map(req => <TranslationItem key={req.id} request={req} />)
                     ) : (
-                        <p className="text-center text-gray-400 py-8">
+                        <p className="text-center text-slate-500 py-8">
                             {searchQuery 
                                 ? `"${searchQuery}" bo'yicha hech narsa topilmadi.` 
                                 : 'Yangi tarjima so\'rovlari mavjud emas.'}
@@ -794,7 +794,7 @@ const Articles: React.FC = () => {
         if (filteredArticles.length === 0) {
             return (
                 <div className="space-y-4">
-                    <p className="text-center text-gray-400 py-8">
+                    <p className="text-center text-slate-500 py-8">
                         {searchQuery
                             ? `"${searchQuery}" bo'yicha hech narsa topilmadi.`
                             : "Ushbu bo'limda hozircha maqolalar mavjud emas."}
@@ -815,7 +815,7 @@ const Articles: React.FC = () => {
                 <div className="space-y-6">
                     {journalOrder.filter(j => byJournal[j.id]?.length).map(journal => (
                         <div key={journal.id}>
-                            <h3 className="text-lg font-semibold text-white mb-3 pb-2 border-b border-white/10">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-3 pb-2 border-b border-slate-200/90">
                                 {journal.name}
                             </h3>
                             <div className="space-y-4">
@@ -856,11 +856,11 @@ const Articles: React.FC = () => {
                 {/* Jurnal admin bir nechta jurnalda: jurnal bo'yicha filtrlash (alohida-alohida) */}
                 {isJournalAdmin && journals.length > 1 && (
                     <div className="mb-4">
-                        <label className="text-xs text-gray-400 mb-2 block">Jurnal bo'yicha</label>
+                        <label className="text-xs text-slate-500 mb-2 block">Jurnal bo'yicha</label>
                         <select
                             value={filterJournal}
                             onChange={(e) => setFilterJournal(e.target.value)}
-                            className="w-full sm:w-auto min-w-[200px] bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500"
+                            className="w-full sm:w-auto min-w-[200px] bg-white/50 border border-slate-200/90 rounded-lg px-3 py-2 text-sm text-slate-900 focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="">Barcha jurnallar</option>
                             {journals.map((j) => (
@@ -871,8 +871,8 @@ const Articles: React.FC = () => {
                 )}
 
                 <div className="flex items-center gap-2 mb-4">
-                    <div className="flex-1 flex items-center bg-white/5 border border-white/10 rounded-xl focus-within:border-accent-color focus-within:ring-2 focus-within:ring-accent-color-glow transition-all">
-                        <Search className="text-gray-400 mx-4 shrink-0" size={20} />
+                    <div className="flex-1 flex items-center bg-slate-100/70 border border-slate-200/90 rounded-xl focus-within:border-accent-color focus-within:ring-2 focus-within:ring-accent-color-glow transition-all">
+                        <Search className="text-slate-500 mx-4 shrink-0" size={20} />
                         <input
                             type="text"
                             placeholder="Sarlavha, muallif yoki kalit so'z bo'yicha qidirish..."
@@ -883,7 +883,7 @@ const Articles: React.FC = () => {
                     </div>
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`p-3 rounded-xl border transition-all ${hasActiveFilters ? 'bg-blue-500/20 border-blue-500/40 text-blue-300' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'}`}
+                        className={`p-3 rounded-xl border transition-all ${hasActiveFilters ? 'bg-blue-500/20 border-blue-500/40 text-blue-300' : 'bg-slate-100/70 border-slate-200/90 text-slate-500 hover:text-white'}`}
                     >
                         <Filter size={20} />
                     </button>
@@ -895,17 +895,17 @@ const Articles: React.FC = () => {
                 </div>
 
                 {showFilters && (
-                    <div className="mb-6 p-4 bg-white/5 border border-white/10 rounded-xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="mb-6 p-4 bg-slate-100/70 border border-slate-200/90 rounded-xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div>
-                            <label className="text-xs text-gray-400 mb-1 block">Jurnal</label>
-                            <select value={filterJournal} onChange={(e) => setFilterJournal(e.target.value)} className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+                            <label className="text-xs text-slate-500 mb-1 block">Jurnal</label>
+                            <select value={filterJournal} onChange={(e) => setFilterJournal(e.target.value)} className="w-full bg-white/50 border border-slate-200/90 rounded-lg px-3 py-2 text-sm text-slate-900">
                                 <option value="">Barchasi</option>
                                 {journals.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
                             </select>
                         </div>
                         <div>
-                            <label className="text-xs text-gray-400 mb-1 block">Plagiat darajasi</label>
-                            <select value={filterPlagiarism} onChange={(e) => setFilterPlagiarism(e.target.value)} className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+                            <label className="text-xs text-slate-500 mb-1 block">Plagiat darajasi</label>
+                            <select value={filterPlagiarism} onChange={(e) => setFilterPlagiarism(e.target.value)} className="w-full bg-white/50 border border-slate-200/90 rounded-lg px-3 py-2 text-sm text-slate-900">
                                 <option value="">Barchasi</option>
                                 <option value="low">Past (&lt;20%)</option>
                                 <option value="medium">O'rtacha (20-50%)</option>
@@ -913,28 +913,28 @@ const Articles: React.FC = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="text-xs text-gray-400 mb-1 block">Sanadan</label>
-                            <input type="date" value={filterDateFrom} onChange={(e) => setFilterDateFrom(e.target.value)} className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
+                            <label className="text-xs text-slate-500 mb-1 block">Sanadan</label>
+                            <input type="date" value={filterDateFrom} onChange={(e) => setFilterDateFrom(e.target.value)} className="w-full bg-white/50 border border-slate-200/90 rounded-lg px-3 py-2 text-sm text-slate-900" />
                         </div>
                         <div>
-                            <label className="text-xs text-gray-400 mb-1 block">Sanagacha</label>
-                            <input type="date" value={filterDateTo} onChange={(e) => setFilterDateTo(e.target.value)} className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
+                            <label className="text-xs text-slate-500 mb-1 block">Sanagacha</label>
+                            <input type="date" value={filterDateTo} onChange={(e) => setFilterDateTo(e.target.value)} className="w-full bg-white/50 border border-slate-200/90 rounded-lg px-3 py-2 text-sm text-slate-900" />
                         </div>
                     </div>
                 )}
 
                 {hasActiveFilters && (
-                    <p className="text-xs text-gray-400 mb-4">Natijalar: {filteredArticles.length} ta maqola topildi</p>
+                    <p className="text-xs text-slate-500 mb-4">Natijalar: {filteredArticles.length} ta maqola topildi</p>
                 )}
 
                 {renderContent()}
             </Card>
 
             {showReportModal && user && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 no-print">
-                    <div className="w-full max-w-4xl h-[90vh] bg-gray-800 rounded-lg shadow-2xl flex flex-col">
-                        <div className="p-4 border-b border-white/10 flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-white">Maqolalar bo'yicha ma'lumotnoma</h3>
+                <div className="fixed inset-0 bg-slate-900/35 backdrop-blur-sm z-50 flex justify-center items-center p-4 no-print">
+                    <div className="w-full max-w-4xl h-[90vh] bg-white/50 rounded-lg shadow-2xl flex flex-col">
+                        <div className="p-4 border-b border-slate-200/90 flex justify-between items-center">
+                            <h3 className="text-lg font-semibold text-slate-900">Maqolalar bo'yicha ma'lumotnoma</h3>
                             <div className="flex gap-2">
                                 <Button onClick={handlePrintReport} variant="primary">
                                     <Printer className="mr-2 h-4 w-4"/> Chop Etish
@@ -974,10 +974,10 @@ const Articles: React.FC = () => {
                 };
 
                 return (
-                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 print:p-0 print:bg-white no-print">
-                        <div className="w-full max-w-6xl h-[95vh] bg-gray-900 rounded-lg shadow-2xl flex flex-col print:max-w-none print:h-auto print:bg-white print:rounded-none print:shadow-none">
-                            <div className="p-4 border-b border-white/10 flex justify-between items-center no-print">
-                                <h3 className="text-lg font-semibold text-white">Maqolalar nashri haqida hisobot</h3>
+                    <div className="fixed inset-0 bg-slate-900/35 backdrop-blur-sm z-50 flex justify-center items-center p-4 print:p-0 print:bg-white no-print">
+                        <div className="w-full max-w-6xl h-[95vh] bg-white/55 rounded-lg shadow-2xl flex flex-col print:max-w-none print:h-auto print:bg-white print:rounded-none print:shadow-none">
+                            <div className="p-4 border-b border-slate-200/90 flex justify-between items-center no-print">
+                                <h3 className="text-lg font-semibold text-slate-900">Maqolalar nashri haqida hisobot</h3>
                                 <div className="flex gap-2">
                                     <Button
                                         onClick={async () => {
@@ -1007,8 +1007,8 @@ const Articles: React.FC = () => {
                                 ) : (
                                     <div className="flex flex-col items-center justify-center h-full text-center">
                                         <BookOpen size={64} className="text-gray-600 mb-4" />
-                                        <h4 className="text-xl font-semibold text-white mb-2">Nashr etilgan maqolalar yo'q</h4>
-                                        <p className="text-gray-400 max-w-md">
+                                        <h4 className="text-xl font-semibold text-slate-900 mb-2">Nashr etilgan maqolalar yo'q</h4>
+                                        <p className="text-slate-500 max-w-md">
                                             Sizda hali nashr etilgan maqolalar mavjud emas. 
                                             Maqolangiz nashr etilgandan so'ng bu yerda hisobot yaratishingiz mumkin bo'ladi.
                                         </p>

@@ -37,7 +37,7 @@ const DESIGN_FEE = 75000; // Average of 50k-100k
 const SliderInput: React.FC<{ label: string, value: number, onChange: (value: number) => void, min: number, max: number, step: number, icon: React.ComponentType<{ className?: string }> }> = ({ label, value, onChange, min, max, step, icon: Icon }) => (
     <div>
         <div className="flex items-center justify-between mb-2">
-            <label className="flex items-center text-sm font-medium text-gray-300">
+            <label className="flex items-center text-sm font-medium text-slate-600">
                 <Icon className="w-4 h-4 mr-2" />
                 {label}
             </label>
@@ -46,10 +46,10 @@ const SliderInput: React.FC<{ label: string, value: number, onChange: (value: nu
         <div className="flex items-center space-x-3">
             <button 
                 onClick={() => onChange(Math.max(min, value - step))} 
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                className="p-2 rounded-lg bg-slate-100/70 hover:bg-white/10 transition-colors"
                 type="button"
             >
-                <Minus className="w-4 h-4 text-gray-400" />
+                <Minus className="w-4 h-4 text-slate-500" />
             </button>
             <input
                 type="range"
@@ -62,10 +62,10 @@ const SliderInput: React.FC<{ label: string, value: number, onChange: (value: nu
             />
             <button 
                 onClick={() => onChange(Math.min(max, value + step))} 
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                className="p-2 rounded-lg bg-slate-100/70 hover:bg-white/10 transition-colors"
                 type="button"
             >
-                <Plus className="w-4 h-4 text-gray-400" />
+                <Plus className="w-4 h-4 text-slate-500" />
             </button>
             <input
                 type="number"
@@ -81,14 +81,14 @@ const SliderInput: React.FC<{ label: string, value: number, onChange: (value: nu
 
 const OptionToggle: React.FC<{ label: string, options: { value: string, label: string }[], selected: string, onSelect: (value: string) => void }> = ({ label, options, selected, onSelect }) => (
     <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">{label}</label>
-        <div className="flex bg-white/5 rounded-lg p-1">
+        <label className="block text-sm font-medium text-slate-600 mb-2">{label}</label>
+        <div className="flex bg-slate-100/70 rounded-lg p-1">
             {options.map(opt => (
                 <button
                     key={opt.value}
                     type="button"
                     onClick={() => onSelect(opt.value)}
-                    className={`w-full text-center px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-200 ${selected === opt.value ? 'bg-blue-600 text-white shadow' : 'text-gray-300 hover:bg-white/10'}`}
+                    className={`w-full text-center px-4 py-2 rounded-md text-sm font-semibold transition-colors duration-200 ${selected === opt.value ? 'bg-blue-600 text-white shadow' : 'text-slate-600 hover:bg-white/10'}`}
                 >
                     {opt.label}
                 </button>
@@ -98,15 +98,15 @@ const OptionToggle: React.FC<{ label: string, options: { value: string, label: s
 );
 
 const CheckboxCard: React.FC<{ title: string, description: string, price: number, checked: boolean, onChange: (checked: boolean) => void }> = ({ title, description, price, checked, onChange }) => (
-     <div onClick={() => onChange(!checked)} className={`p-4 rounded-lg bg-white/5 border-2 cursor-pointer transition-all ${checked ? 'border-blue-500 bg-blue-500/10' : 'border-transparent hover:border-white/10'}`}>
+     <div onClick={() => onChange(!checked)} className={`p-4 rounded-lg bg-slate-100/70 border-2 cursor-pointer transition-all ${checked ? 'border-blue-500 bg-blue-500/10' : 'border-transparent hover:border-slate-200/90'}`}>
         <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
-                <p className="font-semibold text-white">{title}</p>
-                <p className="text-xs text-gray-400 mt-1">{description}</p>
+                <p className="font-semibold text-slate-900">{title}</p>
+                <p className="text-xs text-slate-500 mt-1">{description}</p>
             </div>
             <div className="flex flex-col items-end">
-                <div className={`w-5 h-5 rounded-md flex items-center justify-center border-2 transition-all ${checked ? 'bg-blue-600 border-blue-500' : 'bg-white/10 border-white/20'}`}>
-                    {checked && <Check className="w-3 h-3 text-white" />}
+                <div className={`w-5 h-5 rounded-md flex items-center justify-center border-2 transition-all ${checked ? 'bg-blue-600 border-blue-500' : 'bg-white/10 border-slate-300/80'}`}>
+                    {checked && <Check className="w-3 h-3 text-slate-900" />}
                 </div>
                  <p className="text-sm font-medium text-blue-300 mt-2 whitespace-nowrap">{price.toLocaleString()} so'm</p>
             </div>
@@ -116,7 +116,7 @@ const CheckboxCard: React.FC<{ title: string, description: string, price: number
 
 const ClickLogo = () => (
      <div className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-900"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
     </div>
 );
 // --- End Helper Components ---
@@ -406,13 +406,13 @@ const SubmitBook: React.FC = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Left Column: Configuration */}
                         <div className="space-y-6">
-                            <h3 className="text-lg font-semibold text-white border-b border-white/10 pb-3">1. Asosiy Parametrlar</h3>
+                            <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-200/90 pb-3">1. Asosiy Parametrlar</h3>
                             <SliderInput label="Sahifalar soni" value={pages} onChange={setPages} min={16} max={1000} step={4} icon={BookText} />
                             <SliderInput label="Nusxalar soni" value={copies} onChange={setCopies} min={1} max={1000} step={1} icon={BookCopy} />
                             <OptionToggle label="Qog'oz sifati" options={[{ value: 'eco', label: 'Eco' }, { value: 'standart', label: 'Standart' }]} selected={paperQuality} onSelect={val => setPaperQuality(val as 'eco' | 'standart')} />
                             <OptionToggle label="Muqova turi" options={[{ value: 'soft', label: 'Yumshoq' }, { value: 'hard', label: 'Qattiq' }]} selected={coverType} onSelect={val => setCoverType(val as 'soft' | 'hard')} />
 
-                            <h3 className="text-lg font-semibold text-white border-b border-white/10 pb-3 pt-4">2. Qo'shimcha Xizmatlar</h3>
+                            <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-200/90 pb-3 pt-4">2. Qo'shimcha Xizmatlar</h3>
                             <div className="space-y-3">
                                 <CheckboxCard title="ISBN raqami olish" description="Kitobingizga xalqaro standart raqamini oling." price={ISBN_FEE} checked={options.isbn} onChange={c => setOptions(p => ({ ...p, isbn: c }))} />
                                 <CheckboxCard title="Professional muqova dizayni" description="Tajribali dizaynerlar tomonidan muqova tayyorlash." price={DESIGN_FEE} checked={options.design} onChange={c => setOptions(p => ({ ...p, design: c }))} />
@@ -425,18 +425,18 @@ const SubmitBook: React.FC = () => {
                                 <Card title="Hisob-kitob" className="!bg-black/40">
                                     {calculatedCosts.total > 0 ? (
                                         <div className="space-y-2 text-sm">
-                                            <div className="flex justify-between py-1.5 border-b border-white/10"><span className="text-gray-400">Chop etish:</span><span className="font-medium text-white">{formatCurrency(calculatedCosts.printing)}</span></div>
-                                            <div className="flex justify-between py-1.5 border-b border-white/10"><span className="text-gray-400">Muqova:</span><span className="font-medium text-white">{formatCurrency(calculatedCosts.cover)}</span></div>
-                                            <div className="flex justify-between py-1.5 border-b border-white/10"><span className="text-gray-400">Tikish:</span><span className="font-medium text-white">{formatCurrency(calculatedCosts.binding)}</span></div>
-                                            {options.isbn && <div className="flex justify-between py-1.5 border-b border-white/10"><span className="text-gray-400">ISBN:</span><span className="font-medium text-white">{formatCurrency(calculatedCosts.isbn)}</span></div>}
-                                            {options.design && <div className="flex justify-between py-1.5 border-b border-white/10"><span className="text-gray-400">Dizayn:</span><span className="font-medium text-white">{formatCurrency(calculatedCosts.design)}</span></div>}
+                                            <div className="flex justify-between py-1.5 border-b border-slate-200/90"><span className="text-slate-500">Chop etish:</span><span className="font-medium text-slate-900">{formatCurrency(calculatedCosts.printing)}</span></div>
+                                            <div className="flex justify-between py-1.5 border-b border-slate-200/90"><span className="text-slate-500">Muqova:</span><span className="font-medium text-slate-900">{formatCurrency(calculatedCosts.cover)}</span></div>
+                                            <div className="flex justify-between py-1.5 border-b border-slate-200/90"><span className="text-slate-500">Tikish:</span><span className="font-medium text-slate-900">{formatCurrency(calculatedCosts.binding)}</span></div>
+                                            {options.isbn && <div className="flex justify-between py-1.5 border-b border-slate-200/90"><span className="text-slate-500">ISBN:</span><span className="font-medium text-slate-900">{formatCurrency(calculatedCosts.isbn)}</span></div>}
+                                            {options.design && <div className="flex justify-between py-1.5 border-b border-slate-200/90"><span className="text-slate-500">Dizayn:</span><span className="font-medium text-slate-900">{formatCurrency(calculatedCosts.design)}</span></div>}
                                             <div className="flex justify-between items-center pt-4">
-                                                <span className="text-lg font-bold text-white">JAMI:</span>
+                                                <span className="text-lg font-bold text-slate-900">JAMI:</span>
                                                 <span className="text-2xl font-bold text-blue-300">{formatCurrency(calculatedCosts.total)}</span>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="text-center py-8 text-gray-400">
+                                        <div className="text-center py-8 text-slate-500">
                                             <Info className="mx-auto h-8 w-8 mb-2" />
                                             Narxni hisoblash uchun parametrlarni kiriting.
                                         </div>
@@ -446,34 +446,34 @@ const SubmitBook: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="mt-10 pt-6 border-t border-white/10">
-                        <h3 className="text-lg font-semibold text-white mb-4">3. Kitob Ma'lumotlari va Fayllar</h3>
+                    <div className="mt-10 pt-6 border-t border-slate-200/90">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-4">3. Kitob Ma'lumotlari va Fayllar</h3>
                          <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Kitob Sarlavhasi</label>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">Kitob Sarlavhasi</label>
                                 <input type="text" value={title} onChange={e => setTitle(e.target.value)} required className="w-full"/>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Annotatsiya / Synopsis</label>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">Annotatsiya / Synopsis</label>
                                 <textarea value={synopsis} onChange={e => setSynopsis(e.target.value)} required className="w-full" rows={4}></textarea>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Qo'lyozma Fayli (.doc, .docx)</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Qo'lyozma Fayli (.doc, .docx)</label>
                                     <label htmlFor="manuscript-upload" className="cursor-pointer">
-                                        <div className="p-8 border-2 border-dashed rounded-lg border-gray-600 text-center bg-white/5 hover:bg-white/10 transition-colors h-full flex flex-col justify-center">
-                                            <UploadCloud className="mx-auto h-10 w-10 text-gray-400" />
-                                            <p className="mt-2 text-sm text-gray-400">{manuscriptFile ? manuscriptFile.name : 'Faylni yuklang'}</p>
+                                        <div className="p-8 border-2 border-dashed rounded-lg border-slate-200 text-center bg-slate-100/70 hover:bg-white/10 transition-colors h-full flex flex-col justify-center">
+                                            <UploadCloud className="mx-auto h-10 w-10 text-slate-500" />
+                                            <p className="mt-2 text-sm text-slate-500">{manuscriptFile ? manuscriptFile.name : 'Faylni yuklang'}</p>
                                         </div>
                                         <input id="manuscript-upload" type="file" className="sr-only" onChange={(e) => setManuscriptFile(e.target.files ? e.target.files[0] : null)} accept=".doc,.docx" required />
                                     </label>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Muqova Rasmi (ixtiyoriy)</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Muqova Rasmi (ixtiyoriy)</label>
                                     <label htmlFor="cover-upload" className="cursor-pointer">
-                                        <div className="p-8 border-2 border-dashed rounded-lg border-gray-600 text-center bg-white/5 hover:bg-white/10 transition-colors h-full flex flex-col justify-center">
-                                            <UploadCloud className="mx-auto h-10 w-10 text-gray-400" />
-                                            <p className="mt-2 text-sm text-gray-400">{coverFile ? coverFile.name : 'Rasm yuklang'}</p>
+                                        <div className="p-8 border-2 border-dashed rounded-lg border-slate-200 text-center bg-slate-100/70 hover:bg-white/10 transition-colors h-full flex flex-col justify-center">
+                                            <UploadCloud className="mx-auto h-10 w-10 text-slate-500" />
+                                            <p className="mt-2 text-sm text-slate-500">{coverFile ? coverFile.name : 'Rasm yuklang'}</p>
                                         </div>
                                         <input id="cover-upload" type="file" className="sr-only" onChange={(e) => setCoverFile(e.target.files ? e.target.files[0] : null)} accept="image/*" />
                                     </label>
@@ -482,8 +482,8 @@ const SubmitBook: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="mt-10 pt-6 border-t border-white/10">
-                        <h3 className="text-lg font-semibold text-white mb-4">4. Nashr turi va yetkazib berish</h3>
+                    <div className="mt-10 pt-6 border-t border-slate-200/90">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-4">4. Nashr turi va yetkazib berish</h3>
                         <OptionToggle
                             label="Nashr turi"
                             options={[
@@ -494,32 +494,32 @@ const SubmitBook: React.FC = () => {
                             onSelect={(val) => setPublicationType(val as 'bosma' | 'raqamli')}
                         />
                         {publicationType === 'bosma' && (
-                            <div className="mt-6 p-4 rounded-lg bg-white/5 border border-white/10 space-y-4">
-                                <p className="text-sm text-gray-400">Kitob bosma nashrda chiqsa, yetkazib berish uchun manzilni kiriting. Ism, familya va telefon profil ma'lumotlaridan avtomatik to'ldiriladi; boshqasiga yetkazib berish bo'lsa o'zgartiring.</p>
+                            <div className="mt-6 p-4 rounded-lg bg-slate-100/70 border border-slate-200/90 space-y-4">
+                                <p className="text-sm text-slate-500">Kitob bosma nashrda chiqsa, yetkazib berish uchun manzilni kiriting. Ism, familya va telefon profil ma'lumotlaridan avtomatik to'ldiriladi; boshqasiga yetkazib berish bo'lsa o'zgartiring.</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Ism *</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Ism *</label>
                                         <input
                                             type="text"
                                             value={shippingFirstName}
                                             onChange={e => setShippingFirstName(e.target.value)}
                                             placeholder="Ism"
-                                            className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Familya *</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Familya *</label>
                                         <input
                                             type="text"
                                             value={shippingLastName}
                                             onChange={e => setShippingLastName(e.target.value)}
                                             placeholder="Familya"
-                                            className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Telefon (yetkazib berish uchun) *</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Telefon (yetkazib berish uchun) *</label>
                                     <input
                                         type="tel"
                                         value={shippingPhone}
@@ -528,34 +528,34 @@ const SubmitBook: React.FC = () => {
                                             setShippingPhone(v && !v.startsWith('+') ? `+${v}` : v);
                                         }}
                                         placeholder="+998 90 123 45 67"
-                                        className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Viloyat / Shahar *</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Viloyat / Shahar *</label>
                                     <input
                                         type="text"
                                         value={shippingRegion}
                                         onChange={e => setShippingRegion(e.target.value)}
                                         placeholder="Masalan: Toshkent, Samarqand"
-                                        className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Manzil (ko'cha, uy, kv) *</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Manzil (ko'cha, uy, kv) *</label>
                                     <input
                                         type="text"
                                         value={shippingAddress}
                                         onChange={e => setShippingAddress(e.target.value)}
                                         placeholder="Ko'cha nomi, uy raqami, kv"
-                                        className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <div className="mt-10 pt-6 border-t border-white/10 flex justify-end">
+                    <div className="mt-10 pt-6 border-t border-slate-200/90 flex justify-end">
                         <Button
                             type="submit"
                             disabled={
@@ -578,9 +578,9 @@ const SubmitBook: React.FC = () => {
                         {paymentStatus === 'idle' && (
                             <>
                                 <ClickLogo />
-                                <h3 className="text-xl font-semibold text-white">To'lovni tasdiqlash</h3>
-                                <p className="text-sm text-gray-400 mt-1">Kitob nashr etish</p>
-                                <p className="text-4xl font-bold my-4 text-white">{formatCurrency(calculatedCosts.total)}</p>
+                                <h3 className="text-xl font-semibold text-slate-900">To'lovni tasdiqlash</h3>
+                                <p className="text-sm text-slate-500 mt-1">Kitob nashr etish</p>
+                                <p className="text-4xl font-bold my-4 text-slate-900">{formatCurrency(calculatedCosts.total)}</p>
                                 <Button 
                                     onClick={(e) => handlePay(e)} 
                                     className="w-full"
@@ -596,14 +596,14 @@ const SubmitBook: React.FC = () => {
                         {paymentStatus === 'processing' && (
                             <div className="py-8">
                                 <Loader2 className="mx-auto h-16 w-16 text-blue-500 animate-spin"/>
-                                <p className="mt-4 text-lg font-medium text-gray-200">To'lov tasdiqlanmoqda...</p>
+                                <p className="mt-4 text-lg font-medium text-slate-700">To'lov tasdiqlanmoqda...</p>
                             </div>
                         )}
                         {paymentStatus === 'success' && (
                            <div className="py-8">
                                 <CheckCircle className="mx-auto h-16 w-16 text-green-500"/>
-                                <p className="mt-4 text-lg font-medium text-gray-200">To'lov oynasi ochildi</p>
-                                <p className="text-sm text-gray-400">Click sahifasi yangi tabda ochildi. To'lovni yakunlagach ushbu oynaga qayting.</p>
+                                <p className="mt-4 text-lg font-medium text-slate-700">To'lov oynasi ochildi</p>
+                                <p className="text-sm text-slate-500">Click sahifasi yangi tabda ochildi. To'lovni yakunlagach ushbu oynaga qayting.</p>
                                 <div className="space-y-2 mt-6">
                                     <Button onClick={() => {
                                         const stored = sessionStorage.getItem('submitbook_pending_transaction_id');
@@ -622,8 +622,8 @@ const SubmitBook: React.FC = () => {
                         {paymentStatus === 'failed' && (
                            <div className="py-8">
                                 <XCircle className="mx-auto h-16 w-16 text-red-500"/>
-                                <p className="mt-4 text-lg font-medium text-gray-200">To'lovda xatolik!</p>
-                                <p className="text-sm text-gray-400 max-w-xs mx-auto">{paymentError}</p>
+                                <p className="mt-4 text-lg font-medium text-slate-700">To'lovda xatolik!</p>
+                                <p className="text-sm text-slate-500 max-w-xs mx-auto">{paymentError}</p>
                                 <div className="flex space-x-2 mt-6">
                                      <Button 
                                         onClick={(e) => handlePay(e)} 
@@ -650,30 +650,30 @@ const SubmitBook: React.FC = () => {
             {isProcessModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <Card className="w-full max-w-xl">
-                        <h3 className="text-xl font-semibold text-white mb-4">Kitob nashri jarayoni</h3>
+                        <h3 className="text-xl font-semibold text-slate-900 mb-4">Kitob nashri jarayoni</h3>
 
                         <div className="space-y-3">
-                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
-                                <span className="text-gray-200">1. Buyurtma qabul qilindi</span>
+                            <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
+                                <span className="text-slate-700">1. Buyurtma qabul qilindi</span>
                                 <CheckCircle className="h-5 w-5 text-green-500" />
                             </div>
-                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
-                                <span className="text-gray-200">2. To'lov holati</span>
+                            <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
+                                <span className="text-slate-700">2. To'lov holati</span>
                                 {processPaymentStatus === 'completed' && <CheckCircle className="h-5 w-5 text-green-500" />}
                                 {processPaymentStatus === 'failed' && <XCircle className="h-5 w-5 text-red-500" />}
                                 {(processPaymentStatus === 'pending' || processPaymentStatus === null) && <Loader2 className="h-5 w-5 text-yellow-400 animate-spin" />}
                             </div>
-                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
-                                <span className="text-gray-200">3. Muharrir ko'rib chiqadi</span>
-                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
+                                <span className="text-slate-700">3. Muharrir ko'rib chiqadi</span>
+                                <span className="text-xs text-slate-500">Kutilmoqda</span>
                             </div>
-                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
-                                <span className="text-gray-200">4. Nashrga tayyorlash</span>
-                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
+                                <span className="text-slate-700">4. Nashrga tayyorlash</span>
+                                <span className="text-xs text-slate-500">Kutilmoqda</span>
                             </div>
-                            <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex items-center justify-between">
-                                <span className="text-gray-200">5. Yakuniy natija</span>
-                                <span className="text-xs text-gray-400">Kutilmoqda</span>
+                            <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
+                                <span className="text-slate-700">5. Yakuniy natija</span>
+                                <span className="text-xs text-slate-500">Kutilmoqda</span>
                             </div>
                         </div>
 

@@ -222,7 +222,7 @@ const UdkOlish: React.FC = () => {
       case 'submitted': return 'text-yellow-400 bg-yellow-500/10';
       case 'completed': return 'text-green-400 bg-green-500/10';
       case 'rejected': return 'text-red-400 bg-red-500/10';
-      default: return 'text-gray-400 bg-gray-500/10';
+      default: return 'text-slate-500 bg-gray-500/10';
     }
   };
 
@@ -234,79 +234,79 @@ const UdkOlish: React.FC = () => {
             <Library className="h-6 w-6 text-indigo-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">UDK Olish</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-xl font-bold text-slate-900">UDK Olish</h1>
+            <p className="text-sm text-slate-500">
               UDK tasdiqlangan ma'lumotnoma: mavzu va annotatsiyani kiriting, to'lovdan keyin taqrizchi UDK kodini aniqlaydi va ma'lumotnoma tayyorlanadi.
             </p>
           </div>
         </div>
 
         {/* UDK so'rovi yuborish formasi */}
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-          <h2 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+        <div className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90">
+          <h2 className="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
             <Send className="h-4 w-4" />
             UDK so'rovi yuborish
           </h2>
-          <p className="text-xs text-gray-400 mb-4">
+          <p className="text-xs text-slate-500 mb-4">
             Mavzu, annotatsiya va muallif ma'lumotlarini kiriting. To'lovdan keyin so'rov taqrizchiga yuboriladi. Taqrizchi UDK kodini aniqlab, ma'lumotnoma tayyorlaydi.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Familya *</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Familya *</label>
               <input
                 type="text"
                 value={authorLastName}
                 onChange={(e) => setAuthorLastName(e.target.value)}
                 placeholder="Masalan: Toshmatov"
-                className="w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
+                className="w-full rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-slate-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Ism *</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Ism *</label>
               <input
                 type="text"
                 value={authorFirstName}
                 onChange={(e) => setAuthorFirstName(e.target.value)}
                 placeholder="Masalan: Alisher"
-                className="w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
+                className="w-full rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-slate-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Otasining ismi</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Otasining ismi</label>
               <input
                 type="text"
                 value={authorMiddleName}
                 onChange={(e) => setAuthorMiddleName(e.target.value)}
                 placeholder="Masalan: Karimovich"
-                className="w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
+                className="w-full rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-slate-400"
               />
             </div>
           </div>
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Mavzu (sarlavha) *</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Mavzu (sarlavha) *</label>
               <input
                 type="text"
                 value={standaloneTitle}
                 onChange={(e) => setStandaloneTitle(e.target.value)}
                 placeholder="Masalan: Iqtisodiyotda raqamli transformatsiya"
-                className="w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
+                className="w-full rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-slate-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Annotatsiya *</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">Annotatsiya *</label>
               <textarea
                 value={standaloneAbstract}
                 onChange={(e) => setStandaloneAbstract(e.target.value)}
                 placeholder="Ilmiy ish mazmunini qisqacha yozing (UDK aniqlash uchun muhim)"
                 rows={4}
-                className="w-full rounded-lg bg-white/5 border border-white/10 text-white px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-gray-500 resize-none"
+                className="w-full rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 px-4 py-2 focus:ring-2 focus:ring-indigo-500 placeholder-slate-400 resize-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">PDF yoki Word fayl (ixtiyoriy)</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1">PDF yoki Word fayl (ixtiyoriy)</label>
               <div className="flex items-center gap-2">
-                <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 text-gray-300 text-sm">
+                <label className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 cursor-pointer hover:bg-white/10 text-slate-600 text-sm">
                   <Upload className="h-4 w-4" />
                   Fayl tanlash
                   <input
@@ -317,7 +317,7 @@ const UdkOlish: React.FC = () => {
                   />
                 </label>
                 {standaloneFile && (
-                  <span className="text-sm text-gray-400 truncate max-w-[200px]">{standaloneFile.name}</span>
+                  <span className="text-sm text-slate-500 truncate max-w-[200px]">{standaloneFile.name}</span>
                 )}
               </div>
             </div>
@@ -337,8 +337,8 @@ const UdkOlish: React.FC = () => {
 
       {/* Mening so'rovlarim */}
       <Card>
-        <h2 className="text-lg font-semibold text-white mb-3">Mening UDK so'rovlarim</h2>
-        <p className="text-sm text-gray-400 mb-4">
+        <h2 className="text-lg font-semibold text-slate-900 mb-3">Mening UDK so'rovlarim</h2>
+        <p className="text-sm text-slate-500 mb-4">
           Yuborgan UDK so'rovlaringiz holati. Taqrizchi UDK kodini kiritgach ma'lumotnoma tayyor bo'ladi.
         </p>
         {loadingRequests ? (
@@ -346,18 +346,18 @@ const UdkOlish: React.FC = () => {
             <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
           </div>
         ) : myRequests.length === 0 ? (
-          <p className="text-sm text-gray-500 py-4">Hali so'rov yuborilmagan.</p>
+          <p className="text-sm text-slate-500 py-4">Hali so'rov yuborilmagan.</p>
         ) : (
           <ul className="space-y-3">
             {myRequests.map((req) => (
               <li
                 key={req.id}
-                className="p-4 rounded-xl bg-white/5 border border-white/10"
+                className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-medium text-white truncate">{req.title}</p>
+                      <p className="font-medium text-slate-900 truncate">{req.title}</p>
                       <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(req.status)}`}>
                         {getStatusLabel(req.status)}
                       </span>
@@ -365,7 +365,7 @@ const UdkOlish: React.FC = () => {
                     {req.status === 'completed' && req.udk_code && (
                       <p className="text-sm text-green-400 mt-1">UDK: {req.udk_code}</p>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                       {new Date(req.created_at).toLocaleDateString('uz-UZ')}
                     </p>
                   </div>
@@ -378,8 +378,8 @@ const UdkOlish: React.FC = () => {
 
       {/* Mening UDK ma'lumotnomalarim (standalone) */}
       <Card>
-        <h2 className="text-lg font-semibold text-white mb-3">Mening UDK ma'lumotnomalarim</h2>
-        <p className="text-sm text-gray-400 mb-4">
+        <h2 className="text-lg font-semibold text-slate-900 mb-3">Mening UDK ma'lumotnomalarim</h2>
+        <p className="text-sm text-slate-500 mb-4">
           Tayyor bo'lgan UDK ma'lumotnomalaringiz.
         </p>
         {loadingCertificates ? (
@@ -387,20 +387,20 @@ const UdkOlish: React.FC = () => {
             <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
           </div>
         ) : certificates.length === 0 ? (
-          <p className="text-sm text-gray-500 py-4">Hali ma'lumotnoma yo'q.</p>
+          <p className="text-sm text-slate-500 py-4">Hali ma'lumotnoma yo'q.</p>
         ) : (
           <ul className="space-y-3">
             {certificates.map((c) => (
               <li
                 key={c.id}
-                className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-wrap items-center justify-between gap-3"
+                className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 flex flex-wrap items-center justify-between gap-3"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-white truncate">{c.title}</p>
+                  <p className="font-medium text-slate-900 truncate">{c.title}</p>
                   <p className="text-sm text-indigo-300">UDK: {c.udk_code}</p>
-                  {c.udk_description && <p className="text-xs text-gray-400 mt-0.5">{c.udk_description}</p>}
+                  {c.udk_description && <p className="text-xs text-slate-500 mt-0.5">{c.udk_description}</p>}
                   {c.created_at && (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                       {new Date(c.created_at).toLocaleDateString('uz-UZ')}
                     </p>
                   )}
@@ -432,11 +432,11 @@ const UdkOlish: React.FC = () => {
 
       {/* Certificate Preview Modal */}
       {previewCertificate && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 print:p-0 print:bg-white">
-          <div className="bg-gray-900 rounded-lg max-w-6xl w-full max-h-[95vh] overflow-auto print:max-w-none print:max-h-none print:overflow-visible print:bg-white print:rounded-none">
+        <div className="fixed inset-0 bg-slate-900/35 flex items-center justify-center z-50 p-4 print:p-0 print:bg-white">
+          <div className="bg-white/55 rounded-lg max-w-6xl w-full max-h-[95vh] overflow-auto print:max-w-none print:max-h-none print:overflow-visible print:bg-white print:rounded-none">
             {/* Modal header - hidden on print */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10 no-print">
-              <h3 className="text-lg font-semibold text-white">UDK Ma'lumotnomasi</h3>
+            <div className="flex items-center justify-between p-4 border-b border-slate-200/90 no-print">
+              <h3 className="text-lg font-semibold text-slate-900">UDK Ma'lumotnomasi</h3>
               <div className="flex items-center gap-2">
                 <Button variant="secondary" onClick={handlePrintCertificate} className="flex items-center gap-2">
                   <Printer className="h-4 w-4" />
@@ -444,7 +444,7 @@ const UdkOlish: React.FC = () => {
                 </Button>
                 <button 
                   onClick={closePreview}
-                  className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                  className="p-2 rounded-lg hover:bg-white/10 text-slate-500 hover:text-slate-900 transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>

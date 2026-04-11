@@ -19,7 +19,8 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantClasses = {
     primary: 'bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-500/50 border border-blue-500/30',
-    secondary: 'bg-white/10 text-white hover:bg-white/20 focus:ring-white/30 backdrop-blur-md border border-white/10',
+    secondary:
+      'bg-white/85 text-slate-800 hover:bg-white focus:ring-slate-300/40 backdrop-blur-md border border-slate-200/90 shadow-sm',
     danger: 'bg-red-600 text-white hover:bg-red-500 focus:ring-red-500/50',
     /** Qorong‘i fon ustida yaxshi ko‘rinadigan asosiy harakat tugmasi */
     accent:

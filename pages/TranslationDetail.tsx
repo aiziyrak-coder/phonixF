@@ -189,10 +189,10 @@ const TranslationDetail: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
                 <Card>
-                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-white/10">
+                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-200/90">
                         <Languages className="w-10 h-10 text-indigo-400" />
                         <div>
-                            <h2 className="text-2xl font-bold text-white">{request.title}</h2>
+                            <h2 className="text-2xl font-bold text-slate-900">{request.title}</h2>
                             <p className="text-lg font-semibold text-indigo-300">
                                 {request.source_language?.toUpperCase() || "Noma'lum"}{' '}
                                 <ArrowRight size={16} className="inline-block mx-2" />{' '}
@@ -202,45 +202,45 @@ const TranslationDetail: React.FC = () => {
                     </div>
 
                     {isAuthor && !canManage && (
-                        <p className="text-sm text-gray-400 mb-4 p-3 rounded-lg bg-white/5 border border-white/10">
+                        <p className="text-sm text-slate-500 mb-4 p-3 rounded-lg bg-slate-100/70 border border-slate-200/90">
                             Bu sizning tarjima buyurtmangiz. Holat yangilanishi va tayyor fayl paydo bo&apos;lishi
                             taqrizchi tomonidan bajariladi.
                         </p>
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mt-6">
-                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-md">
-                            <User className="w-5 h-5 text-gray-400" />
+                        <div className="flex items-center gap-3 p-3 bg-slate-100/70 rounded-md">
+                            <User className="w-5 h-5 text-slate-500" />
                             <div>
-                                <p className="text-xs text-gray-400">Muallif</p>
-                                <p className="font-semibold text-white">{request.author_name || "Noma'lum"}</p>
+                                <p className="text-xs text-slate-500">Muallif</p>
+                                <p className="font-semibold text-slate-900">{request.author_name || "Noma'lum"}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-md">
-                            <Calendar className="w-5 h-5 text-gray-400" />
+                        <div className="flex items-center gap-3 p-3 bg-slate-100/70 rounded-md">
+                            <Calendar className="w-5 h-5 text-slate-500" />
                             <div>
-                                <p className="text-xs text-gray-400">Sana</p>
-                                <p className="font-semibold text-white">
+                                <p className="text-xs text-slate-500">Sana</p>
+                                <p className="font-semibold text-slate-900">
                                     {request.submission_date
                                         ? new Date(request.submission_date).toLocaleDateString()
                                         : "Noma'lum"}
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-md">
-                            <FileText className="w-5 h-5 text-gray-400" />
+                        <div className="flex items-center gap-3 p-3 bg-slate-100/70 rounded-md">
+                            <FileText className="w-5 h-5 text-slate-500" />
                             <div>
-                                <p className="text-xs text-gray-400">So&apos;zlar soni</p>
-                                <p className="font-semibold text-white">
+                                <p className="text-xs text-slate-500">So&apos;zlar soni</p>
+                                <p className="font-semibold text-slate-900">
                                     {request.word_count?.toLocaleString() || 0} ta
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-md">
-                            <FileText className="w-5 h-5 text-gray-400" />
+                        <div className="flex items-center gap-3 p-3 bg-slate-100/70 rounded-md">
+                            <FileText className="w-5 h-5 text-slate-500" />
                             <div>
-                                <p className="text-xs text-gray-400">Narxi</p>
-                                <p className="font-semibold text-white">
+                                <p className="text-xs text-slate-500">Narxi</p>
+                                <p className="font-semibold text-slate-900">
                                     {request.cost != null ? Number(request.cost).toLocaleString() : 0} so&apos;m
                                 </p>
                             </div>
@@ -257,13 +257,13 @@ const TranslationDetail: React.FC = () => {
                             </Button>
                         </a>
                     ) : (
-                        <p className="text-gray-400 text-center py-4">Hujjat mavjud emas</p>
+                        <p className="text-slate-500 text-center py-4">Hujjat mavjud emas</p>
                     )}
                 </Card>
 
                 {canAccept && (
                     <Card title="Harakatlar">
-                        <p className="text-xs text-gray-400 mb-3">
+                        <p className="text-xs text-slate-500 mb-3">
                             Avval manba faylni yuklab oling, tarjima qiling, keyin tayyor faylni yuklash uchun
                             &quot;Jarayonda&quot; holatiga o&apos;ting.
                         </p>
@@ -275,14 +275,14 @@ const TranslationDetail: React.FC = () => {
 
                 {canUpload && (
                     <Card title="Tayyor tarjimani yuklash">
-                        <p className="text-xs text-gray-400 mb-3">
+                        <p className="text-xs text-slate-500 mb-3">
                             Tarjima yoki tayyor matnni (DOCX/PDF) yuklang. Yakunlaganingizdan keyin muallifga
                             ko&apos;rinadi.
                         </p>
                         <label htmlFor="file-upload" className="cursor-pointer">
-                            <div className="p-8 border-2 border-dashed rounded-lg border-gray-600 text-center bg-white/5 hover:bg-white/10 transition-colors">
-                                <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
-                                <p className="mt-2 text-sm text-gray-400">
+                            <div className="p-8 border-2 border-dashed rounded-lg border-slate-200 text-center bg-slate-100/70 hover:bg-white/10 transition-colors">
+                                <UploadCloud className="mx-auto h-12 w-12 text-slate-500" />
+                                <p className="mt-2 text-sm text-slate-500">
                                     {translatedFile ? `Tanlandi: ${translatedFile.name}` : 'Tayyor faylni tanlang'}
                                 </p>
                             </div>

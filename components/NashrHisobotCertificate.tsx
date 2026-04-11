@@ -175,7 +175,7 @@ const TablePage: React.FC<{ data: NashrHisobotData }> = ({ data }) => (
                                             ))}
                                         </ol>
                                     ) : (
-                                        <span className="text-gray-400">-</span>
+                                        <span className="text-slate-500">-</span>
                                     )}
                                 </td>
                             </tr>

@@ -45,7 +45,7 @@ const PublicCollectionShare: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto py-10">
         <Card title="To'plam yuklanmoqda">
-          <div className="flex items-center justify-center py-12 text-gray-300">
+          <div className="flex items-center justify-center py-12 text-slate-600">
             <Loader2 className="h-6 w-6 animate-spin mr-2" />
             Yuklanmoqda...
           </div>
@@ -77,9 +77,9 @@ const PublicCollectionShare: React.FC = () => {
         <div className="flex items-center gap-4 mb-6">
           <BookOpen className="h-12 w-12 text-blue-400 flex-shrink-0" />
           <div>
-            <h1 className="text-xl font-bold text-white">{issue.journal_name}</h1>
+            <h1 className="text-xl font-bold text-slate-900">{issue.journal_name}</h1>
             <p className="text-blue-300 font-semibold">{issue.issue_number} soni</p>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-slate-500 mt-1">
               Nashr sanasi: {new Date(issue.publication_date).toLocaleDateString('uz-UZ')}
             </p>
           </div>
@@ -96,9 +96,9 @@ const PublicCollectionShare: React.FC = () => {
             </Button>
           </a>
         ) : (
-          <p className="text-gray-400">Yuklab olish havolasi hozircha mavjud emas.</p>
+          <p className="text-slate-500">Yuklab olish havolasi hozircha mavjud emas.</p>
         )}
-        <div className="mt-6 pt-4 border-t border-white/10">
+        <div className="mt-6 pt-4 border-t border-slate-200/90">
           <Link to="/login" className="text-sm text-blue-400 hover:text-blue-300">
             Platformaga kirish
           </Link>

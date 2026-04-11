@@ -148,23 +148,23 @@ const MaqolaNamunaOlish: React.FC = () => {
 
   /* Ko‘k tugma (To‘lov qilish va yuborish) bilan bir xil fokus / chegara palitrasi; brauzer :invalid qizilini bosish */
   const inputClass =
-    'w-full px-3 py-2 rounded-lg bg-white/[0.08] border border-white/20 text-white placeholder-gray-400 ' +
+    'w-full px-3 py-2 rounded-lg bg-white/[0.08] border border-slate-300/80 text-slate-900 placeholder-slate-400 ' +
     'outline-none transition-all duration-150 hover:border-blue-400/40 ' +
     'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500/70 ' +
     'invalid:border-blue-500/45 invalid:ring-1 invalid:ring-blue-500/25 invalid:shadow-none';
-  const labelClass = 'block text-sm font-medium mb-1 text-gray-200';
+  const labelClass = 'block text-sm font-medium mb-1 text-slate-700';
 
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <p className="text-white">Narxlar yuklanmoqda…</p>
+        <p className="text-slate-900">Narxlar yuklanmoqda…</p>
       </div>
     );
   }
 
   const selectOpt = (opts: readonly { value: string; label: string }[]) =>
     opts.map((opt) => (
-      <option key={opt.value || 'empty'} value={opt.value} className="bg-gray-800 text-white">
+      <option key={opt.value || 'empty'} value={opt.value} className="bg-white/50 text-slate-900">
         {opt.label}
       </option>
     ));
@@ -177,8 +177,8 @@ const MaqolaNamunaOlish: React.FC = () => {
             <FileText className="h-8 w-8 text-blue-400" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold mb-2 text-white">Maqola namuna olish</h1>
-            <p className="text-gray-300 max-w-3xl">
+            <h1 className="text-3xl font-bold mb-2 text-slate-900">Maqola namuna olish</h1>
+            <p className="text-slate-600 max-w-3xl">
               Talablar va maqola ma&apos;lumotlarini kiriting. To&apos;lovdan so&apos;ng so&apos;rov taqrizchiga yuboriladi.
             </p>
           </div>
@@ -195,11 +195,11 @@ const MaqolaNamunaOlish: React.FC = () => {
           {/* Narxlar va izoh (muallif uchun ma'lumot) */}
           {prices && (
             <Card className="p-6 border border-blue-500/20 bg-blue-950/20">
-              <h2 className="text-lg font-semibold mb-3 text-white flex items-center gap-2">
+              <h2 className="text-lg font-semibold mb-3 text-slate-900 flex items-center gap-2">
                 <span className="text-blue-400">Narxlar</span>
-                <span className="text-sm font-normal text-gray-400">(1 bet)</span>
+                <span className="text-sm font-normal text-slate-500">(1 bet)</span>
               </h2>
-              <ul className="space-y-2 text-gray-200 mb-4">
+              <ul className="space-y-2 text-slate-700 mb-4">
                 <li>
                   Quyi sifatli — <span className="font-semibold text-blue-300">{prices.quyi?.toLocaleString('uz-UZ')} so&apos;m</span>
                 </li>
@@ -210,22 +210,22 @@ const MaqolaNamunaOlish: React.FC = () => {
                   Yuqori sifatli — <span className="font-semibold text-blue-300">{prices.yuqori?.toLocaleString('uz-UZ')} so&apos;m</span>
                 </li>
               </ul>
-              <p className="text-sm text-gray-400 border-t border-blue-500/15 pt-4">
+              <p className="text-sm text-slate-500 border-t border-blue-500/15 pt-4">
                 Muallif uchun ma&apos;lumot: hujjat formati — Word; shrift — 14 pt, Times New Roman; bet formati — A4 albomiy.
               </p>
             </Card>
           )}
 
           {/* Bitta kartada barcha talablar va ma'lumotlar */}
-          <Card className="p-6 sm:p-8 border border-white/10">
+          <Card className="p-6 sm:p-8 border border-slate-200/90">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className={labelClass}>Til talabi *</label>
                 <select value={requirementLanguage} onChange={(e) => setRequirementLanguage(e.target.value)} className={inputClass}>
-                  <option value="" className="bg-gray-800 text-white">Tilni tanlang</option>
-                  <option value="O'zbek" className="bg-gray-800 text-white">O'zbek</option>
-                  <option value="Rus" className="bg-gray-800 text-white">Rus</option>
-                  <option value="Ingliz" className="bg-gray-800 text-white">Ingliz</option>
+                  <option value="" className="bg-white/50 text-slate-900">Tilni tanlang</option>
+                  <option value="O'zbek" className="bg-white/50 text-slate-900">O'zbek</option>
+                  <option value="Rus" className="bg-white/50 text-slate-900">Rus</option>
+                  <option value="Ingliz" className="bg-white/50 text-slate-900">Ingliz</option>
                 </select>
               </div>
               <div>
@@ -252,7 +252,7 @@ const MaqolaNamunaOlish: React.FC = () => {
                 <label className={labelClass}>Daraja *</label>
                 <select value={qualityLevel} onChange={(e) => setQualityLevel(e.target.value as 'quyi' | 'orta' | 'yuqori')} className={inputClass}>
                   {QUALITY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value} className="bg-gray-800 text-white">
+                    <option key={opt.value} value={opt.value} className="bg-white/50 text-slate-900">
                       {opt.label} — {prices ? (prices[opt.priceKey]?.toLocaleString('uz-UZ') ?? '') : ''} so'm / bet
                     </option>
                   ))}
@@ -287,7 +287,7 @@ const MaqolaNamunaOlish: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-8 pt-6 px-4 py-5 -mx-1 sm:mx-0 rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-600/15 to-blue-900/20 shadow-lg shadow-blue-950/40">
-              <p className="text-lg font-semibold text-white">
+              <p className="text-lg font-semibold text-slate-900">
                 Jami:{' '}
                 <span className="text-blue-200 font-bold tabular-nums">{totalAmount.toLocaleString('uz-UZ')} so&apos;m</span>
                 <span className="text-sm font-normal text-blue-200/80 ml-2 block sm:inline sm:ml-2">

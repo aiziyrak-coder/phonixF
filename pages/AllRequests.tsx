@@ -133,22 +133,22 @@ const AllRequests: React.FC = () => {
         <div className="p-6 max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-white mb-2">Barcha So'rovlar</h1>
-                <p className="text-gray-400">Barcha mualliflarning so'rovlarini nazorat qiling</p>
+                <h1 className="text-3xl font-bold text-slate-900 mb-2">Barcha So'rovlar</h1>
+                <p className="text-slate-500">Barcha mualliflarning so'rovlarini nazorat qiling</p>
             </div>
 
             {/* Filters */}
-            <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 mb-6 border border-white/10">
+            <div className="bg-slate-100/70 backdrop-blur-lg rounded-xl p-6 mb-6 border border-slate-200/90">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Search */}
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 w-5 h-5" />
                         <input
                             type="text"
                             placeholder="Qidiruv (maqola, muallif, jurnal)..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-black/20 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full pl-10 pr-4 py-2 bg-white/60 border border-slate-200/90 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -156,60 +156,60 @@ const AllRequests: React.FC = () => {
                     <select
                         value={filterType}
                         onChange={(e) => setFilterType(e.target.value)}
-                        className="px-4 py-2 bg-black/20 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 bg-white/60 border border-slate-200/90 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                        <option value="all" className="bg-gray-800">Barcha xizmatlar</option>
-                        <option value="DOI" className="bg-gray-800">DOI</option>
-                        <option value="UDK" className="bg-gray-800">UDK</option>
-                        <option value="ArticleSample" className="bg-gray-800">Maqola namuna</option>
-                        <option value="PlagiarismCheck" className="bg-gray-800">Antiplagiat</option>
-                        <option value="Translation" className="bg-gray-800">Tarjima</option>
-                        <option value="BookPublication" className="bg-gray-800">Kitob nashr</option>
+                        <option value="all" className="bg-white/50">Barcha xizmatlar</option>
+                        <option value="DOI" className="bg-white/50">DOI</option>
+                        <option value="UDK" className="bg-white/50">UDK</option>
+                        <option value="ArticleSample" className="bg-white/50">Maqola namuna</option>
+                        <option value="PlagiarismCheck" className="bg-white/50">Antiplagiat</option>
+                        <option value="Translation" className="bg-white/50">Tarjima</option>
+                        <option value="BookPublication" className="bg-white/50">Kitob nashr</option>
                     </select>
 
                     {/* Status Filter */}
                     <select
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
-                        className="px-4 py-2 bg-black/20 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 bg-white/60 border border-slate-200/90 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                        <option value="all" className="bg-gray-800">Barcha holatlar</option>
-                        <option value={ArticleStatus.Yangi} className="bg-gray-800">Yangi</option>
-                        <option value={ArticleStatus.WithEditor} className="bg-gray-800">Redaktorda</option>
-                        <option value={ArticleStatus.PlagiarismReview} className="bg-gray-800">Tekshiruvda</option>
-                        <option value={ArticleStatus.ContractProcessing} className="bg-gray-800">Shartnoma</option>
-                        <option value={ArticleStatus.Published} className="bg-gray-800">Nashr etilgan</option>
+                        <option value="all" className="bg-white/50">Barcha holatlar</option>
+                        <option value={ArticleStatus.Yangi} className="bg-white/50">Yangi</option>
+                        <option value={ArticleStatus.WithEditor} className="bg-white/50">Redaktorda</option>
+                        <option value={ArticleStatus.PlagiarismReview} className="bg-white/50">Tekshiruvda</option>
+                        <option value={ArticleStatus.ContractProcessing} className="bg-white/50">Shartnoma</option>
+                        <option value={ArticleStatus.Published} className="bg-white/50">Nashr etilgan</option>
                     </select>
                 </div>
             </div>
 
             {/* Requests Table */}
-            <div className="bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 overflow-hidden">
+            <div className="bg-slate-100/70 backdrop-blur-lg rounded-xl border border-slate-200/90 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
-                        <thead className="bg-white/5">
+                        <thead className="bg-slate-100/70">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">#</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Maqola</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Muallif</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Jurnal</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Xizmat</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Holat</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Mas'ul</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Sana</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Amal</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">#</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Maqola</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Muallif</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Jurnal</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Xizmat</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Holat</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Mas'ul</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Sana</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Amal</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={9} className="px-6 py-8 text-center text-gray-400">
+                                    <td colSpan={9} className="px-6 py-8 text-center text-slate-500">
                                         Yuklanmoqda...
                                     </td>
                                 </tr>
                             ) : filteredRequests.length === 0 ? (
                                 <tr>
-                                    <td colSpan={9} className="px-6 py-8 text-center text-gray-400">
+                                    <td colSpan={9} className="px-6 py-8 text-center text-slate-500">
                                         So'rovlar topilmadi
                                     </td>
                                 </tr>
@@ -217,21 +217,21 @@ const AllRequests: React.FC = () => {
                                 filteredRequests.map((request, index) => {
                                     const statusInfo = getStatusDisplayData(request.status);
                                     return (
-                                        <tr key={request.id} className="hover:bg-white/5 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{index + 1}</td>
+                                        <tr key={request.id} className="hover:bg-slate-100/70 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{index + 1}</td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center">
                                                     <BookOpen className="w-4 h-4 mr-2 text-blue-400" />
-                                                    <span className="text-sm text-white font-medium">{request.articleTitle}</span>
+                                                    <span className="text-sm text-slate-900 font-medium">{request.articleTitle}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
-                                                    <User className="w-4 h-4 mr-2 text-gray-400" />
-                                                    <span className="text-sm text-gray-300">{request.authorName}</span>
+                                                    <User className="w-4 h-4 mr-2 text-slate-500" />
+                                                    <span className="text-sm text-slate-600">{request.authorName}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{request.journalName}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{request.journalName}</td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 py-1 text-xs font-semibold rounded ${getServiceTypeColor(request.serviceType)}`}>
                                                     {request.serviceType === 'ArticleSample' ? 'Namuna' : request.serviceType}
@@ -242,7 +242,7 @@ const AllRequests: React.FC = () => {
                                                     {statusInfo.text}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                                 {request.assignedTo ? (
                                                     <div className="flex items-center gap-1">
                                                         {request.assignedRole === 'reviewer' ? (
@@ -253,12 +253,12 @@ const AllRequests: React.FC = () => {
                                                         <span>{request.assignedTo}</span>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-gray-500">-</span>
+                                                    <span className="text-slate-500">-</span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                                 <div className="flex items-center gap-1">
-                                                    <Calendar className="w-4 h-4 text-gray-400" />
+                                                    <Calendar className="w-4 h-4 text-slate-500" />
                                                     {new Date(request.createdAt).toLocaleDateString('uz-UZ')}
                                                 </div>
                                             </td>
@@ -282,7 +282,7 @@ const AllRequests: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-blue-300 mb-1">Jami so'rovlar</p>
-                            <p className="text-3xl font-bold text-white">{requests.length}</p>
+                            <p className="text-3xl font-bold text-slate-900">{requests.length}</p>
                         </div>
                         <FileText className="w-12 h-12 text-blue-400 opacity-50" />
                     </div>
@@ -291,7 +291,7 @@ const AllRequests: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-yellow-300 mb-1">Tekshiruvda</p>
-                            <p className="text-3xl font-bold text-white">
+                            <p className="text-3xl font-bold text-slate-900">
                                 {requests.filter(r => r.status === ArticleStatus.PlagiarismReview).length}
                             </p>
                         </div>
@@ -302,7 +302,7 @@ const AllRequests: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-green-300 mb-1">Yakunlangan</p>
-                            <p className="text-3xl font-bold text-white">
+                            <p className="text-3xl font-bold text-slate-900">
                                 {requests.filter(r => r.status === ArticleStatus.Published).length}
                             </p>
                         </div>
@@ -313,7 +313,7 @@ const AllRequests: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-purple-300 mb-1">Rad etilgan</p>
-                            <p className="text-3xl font-bold text-white">
+                            <p className="text-3xl font-bold text-slate-900">
                                 {requests.filter(r => r.status === ArticleStatus.Rejected).length}
                             </p>
                         </div>

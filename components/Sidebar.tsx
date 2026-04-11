@@ -75,13 +75,13 @@ const Sidebar: React.FC = () => {
 
   const links = sidebarLinks[user.role] || [];
 
-  const linkClass = "flex items-center px-4 py-3 my-1 text-gray-300 rounded-lg hover:bg-white/10 transition-colors duration-200";
+  const linkClass = "flex items-center px-4 py-3 my-1 text-slate-600 rounded-lg hover:bg-white/10 transition-colors duration-200";
   const activeLinkClass = "flex items-center px-4 py-3 my-1 text-white bg-blue-500/20 rounded-lg font-semibold border-l-4 border-blue-400";
 
   return (
-    <aside className="w-64 h-full p-4 bg-black/20 backdrop-blur-lg border-r border-white/10">
+    <aside className="w-64 h-full p-4 bg-white/60 backdrop-blur-lg border-r border-slate-200/90">
       <div className="flex items-center px-2 mb-10 h-16">
-         <Link to="/dashboard" className="text-2xl font-bold text-white tracking-wider flex items-center gap-3">
+         <Link to="/dashboard" className="text-2xl font-bold text-slate-900 tracking-wider flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-xl shadow-md">
                 P
             </div>

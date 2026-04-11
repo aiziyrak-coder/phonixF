@@ -401,7 +401,7 @@ const JournalManagement: React.FC = () => {
             <Card title="Jurnallarni Boshqarish">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                     <div className="flex items-center gap-3">
-                        <label className="text-sm text-gray-300">Kategoriya bo'yicha:</label>
+                        <label className="text-sm text-slate-600">Kategoriya bo'yicha:</label>
                         <select
                             value={selectedCategoryFilter}
                             onChange={(e) => setSelectedCategoryFilter(e.target.value)}
@@ -417,7 +417,7 @@ const JournalManagement: React.FC = () => {
                 </div>
                 <div className="space-y-4">
                     {orderedCategoryIds.length === 0 && (
-                        <div className="p-6 rounded-lg bg-white/5 text-center text-gray-400">
+                        <div className="p-6 rounded-lg bg-slate-100/70 text-center text-slate-500">
                             Tanlangan kategoriya bo'yicha jurnal topilmadi.
                         </div>
                     )}
@@ -430,7 +430,7 @@ const JournalManagement: React.FC = () => {
                             <div key={categoryId} className="space-y-3">
                                 <div className="flex items-center justify-between">
                                     <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-300">{categoryName}</h4>
-                                    <span className="text-xs text-gray-400">{groupedJournals[categoryId].length} ta jurnal</span>
+                                    <span className="text-xs text-slate-500">{groupedJournals[categoryId].length} ta jurnal</span>
                                 </div>
                                 {groupedJournals[categoryId].map(journal => {
                         // Handle both field name formats (camelCase from frontend, snake_case from backend)
@@ -451,7 +451,7 @@ const JournalManagement: React.FC = () => {
                         const imageUrl = journal.imageUrl || (journal as any).image_url;
                         
                         return (
-                            <div key={journal.id} className="p-4 bg-white/5 rounded-lg flex flex-col sm:flex-row justify-between sm:items-center">
+                            <div key={journal.id} className="p-4 bg-slate-100/70 rounded-lg flex flex-col sm:flex-row justify-between sm:items-center">
                                 <div className="flex items-start gap-4">
                                     {imageUrl && (
                                         <img 
@@ -465,15 +465,15 @@ const JournalManagement: React.FC = () => {
                                         />
                                     )}
                                     <div>
-                                        <h4 className="font-semibold text-lg text-white">{journal.name}</h4>
-                                        <p className="text-sm text-gray-400">
+                                        <h4 className="font-semibold text-lg text-slate-900">{journal.name}</h4>
+                                        <p className="text-sm text-slate-500">
                                             Admin: {admin ? `${admin.firstName || admin.first_name} ${admin.lastName || admin.last_name}` : 'Tayinlanmagan'}
                                             <span className="mx-2 text-gray-600">•</span>
                                             Kategoriya: <span className="font-medium text-blue-300">{category?.name || "Noma'lum"}</span>
                                             <span className="mx-2 text-gray-600">•</span>
                                             Narx: <span className="font-medium text-green-400">{priceText}</span>
                                         </p>
-                                        <p className="text-xs text-gray-500 font-mono mt-1">ISSN: {journal.issn}</p>
+                                        <p className="text-xs text-slate-500 font-mono mt-1">ISSN: {journal.issn}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-2 mt-3 sm:mt-0">
@@ -495,7 +495,7 @@ const JournalManagement: React.FC = () => {
                         <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1 -mr-1">
                         {editingJournal && (
                             <div className="mb-4">
-                                <h3 className="text-lg font-medium text-white mb-2">Jurnal Rasmi</h3>
+                                <h3 className="text-lg font-medium text-slate-900 mb-2">Jurnal Rasmi</h3>
                                 {(editingJournal as any).imageUrl || (editingJournal as any).image_url ? (
                                     <img 
                                         src={(editingJournal as any).imageUrl || (editingJournal as any).image_url} 
@@ -506,18 +506,18 @@ const JournalManagement: React.FC = () => {
                                         }}
                                     />
                                 ) : (
-                                    <p className="text-gray-400 text-sm">Rasm mavjud emas</p>
+                                    <p className="text-slate-500 text-sm">Rasm mavjud emas</p>
                                 )}
                             </div>
                         )}
                         <form onSubmit={handleSaveJournal} className="space-y-4 min-w-0">
                             <div className="min-w-0">
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Jurnal Nomi</label>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">Jurnal Nomi</label>
                                 <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full min-w-0 box-border" placeholder="Jurnal nomini kiriting..." required/>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Jurnal Kategoriyasi</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Jurnal Kategoriyasi</label>
                                     {isAddingCategory ? (
                                         <div className="flex items-center gap-2">
                                             <input type="text" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} className="w-full" placeholder="Yangi kategoriya nomi" autoFocus/>
@@ -540,7 +540,7 @@ const JournalManagement: React.FC = () => {
                                     )}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Jurnal Admini</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Jurnal Admini</label>
                                     <select name="journalAdminId" value={formData.journalAdminId} onChange={handleInputChange} className="w-full" required>
                                         <option value="" disabled>Adminni tanlang</option>
                                         {journalAdmins.map(admin => (
@@ -551,7 +551,7 @@ const JournalManagement: React.FC = () => {
                             </div>
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
                                 <div className="min-w-0">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Narx Turi</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Narx Turi</label>
                                     <select name="pricingType" value={formData.pricingType} onChange={handleInputChange} className="w-full">
                                         <option value={JournalPricingType.Fixed}>Qat'iy narx</option>
                                         <option value={JournalPricingType.PerPage}>Sahifa uchun</option>
@@ -559,23 +559,23 @@ const JournalManagement: React.FC = () => {
                                 </div>
                                 {formData.pricingType === JournalPricingType.Fixed ? (
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Chop etish narxi (so'm)</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Chop etish narxi (so'm)</label>
                                         <input type="number" name="publicationFee" value={formData.publicationFee || ''} onChange={handleInputChange} className="w-full" placeholder="200000"/>
                                     </div>
                                 ) : (
                                      <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Sahifa narxi (so'm)</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Sahifa narxi (so'm)</label>
                                         <input type="number" name="pricePerPage" value={formData.pricePerPage || ''} onChange={handleInputChange} className="w-full" placeholder="15000"/>
                                     </div>
                                 )}
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
                                 <div className="min-w-0">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">ISSN</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">ISSN</label>
                                     <input type="text" name="issn" value={formData.issn} onChange={handleInputChange} className="w-full min-w-0 box-border" placeholder="XXXX-XXXX"/>
                                 </div>
                                 <div className="min-w-0">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">To'lov Turi</label>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">To'lov Turi</label>
                                     <select name="paymentModel" value={formData.paymentModel} onChange={handleInputChange} className="w-full min-w-0 box-border">
                                         <option value={PaymentModel.PrePayment}>Maqola qabul qilinishidan oldin</option>
                                         <option value={PaymentModel.PostPayment}>Maqola qabul qilinganidan so'ng</option>
@@ -583,7 +583,7 @@ const JournalManagement: React.FC = () => {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Jurnal Rasmi</label>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">Jurnal Rasmi</label>
                                 {formData.imageUrl ? (
                                     <div className="mt-2 flex items-center gap-4">
                                         <img src={formData.imageUrl} alt="Jurnal rasmi" className="h-24 w-48 rounded-lg object-cover" />
@@ -600,51 +600,51 @@ const JournalManagement: React.FC = () => {
                                 ) : (
                                     <div className="mt-2">
                                         <label htmlFor="journal-image-upload" className="cursor-pointer">
-                                            <div className="p-8 border-2 border-dashed rounded-lg border-gray-600 text-center bg-white/5 hover:bg-white/10 transition-colors">
-                                                <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
-                                                <p className="mt-2 text-sm text-gray-400">Rasm yuklang (JPG, PNG)</p>
+                                            <div className="p-8 border-2 border-dashed rounded-lg border-slate-200 text-center bg-slate-100/70 hover:bg-white/10 transition-colors">
+                                                <UploadCloud className="mx-auto h-12 w-12 text-slate-500" />
+                                                <p className="mt-2 text-sm text-slate-500">Rasm yuklang (JPG, PNG)</p>
                                             </div>
                                             <input id="journal-image-upload" name="journal-image-upload" type="file" className="sr-only" accept="image/png, image/jpeg" onChange={handleImageChange} />
                                         </label>
                                     </div>
                                 )}
                             </div>
-                            <div className="pt-4 border-t border-white/10 min-w-0">
+                            <div className="pt-4 border-t border-slate-200/90 min-w-0">
                                 <h4 className="text-sm font-semibold text-blue-300 mb-3">Antiplagiat & AI Detektor talablari</h4>
-                                <p className="text-xs text-gray-400 mb-3">Maqola nashrga yuborilganda tekshiriladi. Bo&apos;sh qoldirilsa — shart o&apos;rnatilmaydi.</p>
+                                <p className="text-xs text-slate-500 mb-3">Maqola nashrga yuborilganda tekshiriladi. Bo&apos;sh qoldirilsa — shart o&apos;rnatilmaydi.</p>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-1">Plagiat max %</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-1">Plagiat max %</label>
                                         <input type="number" name="plagiarism_max_percent" min={0} max={100} step={0.1} value={formData.plagiarism_max_percent ?? ''} onChange={handleInputChange} className="w-full" placeholder="mas. 25"/>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-1">AI kontent max %</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-1">AI kontent max %</label>
                                         <input type="number" name="ai_content_max_percent" min={0} max={100} step={0.1} value={formData.ai_content_max_percent ?? ''} onChange={handleInputChange} className="w-full" placeholder="mas. 30"/>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-1">Originalilik min %</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-1">Originalilik min %</label>
                                         <input type="number" name="originality_min_percent" min={0} max={100} step={0.1} value={formData.originality_min_percent ?? ''} onChange={handleInputChange} className="w-full" placeholder="mas. 70"/>
                                     </div>
                                 </div>
                             </div>
                             <div className="min-w-0">
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Tavsif</label>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">Tavsif</label>
                                 <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full min-w-0 max-w-full box-border resize-y" rows={4} placeholder="Jurnal haqida qisqacha ma'lumot..."></textarea>
                             </div>
 
-                            <div className="pt-4 border-t border-white/10 min-w-0">
+                            <div className="pt-4 border-t border-slate-200/90 min-w-0">
                                 <label className="flex items-start gap-3 cursor-pointer">
-                                    <input type="checkbox" name="required" checked={formData.additionalDocumentConfig?.required} onChange={handleAdditionalDocConfigChange} className="h-5 w-5 mt-0.5 shrink-0 rounded bg-white/10 border-white/20 text-blue-500 focus:ring-blue-500" style={{boxShadow: 'none'}}/>
-                                    <span className="font-medium text-gray-200 break-words">Qo'shimcha hujjat talab qilish (masalan, taqriz)</span>
+                                    <input type="checkbox" name="required" checked={formData.additionalDocumentConfig?.required} onChange={handleAdditionalDocConfigChange} className="h-5 w-5 mt-0.5 shrink-0 rounded bg-white/10 border-slate-300/80 text-blue-500 focus:ring-blue-500" style={{boxShadow: 'none'}}/>
+                                    <span className="font-medium text-slate-700 break-words">Qo'shimcha hujjat talab qilish (masalan, taqriz)</span>
                                 </label>
                                 {formData.additionalDocumentConfig?.required && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pl-8">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-300 mb-2">Hujjat Nomi</label>
+                                            <label className="block text-sm font-medium text-slate-600 mb-2">Hujjat Nomi</label>
                                             <input type="text" name="label" value={formData.additionalDocumentConfig.label} onChange={handleAdditionalDocConfigChange} className="w-full" placeholder="Taqriz fayli"/>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-300 mb-2">Hujjat Turi</label>
+                                            <label className="block text-sm font-medium text-slate-600 mb-2">Hujjat Turi</label>
                                             <select name="type" value={formData.additionalDocumentConfig.type} onChange={handleAdditionalDocConfigChange} className="w-full">
                                                 <option value="file">Fayl yuklash</option>
                                                 <option value="link">Havola kiritish</option>
@@ -654,7 +654,7 @@ const JournalManagement: React.FC = () => {
                                 )}
                             </div>
 
-                            <div className="flex justify-end gap-4 pt-4 border-t border-white/10 mt-6">
+                            <div className="flex justify-end gap-4 pt-4 border-t border-slate-200/90 mt-6">
                                 <Button type="button" variant="secondary" onClick={handleCloseModal}>Bekor qilish</Button>
                                 <Button type="submit">{editingJournal ? "Saqlash" : "Qo'shish"}</Button>
                             </div>
@@ -680,12 +680,12 @@ const JournalManagement: React.FC = () => {
                                 />
                             ) : null}
                             <div>
-                                <h3 className="text-lg font-medium text-white">{deletingJournal.name}</h3>
-                                <p className="text-gray-400 text-sm">Jurnalni o'chirish</p>
+                                <h3 className="text-lg font-medium text-slate-900">{deletingJournal.name}</h3>
+                                <p className="text-slate-500 text-sm">Jurnalni o'chirish</p>
                             </div>
                         </div>
-                        <p className="text-gray-300 mb-6">
-                            Haqiqatan ham <strong className="text-white">{deletingJournal.name}</strong> jurnalini o'chirmoqchimisiz?
+                        <p className="text-slate-600 mb-6">
+                            Haqiqatan ham <strong className="text-slate-900">{deletingJournal.name}</strong> jurnalini o'chirmoqchimisiz?
                             Bu harakatni bekor qilib bo'lmaydi.
                         </p>
                         <div className="flex justify-end gap-4 mt-8">

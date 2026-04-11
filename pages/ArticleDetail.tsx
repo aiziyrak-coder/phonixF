@@ -280,7 +280,7 @@ const ArticleDetail: React.FC = () => {
 
     const getStatusDisplayData = (status: string): { text: string; color: string; icon: React.ElementType } => {
         const map: Record<string, { text: string; color: string; icon: React.ElementType }> = {
-            'Draft': { text: 'Yangi topshirildi', color: 'bg-gray-500/20 text-gray-300', icon: FileText },
+            'Draft': { text: 'Yangi topshirildi', color: 'bg-gray-500/20 text-slate-600', icon: FileText },
             'Yangi': { text: 'Yangi topshirildi', color: 'bg-blue-500/20 text-blue-300', icon: Inbox },
             'WithEditor': { text: 'Tekshiruvda', color: 'bg-indigo-500/20 text-indigo-300', icon: Edit },
             'QabulQilingan': { text: 'Ko\'rib chiqilmoqda', color: 'bg-yellow-500/20 text-yellow-300', icon: CheckCircle },
@@ -292,7 +292,7 @@ const ArticleDetail: React.FC = () => {
             'Published': { text: 'Nashr etildi', color: 'bg-green-500/20 text-green-300', icon: BookOpen },
             'Rejected': { text: 'Jarayon to\'xtatildi', color: 'bg-red-500/20 text-red-300', icon: XCircle },
         };
-        return map[status] || { text: status, color: 'bg-gray-500/20 text-gray-300', icon: FileText };
+        return map[status] || { text: status, color: 'bg-gray-500/20 text-slate-600', icon: FileText };
     };
 
     const statusData = getStatusDisplayData(article.status);
@@ -320,7 +320,7 @@ const ArticleDetail: React.FC = () => {
                     <Link to="/articles" className="text-blue-400 hover:text-blue-300 flex items-center gap-2 mb-2 text-sm">
                         <span>←</span> Maqolalar ro'yxati
                     </Link>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white break-words">{article.title}</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 break-words">{article.title}</h1>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${statusData.color}`}>
@@ -345,7 +345,7 @@ const ArticleDetail: React.FC = () => {
                         <div className="space-y-4">
                             <div>
                                 <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-gray-300">
+                                    <span className="text-slate-600">
                                         Joriy bosqich:{' '}
                                         {article.workflow_stage ||
                                             fallbackSteps.find((s) => s.current)?.name ||
@@ -363,7 +363,7 @@ const ArticleDetail: React.FC = () => {
                                     {workflowSteps.map((step) => (
                                         <div
                                             key={step.name}
-                                            className={`p-2 rounded text-center border ${step.current ? 'border-blue-400 text-blue-300 bg-blue-500/10' : step.done ? 'border-green-500/30 text-green-300 bg-green-500/10' : 'border-white/10 text-gray-400 bg-white/5'}`}
+                                            className={`p-2 rounded text-center border ${step.current ? 'border-blue-400 text-blue-300 bg-blue-500/10' : step.done ? 'border-green-500/30 text-green-300 bg-green-500/10' : 'border-slate-200/90 text-slate-500 bg-slate-100/70'}`}
                                         >
                                             {step.name}
                                         </div>
@@ -372,18 +372,18 @@ const ArticleDetail: React.FC = () => {
                             )}
 
                             <div className="space-y-2">
-                                <h4 className="text-sm font-semibold text-white">Status tarixi</h4>
+                                <h4 className="text-sm font-semibold text-slate-900">Status tarixi</h4>
                                 {statusTimeline.length > 0 ? (
                                     statusTimeline.map((item, index) => (
-                                        <div key={`${item.status}-${item.date}-${index}`} className="p-3 bg-white/5 rounded-lg border border-white/10">
-                                            <p className="text-white font-medium">{item.status}</p>
-                                            <p className="text-xs text-gray-400 mt-1">{item.date ? new Date(item.date).toLocaleString() : 'Sana yo\'q'}</p>
-                                            {item.comment ? <p className="text-sm text-gray-300 mt-1">Izoh: {item.comment}</p> : null}
-                                            {item.responsible ? <p className="text-xs text-gray-500 mt-1">Mas'ul: {item.responsible}</p> : null}
+                                        <div key={`${item.status}-${item.date}-${index}`} className="p-3 bg-slate-100/70 rounded-lg border border-slate-200/90">
+                                            <p className="text-slate-900 font-medium">{item.status}</p>
+                                            <p className="text-xs text-slate-500 mt-1">{item.date ? new Date(item.date).toLocaleString() : 'Sana yo\'q'}</p>
+                                            {item.comment ? <p className="text-sm text-slate-600 mt-1">Izoh: {item.comment}</p> : null}
+                                            {item.responsible ? <p className="text-xs text-slate-500 mt-1">Mas'ul: {item.responsible}</p> : null}
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="p-3 bg-white/5 rounded-lg border border-white/10 text-sm text-gray-400">
+                                    <div className="p-3 bg-slate-100/70 rounded-lg border border-slate-200/90 text-sm text-slate-500">
                                         Status tarixi hali mavjud emas.
                                     </div>
                                 )}
@@ -407,21 +407,21 @@ const ArticleDetail: React.FC = () => {
                     <Card title="Asosiy ma'lumotlar">
                         <div className="space-y-4">
                             <div>
-                                <h3 className="text-sm font-medium text-gray-400 mb-1">Muallif(lar)</h3>
-                                <p className="text-white">{article.author_name || 'Noma\'lum'}</p>
+                                <h3 className="text-sm font-medium text-slate-500 mb-1">Muallif(lar)</h3>
+                                <p className="text-slate-900">{article.author_name || 'Noma\'lum'}</p>
                             </div>
                             <div>
-                                <h3 className="text-sm font-medium text-gray-400 mb-1">Annotatsiya</h3>
-                                <p className="text-gray-300 leading-relaxed">{article.abstract || 'Annotatsiya mavjud emas'}</p>
+                                <h3 className="text-sm font-medium text-slate-500 mb-1">Annotatsiya</h3>
+                                <p className="text-slate-600 leading-relaxed">{article.abstract || 'Annotatsiya mavjud emas'}</p>
                             </div>
                             <div>
-                                <h3 className="text-sm font-medium text-gray-400 mb-1">Kalit so'zlar</h3>
+                                <h3 className="text-sm font-medium text-slate-500 mb-1">Kalit so'zlar</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {article.keywords?.map((keyword: string, index: number) => (
                                         <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
                                             {keyword}
                                         </span>
-                                    )) || <span className="text-gray-400">Kalit so'zlar mavjud emas</span>}
+                                    )) || <span className="text-slate-500">Kalit so'zlar mavjud emas</span>}
                                 </div>
                             </div>
                         </div>
@@ -444,10 +444,10 @@ const ArticleDetail: React.FC = () => {
                                 )}
                             </div>
                             {showPdfPreview && fileUrl && (
-                                <div className="rounded-xl overflow-hidden border border-white/10 bg-gray-900">
-                                    <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
-                                        <span className="text-sm text-gray-300 font-medium">PDF ko'rinishi</span>
-                                        <button onClick={() => setShowPdfPreview(false)} className="text-gray-400 hover:text-white transition-colors">
+                                <div className="rounded-xl overflow-hidden border border-slate-200/90 bg-white/55">
+                                    <div className="flex items-center justify-between px-4 py-2 bg-slate-100/70 border-b border-slate-200/90">
+                                        <span className="text-sm text-slate-600 font-medium">PDF ko'rinishi</span>
+                                        <button onClick={() => setShowPdfPreview(false)} className="text-slate-500 hover:text-slate-900 transition-colors">
                                             <X size={16} />
                                         </button>
                                     </div>
@@ -468,7 +468,7 @@ const ArticleDetail: React.FC = () => {
                             <div className="space-y-4">
                                 {article.publication_link && (
                                     <div>
-                                        <p className="text-sm text-gray-400 mb-1">Nashr etilgan maqola havolasi</p>
+                                        <p className="text-sm text-slate-500 mb-1">Nashr etilgan maqola havolasi</p>
                                         <a
                                             href={article.publication_link}
                                             target="_blank"
@@ -482,7 +482,7 @@ const ArticleDetail: React.FC = () => {
                                 )}
                                 {article.certificate_download_link && (
                                     <div>
-                                        <p className="text-sm text-gray-400 mb-1">Nashr sertifikati</p>
+                                        <p className="text-sm text-slate-500 mb-1">Nashr sertifikati</p>
                                         <a
                                             href={article.certificate_download_link}
                                             target="_blank"
@@ -506,9 +506,9 @@ const ArticleDetail: React.FC = () => {
                         const reason = revisionLog?.details?.trim();
                         return reason ? (
                             <Card title="Tahrirga qaytarish sababi">
-                                <p className="text-gray-300 whitespace-pre-wrap">{reason}</p>
+                                <p className="text-slate-600 whitespace-pre-wrap">{reason}</p>
                                 {revisionLog?.timestamp && (
-                                    <p className="text-xs text-gray-500 mt-2">
+                                    <p className="text-xs text-slate-500 mt-2">
                                         {new Date(revisionLog.timestamp).toLocaleString()}
                                     </p>
                                 )}
@@ -524,9 +524,9 @@ const ArticleDetail: React.FC = () => {
                         const reason = rejectLog?.details?.trim();
                         return reason ? (
                             <Card title="Rad etish sababi">
-                                <p className="text-gray-300 whitespace-pre-wrap">{reason}</p>
+                                <p className="text-slate-600 whitespace-pre-wrap">{reason}</p>
                                 {rejectLog?.timestamp && (
-                                    <p className="text-xs text-gray-500 mt-2">
+                                    <p className="text-xs text-slate-500 mt-2">
                                         {new Date(rejectLog.timestamp).toLocaleString()}
                                     </p>
                                 )}
@@ -539,24 +539,24 @@ const ArticleDetail: React.FC = () => {
                         <div className="space-y-4">
                             {activityLogs.length > 0 ? (
                                 activityLogs.map(log => (
-                                    <div key={log.id} className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 rounded-lg">
+                                    <div key={log.id} className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-100/70 rounded-lg">
                                         <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
                                             <GitCommit className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <span className="font-medium text-white text-sm sm:text-base">{log.action}</span>
-                                                <span className="text-xs text-gray-400">{new Date(log.timestamp).toLocaleString()}</span>
+                                                <span className="font-medium text-slate-900 text-sm sm:text-base">{log.action}</span>
+                                                <span className="text-xs text-slate-500">{new Date(log.timestamp).toLocaleString()}</span>
                                             </div>
-                                            <p className="text-sm text-gray-300 mt-1">{log.details || ''}</p>
+                                            <p className="text-sm text-slate-600 mt-1">{log.details || ''}</p>
                                             {log.userId && (
-                                                <span className="text-xs text-gray-500">Foydalanuvchi ID: {log.userId}</span>
+                                                <span className="text-xs text-slate-500">Foydalanuvchi ID: {log.userId}</span>
                                             )}
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-center text-gray-400 py-4">Faoliyat jurnali hali mavjud emas.</p>
+                                <p className="text-center text-slate-500 py-4">Faoliyat jurnali hali mavjud emas.</p>
                             )}
                         </div>
                     </Card>
@@ -608,16 +608,16 @@ const ArticleDetail: React.FC = () => {
                     <Card title="Statistika">
                         <div className="space-y-4">
                             <div className="flex justify-between">
-                                <span className="text-gray-400">Ko'rishlar</span>
-                                <span className="text-white font-medium">{article.views || 0}</span>
+                                <span className="text-slate-500">Ko'rishlar</span>
+                                <span className="text-slate-900 font-medium">{article.views || 0}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-400">Yuklab olishlar</span>
-                                <span className="text-white font-medium">{article.downloads || 0}</span>
+                                <span className="text-slate-500">Yuklab olishlar</span>
+                                <span className="text-slate-900 font-medium">{article.downloads || 0}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-400">Yuborilgan sana</span>
-                                <span className="text-white font-medium">
+                                <span className="text-slate-500">Yuborilgan sana</span>
+                                <span className="text-slate-900 font-medium">
                                     {article.submission_date ? new Date(article.submission_date).toLocaleDateString() : 'Noma\'lum'}
                                 </span>
                             </div>
@@ -630,7 +630,7 @@ const ArticleDetail: React.FC = () => {
                             <div className="space-y-3">
                                 {article.publication_link && (
                                     <div>
-                                        <p className="text-xs text-gray-400 mb-1">Nashr havolasi</p>
+                                        <p className="text-xs text-slate-500 mb-1">Nashr havolasi</p>
                                         <a href={article.publication_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-sm break-all">
                                             <ExternalLink size={14} />
                                             Havolani ochish
@@ -639,7 +639,7 @@ const ArticleDetail: React.FC = () => {
                                 )}
                                 {article.certificate_download_link && (
                                     <div>
-                                        <p className="text-xs text-gray-400 mb-1">Sertifikat</p>
+                                        <p className="text-xs text-slate-500 mb-1">Sertifikat</p>
                                         <a href={article.certificate_download_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm">
                                             <Download size={14} />
                                             Yuklab olish
@@ -653,16 +653,16 @@ const ArticleDetail: React.FC = () => {
                     {/* Nashr qilish — faqat Accepted holatida, jurnal/bosh admin uchun */}
                     {(user?.role === Role.JournalAdmin || user?.role === Role.SuperAdmin) && article.status === ArticleStatus.Accepted && (
                         <Card title="Nashr qilish">
-                            <p className="text-sm text-gray-400 mb-4">
+                            <p className="text-sm text-slate-500 mb-4">
                                 Sertifikat faylini yuklang va muallifga tayyor deb yuboring. Muallifga bildirishnoma keladi.
                             </p>
                             {journalIssues.length > 0 && (
                                 <div className="mb-4">
-                                    <label className="block text-sm text-gray-400 mb-1">Jurnal soni (ixtiyoriy)</label>
+                                    <label className="block text-sm text-slate-500 mb-1">Jurnal soni (ixtiyoriy)</label>
                                     <select
                                         value={publicationIssueId}
                                         onChange={(e) => setPublicationIssueId(e.target.value)}
-                                        className="w-full rounded-lg bg-gray-800 border border-gray-600 text-white px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        className="w-full rounded-lg bg-white/50 border border-slate-200 text-slate-900 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                     >
                                         <option value="">— Tanlamang —</option>
                                         {journalIssues.map((iss) => (
@@ -672,25 +672,25 @@ const ArticleDetail: React.FC = () => {
                                 </div>
                             )}
                             <div className="mb-4">
-                                <label className="block text-sm text-gray-400 mb-1">Nashr etilgan maqola linki (ixtiyoriy)</label>
+                                <label className="block text-sm text-slate-500 mb-1">Nashr etilgan maqola linki (ixtiyoriy)</label>
                                 <input
                                     type="url"
                                     value={publicationUrl}
                                     onChange={(e) => setPublicationUrl(e.target.value)}
                                     placeholder="https://..."
-                                    className="w-full rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    className="w-full rounded-lg bg-white/50 border border-slate-200 text-slate-900 placeholder-slate-400 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                 />
                             </div>
                             <div className="mb-4">
-                                <label className="block text-sm text-gray-400 mb-1">Sertifikat fayli (PDF yoki JPG) *</label>
+                                <label className="block text-sm text-slate-500 mb-1">Sertifikat fayli (PDF yoki JPG) *</label>
                                 <input
                                     type="file"
                                     accept=".pdf,.jpg,.jpeg,.png"
                                     onChange={(e) => setPublicationCertificateFile(e.target.files?.[0] ?? null)}
-                                    className="w-full text-sm text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white file:cursor-pointer"
+                                    className="w-full text-sm text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white file:cursor-pointer"
                                 />
                                 {publicationCertificateFile && (
-                                    <span className="text-xs text-gray-500 mt-1 block">{publicationCertificateFile.name}</span>
+                                    <span className="text-xs text-slate-500 mt-1 block">{publicationCertificateFile.name}</span>
                                 )}
                             </div>
                             <Button
@@ -722,11 +722,11 @@ const ArticleDetail: React.FC = () => {
 
             {/* Tahrirga qaytarish — izoh modali */}
             {showRevisionModal && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-                    <div className="w-full max-w-lg bg-gray-800 border border-gray-600 rounded-xl shadow-2xl">
-                        <div className="p-4 border-b border-gray-600">
-                            <h3 className="text-lg font-semibold text-white">Tahrirga qaytarish</h3>
-                            <p className="text-sm text-gray-400 mt-1">Nega tahrirga qaytarilgani haqida izoh yozing. Bu matn muallifga bildirishnoma orqali yuboriladi.</p>
+                <div className="fixed inset-0 bg-slate-900/35 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+                    <div className="w-full max-w-lg bg-white/50 border border-slate-200 rounded-xl shadow-2xl">
+                        <div className="p-4 border-b border-slate-200">
+                            <h3 className="text-lg font-semibold text-slate-900">Tahrirga qaytarish</h3>
+                            <p className="text-sm text-slate-500 mt-1">Nega tahrirga qaytarilgani haqida izoh yozing. Bu matn muallifga bildirishnoma orqali yuboriladi.</p>
                         </div>
                         <div className="p-4">
                             <textarea
@@ -734,10 +734,10 @@ const ArticleDetail: React.FC = () => {
                                 onChange={(e) => setRevisionReason(e.target.value)}
                                 placeholder="Masalan: Annotatsiya qisqartirilishi, adabiyotlar ro'yxati to'ldirilishi kerak..."
                                 rows={4}
-                                className="w-full rounded-lg bg-gray-900 border border-gray-600 text-white placeholder-gray-500 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                className="w-full rounded-lg bg-white/55 border border-slate-200 text-slate-900 placeholder-slate-400 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                             />
                         </div>
-                        <div className="p-4 border-t border-gray-600 flex gap-3 justify-end">
+                        <div className="p-4 border-t border-slate-200 flex gap-3 justify-end">
                             <Button onClick={() => { setShowRevisionModal(false); setRevisionReason(''); }} variant="secondary">
                                 Bekor qilish
                             </Button>
@@ -751,11 +751,11 @@ const ArticleDetail: React.FC = () => {
 
             {/* Rad etish — izoh modali */}
             {showRejectModal && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-                    <div className="w-full max-w-lg bg-gray-800 border border-gray-600 rounded-xl shadow-2xl">
-                        <div className="p-4 border-b border-gray-600">
-                            <h3 className="text-lg font-semibold text-white">Rad etish</h3>
-                            <p className="text-sm text-gray-400 mt-1">Nega rad etilgani haqida to‘liq izoh yozing. Bu matn muallifga bildirishnoma orqali yuboriladi va maqola sahifasida ko‘rinadi.</p>
+                <div className="fixed inset-0 bg-slate-900/35 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+                    <div className="w-full max-w-lg bg-white/50 border border-slate-200 rounded-xl shadow-2xl">
+                        <div className="p-4 border-b border-slate-200">
+                            <h3 className="text-lg font-semibold text-slate-900">Rad etish</h3>
+                            <p className="text-sm text-slate-500 mt-1">Nega rad etilgani haqida to‘liq izoh yozing. Bu matn muallifga bildirishnoma orqali yuboriladi va maqola sahifasida ko‘rinadi.</p>
                         </div>
                         <div className="p-4">
                             <textarea
@@ -763,10 +763,10 @@ const ArticleDetail: React.FC = () => {
                                 onChange={(e) => setRejectReason(e.target.value)}
                                 placeholder="Masalan: Maqola mavzusi jurnal doirasiga to‘g‘ri kelmadi; adabiyotlar yangilanishi talab qilinadi..."
                                 rows={4}
-                                className="w-full rounded-lg bg-gray-900 border border-gray-600 text-white placeholder-gray-500 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                className="w-full rounded-lg bg-white/55 border border-slate-200 text-slate-900 placeholder-slate-400 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                             />
                         </div>
-                        <div className="p-4 border-t border-gray-600 flex gap-3 justify-end">
+                        <div className="p-4 border-t border-slate-200 flex gap-3 justify-end">
                             <Button onClick={() => { setShowRejectModal(false); setRejectReason(''); }} variant="secondary">
                                 Bekor qilish
                             </Button>
@@ -780,10 +780,10 @@ const ArticleDetail: React.FC = () => {
 
             {/* Certificate modal */}
             {showCertificate && certificateData && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex justify-center items-center p-4 print:p-0 print:bg-white">
-                    <div className="w-full max-w-6xl bg-gray-900 rounded-lg shadow-2xl print:max-w-none print:bg-white print:rounded-none">
-                        <div className="p-4 border-b border-white/10 flex justify-between items-center no-print">
-                            <h3 className="text-lg font-semibold text-white">Qabul haqida ma'lumotnoma</h3>
+                <div className="fixed inset-0 bg-slate-900/35 backdrop-blur-sm z-50 flex justify-center items-center p-4 print:p-0 print:bg-white">
+                    <div className="w-full max-w-6xl bg-white/55 rounded-lg shadow-2xl print:max-w-none print:bg-white print:rounded-none">
+                        <div className="p-4 border-b border-slate-200/90 flex justify-between items-center no-print">
+                            <h3 className="text-lg font-semibold text-slate-900">Qabul haqida ma'lumotnoma</h3>
                             <div className="flex items-center gap-2">
                                 <Button onClick={() => window.print()} variant="secondary" className="flex items-center gap-2">
                                     <Printer size={16} /> Chop etish / PDF

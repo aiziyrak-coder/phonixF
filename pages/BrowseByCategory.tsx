@@ -78,7 +78,7 @@ const BrowseByCategory: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       <Card title={categoryName ? `"${categoryName}" bo‘yicha jurnallar` : 'Jurnallar'}>
         {categoryName && (
-          <p className="text-gray-400 text-sm mb-6 -mt-2">
+          <p className="text-slate-500 text-sm mb-6 -mt-2">
             Ushbu kategoriyadagi jurnallar ro‘yxati. Maqola yuborish uchun «Maqola yuborish» bo‘limidan jurnal tanlang.
           </p>
         )}
@@ -94,13 +94,13 @@ const BrowseByCategory: React.FC = () => {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-12">
-            <BookOpen className="mx-auto h-12 w-12 text-gray-500" />
-            <h3 className="mt-2 text-sm font-medium text-white">
+            <BookOpen className="mx-auto h-12 w-12 text-slate-500" />
+            <h3 className="mt-2 text-sm font-medium text-slate-900">
               {categoryName
                 ? `"${categoryName}" bo‘yicha jurnal topilmadi`
                 : 'Jurnal topilmadi'}
             </h3>
-            <p className="mt-1 text-sm text-gray-400">
+            <p className="mt-1 text-sm text-slate-500">
               {categoryName
                 ? 'Boshqa kategoriyani tanlang yoki jurnal administratori ushbu kategoriyaga jurnal qo‘shguncha kuting.'
                 : 'Kategoriyani yuqoridagi menyudan tanlang.'}
@@ -117,19 +117,19 @@ const BrowseByCategory: React.FC = () => {
             {filtered.map((j) => (
               <div
                 key={j.id}
-                className="p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"
+                className="p-4 rounded-xl border border-slate-200/90 bg-slate-100/70 hover:bg-white/10 transition-colors"
               >
                 <div className="flex gap-3">
                   <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
                     <BookOpen className="w-5 h-5 text-blue-400" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-white">{j.name}</h3>
+                    <h3 className="font-semibold text-slate-900">{j.name}</h3>
                     {j.category_name && (
-                      <p className="text-xs text-gray-400 mt-0.5">{j.category_name}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{j.category_name}</p>
                     )}
                     {j.issn && (
-                      <p className="text-xs text-gray-500 font-mono mt-1">{j.issn}</p>
+                      <p className="text-xs text-slate-500 font-mono mt-1">{j.issn}</p>
                     )}
                     {priceText(j) && (
                       <p className="text-sm text-blue-300 mt-2">{priceText(j)}</p>
@@ -137,7 +137,7 @@ const BrowseByCategory: React.FC = () => {
                   </div>
                 </div>
                 {j.description && (
-                  <p className="text-sm text-gray-400 mt-3 line-clamp-2">{j.description}</p>
+                  <p className="text-sm text-slate-500 mt-3 line-clamp-2">{j.description}</p>
                 )}
               </div>
             ))}

@@ -23,15 +23,15 @@ const StatCard: React.FC<{
 }> = ({ icon: Icon, title, value, gradient, to, animationDelay = '0s' }) => {
   const cardContent = (
     <div
-      className="dashboard-card-hover relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 h-full"
+      className="dashboard-card-hover relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white/85 to-white/55 backdrop-blur-xl p-6 h-full shadow-[0_8px_40px_-16px_rgba(15,23,42,0.1)]"
       style={{ animationDelay }}
     >
       <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-30 blur-3xl ${gradient}`} />
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-transparent via-transparent to-white/[0.03]" />
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 truncate">{title}</p>
-          <p className="text-2xl sm:text-3xl font-extrabold text-white mt-2 tracking-tight truncate tabular-nums">{value}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 truncate">{title}</p>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tracking-tight truncate tabular-nums">{value}</p>
         </div>
         <div className={`p-3.5 rounded-2xl shrink-0 ${gradient} shadow-lg`}>
           <Icon className="h-6 w-6 sm:h-7 sm:w-7 text-white drop-shadow-sm" strokeWidth={2.5} />
@@ -175,7 +175,7 @@ const Dashboard: React.FC = () => {
         return (
             <div className="flex flex-col justify-center items-center min-h-[320px] gap-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-2 border-blue-500 border-t-transparent" />
-                <p className="text-gray-400 text-sm">Yuklanmoqda...</p>
+                <p className="text-slate-500 text-sm">Yuklanmoqda...</p>
             </div>
         );
     }
@@ -206,84 +206,84 @@ const Dashboard: React.FC = () => {
             if (status === ArticleStatus.Revision || status === 'Revision') return 'bg-orange-500/20 text-orange-300';
             if (status === ArticleStatus.WithEditor || status === 'WithEditor') return 'bg-indigo-500/20 text-indigo-300';
             if (status === ArticleStatus.Rejected || status === 'Rejected') return 'bg-red-500/20 text-red-300';
-            return 'bg-gray-500/20 text-gray-300';
+            return 'bg-gray-500/20 text-slate-600';
         };
 
         return (
             <div className="space-y-10">
                 {/* Sarlavha va tushuntirish */}
-                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/5 p-6 sm:p-8">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/5 p-6 sm:p-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
                         Xush kelibsiz, {user.firstName} {user.lastName ? user.lastName : ''}!
                     </h1>
-                    <p className="text-gray-400 mt-2 max-w-2xl">
+                    <p className="text-slate-500 mt-2 max-w-2xl">
                         Boshqaruv paneli orqali maqolalar yuborishingiz, UDK ma&apos;lumotnoma olishingiz, maqolalar holatini kuzatishingiz va barcha hujjatlaringizni bitta joyda ko&apos;rishingiz mumkin.
                     </p>
                 </div>
 
                 {/* Tezkor harakatlar */}
                 <div>
-                    <h2 className="text-lg font-semibold text-white mb-4">Tezkor harakatlar</h2>
+                    <h2 className="text-lg font-semibold text-slate-900 mb-4">Tezkor harakatlar</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <Link
                             to="/submit"
-                            className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/10 hover:border-blue-500/30 transition-all duration-200"
+                            className="group flex items-start gap-4 p-5 rounded-xl border border-slate-200/90 bg-white/[0.06] hover:bg-white/10 hover:border-blue-500/30 transition-all duration-200"
                         >
                             <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400 group-hover:bg-blue-500/30 transition-colors">
                                 <Upload className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-white group-hover:text-blue-300 transition-colors">Maqola yuborish</h3>
-                                <p className="text-sm text-gray-400 mt-0.5">Jurnal tanlab maqolani topshiring</p>
+                                <h3 className="font-semibold text-slate-900 group-hover:text-blue-300 transition-colors">Maqola yuborish</h3>
+                                <p className="text-sm text-slate-500 mt-0.5">Jurnal tanlab maqolani topshiring</p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-gray-500 group-hover:text-blue-400 shrink-0 mt-1" />
+                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-blue-400 shrink-0 mt-1" />
                         </Link>
                         <Link
                             to="/udk-olish"
-                            className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/10 hover:border-cyan-500/30 transition-all duration-200"
+                            className="group flex items-start gap-4 p-5 rounded-xl border border-slate-200/90 bg-white/[0.06] hover:bg-white/10 hover:border-cyan-500/30 transition-all duration-200"
                         >
                             <div className="p-3 rounded-xl bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30 transition-colors">
                                 <BookOpen className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-white group-hover:text-cyan-300 transition-colors">UDK ma&apos;lumotnoma</h3>
-                                <p className="text-sm text-gray-400 mt-0.5">Ilmiy ish uchun UDK kodi oling</p>
+                                <h3 className="font-semibold text-slate-900 group-hover:text-cyan-300 transition-colors">UDK ma&apos;lumotnoma</h3>
+                                <p className="text-sm text-slate-500 mt-0.5">Ilmiy ish uchun UDK kodi oling</p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-gray-500 group-hover:text-cyan-400 shrink-0 mt-1" />
+                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-cyan-400 shrink-0 mt-1" />
                         </Link>
                         <Link
                             to="/articles"
-                            className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/10 hover:border-emerald-500/30 transition-all duration-200"
+                            className="group flex items-start gap-4 p-5 rounded-xl border border-slate-200/90 bg-white/[0.06] hover:bg-white/10 hover:border-emerald-500/30 transition-all duration-200"
                         >
                             <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 transition-colors">
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-white group-hover:text-emerald-300 transition-colors">Mening maqolalarim</h3>
-                                <p className="text-sm text-gray-400 mt-0.5">Barcha maqolalar va holatlari</p>
+                                <h3 className="font-semibold text-slate-900 group-hover:text-emerald-300 transition-colors">Mening maqolalarim</h3>
+                                <p className="text-sm text-slate-500 mt-0.5">Barcha maqolalar va holatlari</p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-gray-500 group-hover:text-emerald-400 shrink-0 mt-1" />
+                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-emerald-400 shrink-0 mt-1" />
                         </Link>
                         <Link
                             to="/profile"
-                            className="group flex items-start gap-4 p-5 rounded-xl border border-white/10 bg-white/[0.06] hover:bg-white/10 hover:border-violet-500/30 transition-all duration-200"
+                            className="group flex items-start gap-4 p-5 rounded-xl border border-slate-200/90 bg-white/[0.06] hover:bg-white/10 hover:border-violet-500/30 transition-all duration-200"
                         >
                             <div className="p-3 rounded-xl bg-violet-500/20 text-violet-400 group-hover:bg-violet-500/30 transition-colors">
                                 <Archive className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-white group-hover:text-violet-300 transition-colors">Arxiv hujjatlar</h3>
-                                <p className="text-sm text-gray-400 mt-0.5">PDF, UDK, sertifikatlar, taqrizlar</p>
+                                <h3 className="font-semibold text-slate-900 group-hover:text-violet-300 transition-colors">Arxiv hujjatlar</h3>
+                                <p className="text-sm text-slate-500 mt-0.5">PDF, UDK, sertifikatlar, taqrizlar</p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-gray-500 group-hover:text-violet-400 shrink-0 mt-1" />
+                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-violet-400 shrink-0 mt-1" />
                         </Link>
                     </div>
                 </div>
 
                 {/* Maqolalar statistikasi */}
                 <div>
-                    <h2 className="text-lg font-semibold text-white mb-4">Maqolalarim statistikasi</h2>
-                    <p className="text-gray-400 text-sm mb-4">Yuborilgan maqolalar holati bo&apos;yicha qisqacha ko&apos;rinish.</p>
+                    <h2 className="text-lg font-semibold text-slate-900 mb-4">Maqolalarim statistikasi</h2>
+                    <p className="text-slate-500 text-sm mb-4">Yuborilgan maqolalar holati bo&apos;yicha qisqacha ko&apos;rinish.</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <StatCard
                             icon={FileText}
@@ -318,9 +318,9 @@ const Dashboard: React.FC = () => {
 
                 {/* So'nggi maqolalar */}
                 <Card title="So'nggi maqolalar">
-                    <p className="text-gray-400 text-sm mb-4">Oxirgi yuborilgan maqolalar ro'yxati. Batafsil ko'rish uchun maqolaga bosing.</p>
+                    <p className="text-slate-500 text-sm mb-4">Oxirgi yuborilgan maqolalar ro'yxati. Batafsil ko'rish uchun maqolaga bosing.</p>
                     {recentArticles.length === 0 ? (
-                        <div className="text-center py-10 text-gray-400">
+                        <div className="text-center py-10 text-slate-500">
                             <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
                             <p>Hozircha maqolalar yo&apos;q.</p>
                             <p className="text-sm mt-1">«Maqola yuborish» orqali birinchi maqolangizni topshiring.</p>
@@ -334,25 +334,25 @@ const Dashboard: React.FC = () => {
                                 <li key={art.id}>
                                     <Link
                                         to={`/articles/${art.id}`}
-                                        className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/8 hover:border-white/20 transition-all"
+                                        className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-slate-200/90 bg-white/[0.04] hover:bg-white/8 hover:border-slate-300/80 transition-all"
                                     >
                                         <div className="min-w-0 flex-1">
-                                            <p className="font-medium text-white truncate">{art.title || 'Sarlavhasiz'}</p>
-                                            <p className="text-sm text-gray-400 mt-0.5">
+                                            <p className="font-medium text-slate-900 truncate">{art.title || 'Sarlavhasiz'}</p>
+                                            <p className="text-sm text-slate-500 mt-0.5">
                                                 {art.journal_name || 'Jurnal'} · {art.submission_date ? new Date(art.submission_date).toLocaleDateString('uz-UZ') : '—'}
                                             </p>
                                         </div>
                                         <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(art.status)}`}>
                                             {getStatusLabel(art.status)}
                                         </span>
-                                        <ChevronRight className="h-5 w-5 text-gray-500 shrink-0" />
+                                        <ChevronRight className="h-5 w-5 text-slate-500 shrink-0" />
                                     </Link>
                                 </li>
                             ))}
                         </ul>
                     )}
                     {recentArticles.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-white/10">
+                        <div className="mt-4 pt-4 border-t border-slate-200/90">
                             <Link to="/articles" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">
                                 Barcha maqolalar <ArrowRight className="h-4 w-4" />
                             </Link>
@@ -397,9 +397,9 @@ const Dashboard: React.FC = () => {
 
         return (
             <div className="space-y-8">
-                <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/5 p-6 sm:p-8">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-white">Ishchi stol — {user.firstName}!</h1>
-                    <p className="text-gray-400 mt-2">Barcha buyurtmalar shu yerda: taqriz, DOI, maqola namuna, tarjima va kitob nashr.</p>
+                <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-br from-blue-500/10 via-transparent to-cyan-500/5 p-6 sm:p-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Ishchi stol — {user.firstName}!</h1>
+                    <p className="text-slate-500 mt-2">Barcha buyurtmalar shu yerda: taqriz, DOI, maqola namuna, tarjima va kitob nashr.</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -425,7 +425,7 @@ const Dashboard: React.FC = () => {
                                     (journal ? journal.name : '') ||
                                     "Noma'lum";
                                 return (
-                                    <div key={article.id} className="p-4 bg-white/5 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                    <div key={article.id} className="p-4 bg-slate-100/70 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                         <div>
                                             <div className="flex items-center gap-3">
                                                 {article.fast_track && (
@@ -435,7 +435,7 @@ const Dashboard: React.FC = () => {
                                                 )}
                                                 <p className="font-semibold text-blue-400">{article.title}</p>
                                             </div>
-                                            <p className="text-sm text-gray-400 mt-1">Muallif: {authorLabel} | Jurnal: {journalLabel}</p>
+                                            <p className="text-sm text-slate-500 mt-1">Muallif: {authorLabel} | Jurnal: {journalLabel}</p>
                                         </div>
                                         <Button onClick={() => navigate(`/articles/${article.id}`)} variant="secondary" className="w-full sm:w-auto">
                                             Ko'rib chiqish <ArrowRight className="ml-2 h-4 w-4"/>
@@ -444,10 +444,10 @@ const Dashboard: React.FC = () => {
                                 );
                             })
                         ) : (
-                            <p className="text-center text-gray-400 py-6">Hozircha taqriz uchun yangi so'rovlar yo'q.</p>
+                            <p className="text-center text-slate-500 py-6">Hozircha taqriz uchun yangi so'rovlar yo'q.</p>
                         )}
                         {articlesForReview.length > 0 && (
-                            <div className="pt-2 border-t border-white/10">
+                            <div className="pt-2 border-t border-slate-200/90">
                                 <Link to="/articles" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">Barchasi <ArrowRight className="h-4 w-4" /></Link>
                             </div>
                         )}
@@ -456,16 +456,16 @@ const Dashboard: React.FC = () => {
 
                 {/* DOI so'rovlari */}
                 <Card title="DOI raqami olish — taqrizchida">
-                    <p className="text-gray-400 text-sm mb-4">Mualliflar DOI so'rovi yuborgan. Link kiriting va saqlang — muallifga xabar ketadi.</p>
+                    <p className="text-slate-500 text-sm mb-4">Mualliflar DOI so'rovi yuborgan. Link kiriting va saqlang — muallifga xabar ketadi.</p>
                     {doiSubmitted.length === 0 ? (
-                        <p className="text-gray-400 py-4">Kutilayotgan DOI so'rovlari yo'q.</p>
+                        <p className="text-slate-500 py-4">Kutilayotgan DOI so'rovlari yo'q.</p>
                     ) : (
                         <div className="space-y-4">
                             {doiSubmitted.map((req: any) => (
-                                <div key={req.id} className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center gap-3">
+                                <div key={req.id} className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center gap-3">
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-white">{req.author_short}</p>
-                                        <p className="text-xs text-gray-500">{new Date(req.created_at).toLocaleDateString('uz-UZ')}</p>
+                                        <p className="font-medium text-slate-900">{req.author_short}</p>
+                                        <p className="text-xs text-slate-500">{new Date(req.created_at).toLocaleDateString('uz-UZ')}</p>
                                         {req.file_url && (
                                             <a href={req.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:underline mt-1">
                                                 <ExternalLink size={14} /> Fayl
@@ -478,7 +478,7 @@ const Dashboard: React.FC = () => {
                                             placeholder="DOI link (https://...)"
                                             value={doiLinkInputs[req.id] || ''}
                                             onChange={(e) => setDoiLinkInputs((p) => ({ ...p, [req.id]: e.target.value }))}
-                                            className="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder-gray-500"
+                                            className="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 text-sm placeholder-slate-400"
                                         />
                                         <Button
                                             onClick={() => handleDoiSaveLink(req.id)}
@@ -497,16 +497,16 @@ const Dashboard: React.FC = () => {
 
                 {/* Maqola namuna so'rovlari */}
                 <Card title="Maqola namuna olish buyurtmalari">
-                    <p className="text-gray-400 text-sm mb-4">Mualliflar maqola namunasi uchun buyurtma bergan.</p>
+                    <p className="text-slate-500 text-sm mb-4">Mualliflar maqola namunasi uchun buyurtma bergan.</p>
                     {(!articleSampleRequests || articleSampleRequests.length === 0) ? (
-                        <p className="text-gray-400 py-4">So'rovlar yo'q.</p>
+                        <p className="text-slate-500 py-4">So'rovlar yo'q.</p>
                     ) : (
                         <ul className="space-y-3">
                             {articleSampleRequests.slice(0, 5).map((req: any) => (
-                                <li key={req.id} className="p-4 rounded-xl bg-white/5 border border-white/10">
-                                    <p className="font-medium text-white">{req.author_short}</p>
-                                    <p className="text-sm text-gray-300 line-clamp-2">{req.topic}</p>
-                                    <p className="text-xs text-gray-500 mt-1">
+                                <li key={req.id} className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90">
+                                    <p className="font-medium text-slate-900">{req.author_short}</p>
+                                    <p className="text-sm text-slate-600 line-clamp-2">{req.topic}</p>
+                                    <p className="text-xs text-slate-500 mt-1">
                                         {new Date(req.created_at).toLocaleDateString('uz-UZ')} · {qualityLabels[req.quality_level] || req.quality_level} · {req.pages} sahifa
                                     </p>
                                 </li>
@@ -517,29 +517,29 @@ const Dashboard: React.FC = () => {
 
                 {/* Ilmiy tarjima buyurtmalari */}
                 <Card title="Ilmiy tarjima buyurtmalari">
-                    <p className="text-gray-400 text-sm mb-4">Tarjima qilish uchun kelgan buyurtmalar.</p>
+                    <p className="text-slate-500 text-sm mb-4">Tarjima qilish uchun kelgan buyurtmalar.</p>
                     {translationsPending.length === 0 ? (
-                        <p className="text-gray-400 py-4">Kutilayotgan tarjima buyurtmalari yo'q.</p>
+                        <p className="text-slate-500 py-4">Kutilayotgan tarjima buyurtmalari yo'q.</p>
                     ) : (
                         <ul className="space-y-3">
                             {translationsPending.slice(0, 5).map((tr: any) => (
                                 <li key={tr.id}>
                                     <Link
                                         to={`/translations/${tr.id}`}
-                                        className="flex items-center justify-between gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/8"
+                                        className="flex items-center justify-between gap-3 p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 hover:bg-white/8"
                                     >
                                         <div>
-                                            <p className="font-medium text-white">{tr.title}</p>
-                                            <p className="text-sm text-gray-400">{tr.source_language} → {tr.target_language} · {tr.status}</p>
+                                            <p className="font-medium text-slate-900">{tr.title}</p>
+                                            <p className="text-sm text-slate-500">{tr.source_language} → {tr.target_language} · {tr.status}</p>
                                         </div>
-                                        <ChevronRight className="h-5 w-5 text-gray-500 shrink-0" />
+                                        <ChevronRight className="h-5 w-5 text-slate-500 shrink-0" />
                                     </Link>
                                 </li>
                             ))}
                         </ul>
                     )}
                     {translationsPending.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-white/10">
+                        <div className="mt-3 pt-3 border-t border-slate-200/90">
                             <Link to="/my-translations" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">Barcha tarjimalar <ArrowRight className="h-4 w-4" /></Link>
                         </div>
                     )}
@@ -547,15 +547,15 @@ const Dashboard: React.FC = () => {
 
                 {/* Kitob nashr etish buyurtmalari */}
                 <Card title="Kitob nashr etish buyurtmalari">
-                    <p className="text-gray-400 text-sm mb-4">Kitob chop etish bo'yicha buyurtmalar.</p>
+                    <p className="text-slate-500 text-sm mb-4">Kitob chop etish bo'yicha buyurtmalar.</p>
                     {bookOrders.length === 0 ? (
-                        <p className="text-gray-400 py-4">Hozircha buyurtmalar yo'q.</p>
+                        <p className="text-slate-500 py-4">Hozircha buyurtmalar yo'q.</p>
                     ) : (
                         <ul className="space-y-3">
                             {bookOrders.slice(0, 5).map((t: any) => (
-                                <li key={t.id} className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                                    <span className="text-white">Tranzaksiya #{String(t.id).slice(0, 8)}</span>
-                                    <span className="text-gray-400 text-sm">{t.status}</span>
+                                <li key={t.id} className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
+                                    <span className="text-slate-900">Tranzaksiya #{String(t.id).slice(0, 8)}</span>
+                                    <span className="text-slate-500 text-sm">{t.status}</span>
                                 </li>
                             ))}
                         </ul>
@@ -606,7 +606,7 @@ const Dashboard: React.FC = () => {
 
         return (
             <div className="space-y-8">
-                <h2 className="text-3xl font-bold text-white">Jurnal administratori paneli</h2>
+                <h2 className="text-3xl font-bold text-slate-900">Jurnal administratori paneli</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                    <StatCard icon={Inbox} title="Yangi Kelganlar" value={newSubmissionsCount} gradient="bg-gradient-to-r from-cyan-500 to-blue-400" to="/articles" />
                    <StatCard icon={Clock} title="Nashrni kutmoqda" value={pendingPublicationCount} gradient="bg-gradient-to-r from-yellow-500 to-orange-400" to="/articles" />
@@ -614,9 +614,9 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 <Card title="Mening jurnallarim">
-                    <p className="text-gray-400 text-sm mb-4">Sizga biriktirilgan barcha jurnallar. Maqolalar uchun jurnalni tanlang.</p>
+                    <p className="text-slate-500 text-sm mb-4">Sizga biriktirilgan barcha jurnallar. Maqolalar uchun jurnalni tanlang.</p>
                     {managedJournals.length === 0 ? (
-                        <p className="text-gray-400 py-6 text-center border border-white/10 rounded-xl bg-white/[0.08]">
+                        <p className="text-slate-500 py-6 text-center border border-slate-200/90 rounded-xl bg-white/[0.08]">
                             Hozircha sizga biriktirilgan jurnal yo&apos;q. Super administrator bilan bog&apos;laning.
                         </p>
                     ) : (
@@ -624,21 +624,21 @@ const Dashboard: React.FC = () => {
                             {managedJournals.map((j: any) => (
                                 <div
                                     key={j.id}
-                                    className="rounded-xl border border-white/10 bg-white/[0.06] p-5 flex flex-col gap-3 hover:border-blue-500/40 transition-colors"
+                                    className="rounded-xl border border-slate-200/90 bg-white/[0.06] p-5 flex flex-col gap-3 hover:border-blue-500/40 transition-colors"
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="p-2.5 rounded-lg bg-blue-500/20 shrink-0">
                                             <BookOpen className="h-6 w-6 text-blue-300" />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <h3 className="font-semibold text-white text-lg leading-snug line-clamp-2">{j.name || '—'}</h3>
-                                            <p className="text-xs text-gray-500 mt-1">ISSN: {j.issn || '—'}</p>
+                                            <h3 className="font-semibold text-slate-900 text-lg leading-snug line-clamp-2">{j.name || '—'}</h3>
+                                            <p className="text-xs text-slate-500 mt-1">ISSN: {j.issn || '—'}</p>
                                             {(j.category_name || j.category) && (
-                                                <p className="text-sm text-gray-400 mt-1 line-clamp-2">{j.category_name || (typeof j.category === 'object' && j.category?.name) || j.category}</p>
+                                                <p className="text-sm text-slate-500 mt-1 line-clamp-2">{j.category_name || (typeof j.category === 'object' && j.category?.name) || j.category}</p>
                                             )}
                                         </div>
                                     </div>
-                                    <div className="flex flex-wrap gap-2 justify-end mt-auto pt-2 border-t border-white/10">
+                                    <div className="flex flex-wrap gap-2 justify-end mt-auto pt-2 border-t border-slate-200/90">
                                         <Button
                                             variant="secondary"
                                             className="text-sm"
@@ -728,26 +728,26 @@ const Dashboard: React.FC = () => {
         return (
             <div className="space-y-8 pb-10">
                 {/* Hero */}
-                <div className="dashboard-animate-in relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600/25 via-indigo-600/15 to-violet-600/25 px-6 sm:px-8 py-8 sm:py-10">
+                <div className="dashboard-animate-in relative overflow-hidden rounded-3xl border border-slate-200/90 bg-gradient-to-br from-blue-600/25 via-indigo-600/15 to-violet-600/25 px-6 sm:px-8 py-8 sm:py-10">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.2),transparent)]" />
                     <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
                     <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                         <div>
                             <p className="text-sm font-medium text-blue-300/90 uppercase tracking-widest">{greeting}</p>
-                            <h1 className="text-2xl sm:text-4xl font-extrabold text-white mt-1 tracking-tight">Platforma boshqaruvi</h1>
-                            <p className="text-gray-400 mt-2 max-w-xl">Statistika, maqolalar va moliya bo‘yicha barcha ko‘rsatkichlar bir joyda.</p>
+                            <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">Platforma boshqaruvi</h1>
+                            <p className="text-slate-500 mt-2 max-w-xl">Statistika, maqolalar va moliya bo‘yicha barcha ko‘rsatkichlar bir joyda.</p>
                         </div>
                         <div className="flex flex-wrap gap-3">
-                            <Link to="/articles" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105">
+                            <Link to="/articles" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-slate-200/90 text-slate-900 text-sm font-medium transition-all hover:scale-105">
                                 <FileText size={18} /> Maqolalar
                             </Link>
-                            <Link to="/users" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105">
+                            <Link to="/users" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-slate-200/90 text-slate-900 text-sm font-medium transition-all hover:scale-105">
                                 <Users size={18} /> Foydalanuvchilar
                             </Link>
-                            <Link to="/financials" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105">
+                            <Link to="/financials" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-slate-200/90 text-slate-900 text-sm font-medium transition-all hover:scale-105">
                                 <DollarSign size={18} /> Moliya
                             </Link>
-                            <Link to="/journal-management" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105">
+                            <Link to="/journal-management" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-slate-200/90 text-slate-900 text-sm font-medium transition-all hover:scale-105">
                                 <BarChart3 size={18} /> Jurnallar
                             </Link>
                         </div>
@@ -770,14 +770,14 @@ const Dashboard: React.FC = () => {
 
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="dashboard-animate-in dashboard-animate-in-3 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl shadow-xl">
+                    <div className="dashboard-animate-in dashboard-animate-in-3 overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl shadow-xl">
                         <div className="h-1.5 bg-gradient-to-r from-blue-500 to-cyan-400" />
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className="p-2.5 rounded-xl bg-blue-500/20">
                                     <PieChartIcon className="h-6 w-6 text-blue-400" />
                                 </div>
-                                <h3 className="text-lg font-bold text-white">Maqolalar holati</h3>
+                                <h3 className="text-lg font-bold text-slate-900">Maqolalar holati</h3>
                             </div>
                             <div className="w-full" style={{ minHeight: 256, height: 256 }}>
                                 <ResponsiveContainer width="100%" height={256}>
@@ -788,39 +788,39 @@ const Dashboard: React.FC = () => {
                                                 <Cell key={index} fill={entry.color} stroke="rgba(0,0,0,0.25)" strokeWidth={2} />
                                             ))}
                                         </Pie>
-                                        <Tooltip formatter={(value: number) => [value, 'ta']} contentStyle={{ backgroundColor: 'rgba(17,24,39,0.98)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', padding: '12px 16px' }} labelStyle={{ color: '#e5e7eb' }} />
+                                        <Tooltip formatter={(value: number) => [value, 'ta']} contentStyle={{ backgroundColor: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(12px)', border: '1px solid rgba(148,163,184,0.35)', borderRadius: '12px', padding: '12px 16px', boxShadow: '0 12px 40px -12px rgba(15,23,42,0.15)' }} labelStyle={{ color: '#0f172a', fontWeight: 600 }} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div className="flex flex-wrap gap-4 justify-center pt-4 border-t border-white/10">
+                            <div className="flex flex-wrap gap-4 justify-center pt-4 border-t border-slate-200/90">
                                 {[{ l: 'Yangi', c: 'bg-blue-500', v: newSubmissions }, { l: 'Taqrizda', c: 'bg-amber-500', v: inReview }, { l: 'Nashr', c: 'bg-green-500', v: published }, { l: 'Rad', c: 'bg-red-500', v: rejected }].map(({ l, c, v }) => (
-                                    <span key={l} className="inline-flex items-center gap-2 text-sm text-gray-400"><span className={`w-2.5 h-2.5 rounded-full ${c} shadow-sm`} /> {l}: <span className="font-semibold text-white">{v}</span></span>
+                                    <span key={l} className="inline-flex items-center gap-2 text-sm text-slate-500"><span className={`w-2.5 h-2.5 rounded-full ${c} shadow-sm`} /> {l}: <span className="font-semibold text-slate-900">{v}</span></span>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    <div className="dashboard-animate-in dashboard-animate-in-4 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl shadow-xl">
+                    <div className="dashboard-animate-in dashboard-animate-in-4 overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl shadow-xl">
                         <div className="h-1.5 bg-gradient-to-r from-cyan-500 to-blue-500" />
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className="p-2.5 rounded-xl bg-cyan-500/20">
                                     <BarChart3 className="h-6 w-6 text-cyan-400" />
                                 </div>
-                                <h3 className="text-lg font-bold text-white">Kitob buyurtmalari</h3>
+                                <h3 className="text-lg font-bold text-slate-900">Kitob buyurtmalari</h3>
                             </div>
                             <div className="w-full" style={{ minHeight: 256, height: 256 }}>
                                 <ResponsiveContainer width="100%" height={256}>
                                     <BarChart data={bookOrdersData} layout="vertical" margin={{ top: 5, right: 24, left: 0, bottom: 5 }}>
-                                        <XAxis type="number" tick={{ fill: '#9ca3af', fontSize: 11 }} />
-                                        <YAxis type="category" dataKey="name" width={90} tick={{ fill: '#d1d5db', fontSize: 12 }} />
-                                        <Tooltip contentStyle={{ backgroundColor: 'rgba(17,24,39,0.98)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px' }} />
+                                        <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} />
+                                        <YAxis type="category" dataKey="name" width={90} tick={{ fill: '#475569', fontSize: 12 }} />
+                                        <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.94)', backdropFilter: 'blur(12px)', border: '1px solid rgba(148,163,184,0.35)', borderRadius: '12px', boxShadow: '0 12px 40px -12px rgba(15,23,42,0.15)' }} labelStyle={{ color: '#0f172a', fontWeight: 600 }} />
                                         <Bar dataKey="soni" name="Soni" radius={[0, 6, 6, 0]}>{bookOrdersData.map((entry, index) => (<Cell key={index} fill={entry.fill} />))}</Bar>
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div className="flex justify-between items-center text-sm pt-4 border-t border-white/10">
-                                <span className="text-gray-400">Jami: <span className="font-semibold text-white">{bookOrdersTotal}</span></span>
+                            <div className="flex justify-between items-center text-sm pt-4 border-t border-slate-200/90">
+                                <span className="text-slate-500">Jami: <span className="font-semibold text-slate-900">{bookOrdersTotal}</span></span>
                                 <span className="font-semibold text-green-400">Tushum: {(bookTotalRevenue / 1000).toFixed(0)}k so'm</span>
                             </div>
                         </div>
@@ -841,23 +841,23 @@ const Dashboard: React.FC = () => {
 
                 {/* Two columns + Recent */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 dashboard-animate-in overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
+                    <div className="lg:col-span-2 dashboard-animate-in overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 rounded-xl bg-blue-500/20"><Eye className="h-5 w-5 text-blue-400" /></div>
-                            <h3 className="text-lg font-bold text-white">Eng ko‘p ko‘rilgan maqolalar</h3>
+                            <h3 className="text-lg font-bold text-slate-900">Eng ko‘p ko‘rilgan maqolalar</h3>
                         </div>
                         <div className="space-y-2">
                             {topArticles.length > 0 ? topArticles.map((a: any, i: number) => {
-                                const rankStyle = i === 0 ? 'bg-amber-500/30 text-amber-300 border-amber-500/50' : i === 1 ? 'bg-gray-400/30 text-gray-300 border-gray-400/50' : i === 2 ? 'bg-orange-600/30 text-orange-300 border-orange-500/50' : 'bg-white/10 text-gray-400 border-white/10';
+                                const rankStyle = i === 0 ? 'bg-amber-500/30 text-amber-300 border-amber-500/50' : i === 1 ? 'bg-gray-400/30 text-slate-600 border-gray-400/50' : i === 2 ? 'bg-orange-600/30 text-orange-300 border-orange-500/50' : 'bg-white/10 text-slate-500 border-slate-200/90';
                                 return (
-                                    <Link key={a.id} to={`/articles/${a.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all duration-200 group">
+                                    <Link key={a.id} to={`/articles/${a.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-slate-100/70 hover:bg-white/10 border border-transparent hover:border-slate-200/90 transition-all duration-200 group">
                                         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold ${rankStyle}`}>{i + 1}</span>
-                                        <span className="flex-1 text-sm text-white truncate group-hover:text-blue-300">{a.title}</span>
+                                        <span className="flex-1 text-sm text-slate-900 truncate group-hover:text-blue-300">{a.title}</span>
                                         <span className="flex items-center gap-1 text-sm font-medium text-blue-400 shrink-0"><Eye size={14} /> {a.views_count || 0}</span>
                                     </Link>
                                 );
                             }) : (
-                                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                                <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                                     <FileText className="h-12 w-12 mb-3 opacity-50" />
                                     <p className="text-sm">Hozircha maqolalar yo‘q</p>
                                 </div>
@@ -865,10 +865,10 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="dashboard-animate-in overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
+                    <div className="dashboard-animate-in overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 rounded-xl bg-indigo-500/20"><UserCheck className="h-5 w-5 text-indigo-400" /></div>
-                            <h3 className="text-lg font-bold text-white">Jurnal adminlari</h3>
+                            <h3 className="text-lg font-bold text-slate-900">Jurnal adminlari</h3>
                         </div>
                         <div className="space-y-3">
                             {journalAdmins.length > 0 ? journalAdmins.map((admin: any) => {
@@ -890,22 +890,22 @@ const Dashboard: React.FC = () => {
                                     return aj && mJournalIds.includes(aj) && a.status === 'Published';
                                 }).length;
                                 return (
-                                    <div key={admin.id} className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/10 transition-all">
+                                    <div key={admin.id} className="flex items-center gap-4 p-3 rounded-xl bg-slate-100/70 hover:bg-white/10 border border-transparent hover:border-slate-200/90 transition-all">
                                         {admin.avatar_url || admin.avatarUrl ? (
-                                            <img src={admin.avatar_url || admin.avatarUrl} alt="" className="h-11 w-11 rounded-full object-cover ring-2 ring-white/10 hover:ring-indigo-400/50 transition-all" />
+                                            <img src={admin.avatar_url || admin.avatarUrl} alt="" className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-200/80 hover:ring-indigo-400/50 transition-all" />
                                         ) : (
-                                            <div className="h-11 w-11 rounded-full bg-indigo-500/30 ring-2 ring-white/10 flex items-center justify-center text-white font-bold text-sm">
+                                            <div className="h-11 w-11 rounded-full bg-indigo-500/30 ring-2 ring-slate-200/80 flex items-center justify-center text-white font-bold text-sm">
                                                 {(admin.first_name || admin.firstName || '?')[0]}{(admin.last_name || admin.lastName || '')[0]}
                                             </div>
                                         )}
                                         <div className="min-w-0 flex-1">
-                                            <p className="font-semibold text-white truncate">{admin.first_name || admin.firstName} {admin.last_name || admin.lastName}</p>
-                                            <p className="text-xs text-gray-400">Nashrlar: <span className="text-indigo-300 font-semibold">{pubCount}</span></p>
+                                            <p className="font-semibold text-slate-900 truncate">{admin.first_name || admin.firstName} {admin.last_name || admin.lastName}</p>
+                                            <p className="text-xs text-slate-500">Nashrlar: <span className="text-indigo-300 font-semibold">{pubCount}</span></p>
                                         </div>
                                     </div>
                                 );
                             }) : (
-                                <div className="flex flex-col items-center justify-center py-10 text-gray-500">
+                                <div className="flex flex-col items-center justify-center py-10 text-slate-500">
                                     <Users className="h-10 w-10 mb-2 opacity-50" />
                                     <p className="text-sm">Ro‘yxat bo‘sh</p>
                                 </div>
@@ -916,10 +916,10 @@ const Dashboard: React.FC = () => {
 
                 {/* Recent transactions + User stats */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="dashboard-animate-in overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
+                    <div className="dashboard-animate-in overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 rounded-xl bg-emerald-500/20"><Wallet className="h-5 w-5 text-emerald-400" /></div>
-                            <h3 className="text-lg font-bold text-white">So‘ngi to‘lovlar</h3>
+                            <h3 className="text-lg font-bold text-slate-900">So‘ngi to‘lovlar</h3>
                             <Link to="/financials" className="ml-auto text-sm text-blue-400 hover:text-blue-300 font-medium">Barchasi →</Link>
                         </div>
                         <div className="space-y-2">
@@ -929,14 +929,14 @@ const Dashboard: React.FC = () => {
                                 const isPending = t.status === 'pending';
                                 const amountStr = `${isFailed ? '' : '+'}${Number(t.amount || 0).toLocaleString()} so'm`;
                                 return (
-                                    <div key={t.id} className="flex flex-col gap-1 p-3 rounded-xl bg-white/5">
+                                    <div key={t.id} className="flex flex-col gap-1 p-3 rounded-xl bg-slate-100/70">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm text-gray-400">{serviceLabels[t.service_type] || t.service_type}</span>
+                                            <span className="text-sm text-slate-500">{serviceLabels[t.service_type] || t.service_type}</span>
                                             <span className={`text-sm font-semibold ${
                                                 isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400'
                                             }`}>
                                                 {amountStr}
-                                                {isPending && <span className="text-xs font-normal text-gray-500 ml-1">(kutilmoqda)</span>}
+                                                {isPending && <span className="text-xs font-normal text-slate-500 ml-1">(kutilmoqda)</span>}
                                             </span>
                                         </div>
                                         {isFailed && (
@@ -945,7 +945,7 @@ const Dashboard: React.FC = () => {
                                     </div>
                                 );
                             }) : (
-                                <p className="text-center text-gray-500 py-6 text-sm">Tranzaksiyalar yo‘q</p>
+                                <p className="text-center text-slate-500 py-6 text-sm">Tranzaksiyalar yo‘q</p>
                             )}
                         </div>
                     </div>
@@ -991,8 +991,8 @@ const Dashboard: React.FC = () => {
 
         return (
             <div className="space-y-8">
-                <h2 className="text-3xl font-bold text-white">Moliyachi Boshqaruv Paneli</h2>
-                <p className="text-gray-300 -mt-6">Platformaning moliyaviy holatini kuzatib boring.</p>
+                <h2 className="text-3xl font-bold text-slate-900">Moliyachi Boshqaruv Paneli</h2>
+                <p className="text-slate-600 -mt-6">Platformaning moliyaviy holatini kuzatib boring.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                    <StatCard icon={DollarSign} title="Jami Tushum" value={`${(totalRevenue / 1000).toFixed(0)}k so'm`} gradient="bg-gradient-to-r from-green-500 to-emerald-400" to="/financials" />
                    <StatCard icon={Wallet} title="Bugungi Tushum" value={`${revenueToday.toLocaleString()} so'm`} gradient="bg-gradient-to-r from-blue-500 to-cyan-400" to="/financials" />
@@ -1011,20 +1011,20 @@ const Dashboard: React.FC = () => {
                                 const isPending = transaction.status === 'pending';
                                 const amountStr = `${isFailed ? '' : '+'}${Number(transaction.amount || 0).toLocaleString()} so'm`;
                                 return (
-                                    <div key={transaction.id} className="p-4 bg-white/5 rounded-lg">
+                                    <div key={transaction.id} className="p-4 bg-slate-100/70 rounded-lg">
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <p className="font-medium text-white">{userName}</p>
-                                                <p className="text-sm text-gray-400">
+                                                <p className="font-medium text-slate-900">{userName}</p>
+                                                <p className="text-sm text-slate-500">
                                                     {serviceTypeNames[transaction.service_type] || transaction.service_type || 'Noma\'lum xizmat'}
                                                 </p>
                                             </div>
                                             <div className="text-right">
                                                 <p className={`font-medium ${isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400'}`}>
                                                     {amountStr}
-                                                    {isPending && <span className="text-xs font-normal text-gray-500 ml-1">(kutilmoqda)</span>}
+                                                    {isPending && <span className="text-xs font-normal text-slate-500 ml-1">(kutilmoqda)</span>}
                                                 </p>
-                                                <p className="text-xs text-gray-400">
+                                                <p className="text-xs text-slate-500">
                                                     {new Date(transaction.created_at).toLocaleDateString()}
                                                 </p>
                                             </div>
@@ -1037,7 +1037,7 @@ const Dashboard: React.FC = () => {
                             })}
                             
                             {validTransactions.length === 0 && (
-                                <p className="text-center text-gray-400 py-4">Hozircha tranzaksiyalar mavjud emas.</p>
+                                <p className="text-center text-slate-500 py-4">Hozircha tranzaksiyalar mavjud emas.</p>
                             )}
                         </div>
                     </Card>
@@ -1045,27 +1045,27 @@ const Dashboard: React.FC = () => {
                     <Card title="To'lov Statistikasi">
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                                <span className="text-gray-300">Muvaffaqiyatli to'lovlar</span>
-                                <span className="font-medium text-white">
+                                <span className="text-slate-600">Muvaffaqiyatli to'lovlar</span>
+                                <span className="font-medium text-slate-900">
                                     {validTransactions.filter(t => t.status === 'completed').length}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-gray-300">Kutilayotgan to'lovlar</span>
-                                <span className="font-medium text-white">
+                                <span className="text-slate-600">Kutilayotgan to'lovlar</span>
+                                <span className="font-medium text-slate-900">
                                     {validTransactions.filter(t => t.status === 'pending').length}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center">
-                                <span className="text-gray-300">Muvaffaqiyatsiz to'lovlar</span>
-                                <span className="font-medium text-white">
+                                <span className="text-slate-600">Muvaffaqiyatsiz to'lovlar</span>
+                                <span className="font-medium text-slate-900">
                                     {validTransactions.filter(t => t.status === 'failed').length}
                                 </span>
                             </div>
-                            <div className="pt-4 mt-4 border-t border-white/10">
+                            <div className="pt-4 mt-4 border-t border-slate-200/90">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-300">Umumiy tranzaksiyalar</span>
-                                    <span className="font-bold text-white">{validTransactions.length}</span>
+                                    <span className="text-slate-600">Umumiy tranzaksiyalar</span>
+                                    <span className="font-bold text-slate-900">{validTransactions.length}</span>
                                 </div>
                             </div>
                         </div>
@@ -1076,7 +1076,7 @@ const Dashboard: React.FC = () => {
                     <div className="flex flex-wrap gap-4 justify-center">
                         <Link
                             to="/financials"
-                            className="inline-flex items-center justify-center px-6 py-3 font-semibold rounded-full bg-white/10 text-white hover:bg-white/20 border border-white/10 focus:ring-4 focus:ring-white/30 transition-all duration-200"
+                            className="inline-flex items-center justify-center px-6 py-3 font-semibold rounded-full bg-white/10 text-slate-900 hover:bg-white/20 border border-slate-200/90 focus:ring-4 focus:ring-white/30 transition-all duration-200"
                         >
                             Batafsil Moliyaviy Hisobot <ArrowRight className="ml-2 h-4 w-4"/>
                         </Link>
@@ -1095,7 +1095,7 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-blue-300 mb-1">Jami so'rovlar</p>
-                                <p className="text-3xl font-bold text-white">{stats?.totalRequests || 0}</p>
+                                <p className="text-3xl font-bold text-slate-900">{stats?.totalRequests || 0}</p>
                             </div>
                             <FileText className="w-12 h-12 text-blue-400 opacity-50" />
                         </div>
@@ -1105,7 +1105,7 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-yellow-300 mb-1">Tekshiruvda</p>
-                                <p className="text-3xl font-bold text-white">{stats?.pendingRequests || 0}</p>
+                                <p className="text-3xl font-bold text-slate-900">{stats?.pendingRequests || 0}</p>
                             </div>
                             <Clock className="w-12 h-12 text-yellow-400 opacity-50" />
                         </div>
@@ -1115,7 +1115,7 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-green-300 mb-1">Yakunlangan</p>
-                                <p className="text-3xl font-bold text-white">{stats?.completedRequests || 0}</p>
+                                <p className="text-3xl font-bold text-slate-900">{stats?.completedRequests || 0}</p>
                             </div>
                             <CheckCircle className="w-12 h-12 text-green-400 opacity-50" />
                         </div>
@@ -1125,7 +1125,7 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-purple-300 mb-1">Rad etilgan</p>
-                                <p className="text-3xl font-bold text-white">{stats?.rejectedRequests || 0}</p>
+                                <p className="text-3xl font-bold text-slate-900">{stats?.rejectedRequests || 0}</p>
                             </div>
                             <XCircle className="w-12 h-12 text-purple-400 opacity-50" />
                         </div>
@@ -1161,7 +1161,7 @@ const Dashboard: React.FC = () => {
 
                 {/* Recent Requests */}
                 <Card title="Oxirgi So'rovlar">
-                    <p className="text-gray-300">Bu yerda oxirgi so'rovlar ko'rsatiladi...</p>
+                    <p className="text-slate-600">Bu yerda oxirgi so'rovlar ko'rsatiladi...</p>
                 </Card>
             </div>
         );
@@ -1169,8 +1169,8 @@ const Dashboard: React.FC = () => {
 
     const renderDefaultDashboard = () => (
         <Card>
-            <h2 className="text-3xl font-bold text-white">Xush kelibsiz, {user.firstName}!</h2>
-            <p className="text-gray-300 mt-2">PINM tizimiga xush kelibsiz. Ishlaringizni boshqarish uchun yon menyudan foydalaning.</p>
+            <h2 className="text-3xl font-bold text-slate-900">Xush kelibsiz, {user.firstName}!</h2>
+            <p className="text-slate-600 mt-2">PINM tizimiga xush kelibsiz. Ishlaringizni boshqarish uchun yon menyudan foydalaning.</p>
         </Card>
     );
 

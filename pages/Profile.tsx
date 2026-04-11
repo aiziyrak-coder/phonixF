@@ -204,22 +204,22 @@ const Profile: React.FC = () => {
                                 <img 
                                     src={profile.avatar_url} 
                                     alt="Avatar" 
-                                    className="h-32 w-32 rounded-full object-cover border-4 border-white/10"
+                                    className="h-32 w-32 rounded-full object-cover border-4 border-slate-200/90"
                                 />
                             ) : (
-                                <div className="h-32 w-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center border-4 border-white/10">
-                                    <User className="h-16 w-16 text-white" />
+                                <div className="h-32 w-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center border-4 border-slate-200/90">
+                                    <User className="h-16 w-16 text-slate-900" />
                                 </div>
                             )}
                             <button className="absolute bottom-2 right-2 p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors">
-                                <Edit className="h-4 w-4 text-white" />
+                                <Edit className="h-4 w-4 text-slate-900" />
                             </button>
                         </div>
                         <div className="mt-4 text-center">
-                            <h2 className="text-xl font-bold text-white">
+                            <h2 className="text-xl font-bold text-slate-900">
                                 {profile.first_name} {profile.last_name} {profile.patronymic}
                             </h2>
-                            <p className="text-gray-400">{roleNames[profile.role] || profile.role}</p>
+                            <p className="text-slate-500">{roleNames[profile.role] || profile.role}</p>
                         </div>
                     </div>
                     
@@ -228,7 +228,7 @@ const Profile: React.FC = () => {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Ism</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Ism</label>
                                         <input
                                             type="text"
                                             name="first_name"
@@ -239,7 +239,7 @@ const Profile: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Familiya</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Familiya</label>
                                         <input
                                             type="text"
                                             name="last_name"
@@ -250,7 +250,7 @@ const Profile: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Otasining ismi</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Otasining ismi</label>
                                         <input
                                             type="text"
                                             name="patronymic"
@@ -260,9 +260,9 @@ const Profile: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Telefon</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Telefon</label>
                                         <div className="flex">
-                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-white/10 bg-white/5 text-gray-300">
+                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-200/90 bg-slate-100/70 text-slate-600">
                                                 +998
                                             </span>
                                             <input
@@ -276,7 +276,7 @@ const Profile: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Email</label>
                                         <input
                                             type="email"
                                             name="email"
@@ -287,7 +287,7 @@ const Profile: React.FC = () => {
                                         />
                                     </div>
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Ish yoki o'qish joyi</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Ish yoki o'qish joyi</label>
                                         <input
                                             type="text"
                                             name="affiliation"
@@ -298,7 +298,7 @@ const Profile: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">ORCID ID</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">ORCID ID</label>
                                         <input
                                             type="text"
                                             name="orcid_id"
@@ -308,9 +308,9 @@ const Profile: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-300 mb-2">Telegram</label>
+                                        <label className="block text-sm font-medium text-slate-600 mb-2">Telegram</label>
                                         <div className="flex">
-                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-white/10 bg-white/5 text-gray-300">
+                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-slate-200/90 bg-slate-100/70 text-slate-600">
                                                 @
                                             </span>
                                             <input
@@ -338,54 +338,54 @@ const Profile: React.FC = () => {
                         ) : (
                             <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="flex items-center p-3 bg-white/5 rounded-lg">
+                                    <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
                                         <User className="h-5 w-5 text-blue-400 mr-3" />
                                         <div>
-                                            <p className="text-sm text-gray-400">To'liq ism</p>
-                                            <p className="text-white">{profile.first_name} {profile.last_name} {profile.patronymic}</p>
+                                            <p className="text-sm text-slate-500">To'liq ism</p>
+                                            <p className="text-slate-900">{profile.first_name} {profile.last_name} {profile.patronymic}</p>
                                         </div>
                                     </div>
                                     
-                                    <div className="flex items-center p-3 bg-white/5 rounded-lg">
+                                    <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
                                         <Mail className="h-5 w-5 text-green-400 mr-3" />
                                         <div>
-                                            <p className="text-sm text-gray-400">Email</p>
-                                            <p className="text-white">{profile.email}</p>
+                                            <p className="text-sm text-slate-500">Email</p>
+                                            <p className="text-slate-900">{profile.email}</p>
                                         </div>
                                     </div>
                                     
-                                    <div className="flex items-center p-3 bg-white/5 rounded-lg">
+                                    <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
                                         <Phone className="h-5 w-5 text-purple-400 mr-3" />
                                         <div>
-                                            <p className="text-sm text-gray-400">Telefon</p>
-                                            <p className="text-white">{profile.phone}</p>
+                                            <p className="text-sm text-slate-500">Telefon</p>
+                                            <p className="text-slate-900">{profile.phone}</p>
                                         </div>
                                     </div>
                                     
-                                    <div className="flex items-center p-3 bg-white/5 rounded-lg">
+                                    <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
                                         <Building className="h-5 w-5 text-yellow-400 mr-3" />
                                         <div>
-                                            <p className="text-sm text-gray-400">Tashkilot</p>
-                                            <p className="text-white">{profile.affiliation}</p>
+                                            <p className="text-sm text-slate-500">Tashkilot</p>
+                                            <p className="text-slate-900">{profile.affiliation}</p>
                                         </div>
                                     </div>
                                     
                                     {profile.orcid_id && (
-                                        <div className="flex items-center p-3 bg-white/5 rounded-lg">
+                                        <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
                                             <Hash className="h-5 w-5 text-red-400 mr-3" />
                                             <div>
-                                                <p className="text-sm text-gray-400">ORCID ID</p>
-                                                <p className="text-white">{profile.orcid_id}</p>
+                                                <p className="text-sm text-slate-500">ORCID ID</p>
+                                                <p className="text-slate-900">{profile.orcid_id}</p>
                                             </div>
                                         </div>
                                     )}
                                     
                                     {profile.telegram_username && (
-                                        <div className="flex items-center p-3 bg-white/5 rounded-lg">
+                                        <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
                                             <span className="text-lg mr-3">@</span>
                                             <div>
-                                                <p className="text-sm text-gray-400">Telegram</p>
-                                                <p className="text-white">{profile.telegram_username}</p>
+                                                <p className="text-sm text-slate-500">Telegram</p>
+                                                <p className="text-slate-900">{profile.telegram_username}</p>
                                             </div>
                                         </div>
                                     )}
@@ -404,7 +404,7 @@ const Profile: React.FC = () => {
 
             {profile.role === 'author' && (
                 <Card title="Arxiv hujjatlar">
-                    <p className="text-gray-400 text-sm mb-3">
+                    <p className="text-slate-500 text-sm mb-3">
                         Barcha maqolalar, UDK ma&apos;lumotnomalar, nashr sertifikatlari va taqriz natijalari alohida sahifada.
                     </p>
                     <Button variant="secondary" onClick={() => navigate('/arxiv')}>
@@ -416,34 +416,34 @@ const Profile: React.FC = () => {
             {profile.gamification_profile && (
                 <Card title="Gamifikatsiya">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center p-6 bg-white/5 rounded-lg">
+                        <div className="text-center p-6 bg-slate-100/70 rounded-lg">
                             <div className="inline-flex items-center justify-center p-3 rounded-full bg-blue-500/20 mb-4">
                                 <Award className="h-8 w-8 text-blue-400" />
                             </div>
-                            <h3 className="text-lg font-semibold text-white">{profile.gamification_profile.level}</h3>
-                            <p className="text-gray-400">Daraja</p>
+                            <h3 className="text-lg font-semibold text-slate-900">{profile.gamification_profile.level}</h3>
+                            <p className="text-slate-500">Daraja</p>
                         </div>
                         
-                        <div className="text-center p-6 bg-white/5 rounded-lg">
+                        <div className="text-center p-6 bg-slate-100/70 rounded-lg">
                             <div className="inline-flex items-center justify-center p-3 rounded-full bg-yellow-500/20 mb-4">
                                 <Award className="h-8 w-8 text-yellow-400" />
                             </div>
-                            <h3 className="text-lg font-semibold text-white">{profile.gamification_profile.points}</h3>
-                            <p className="text-gray-400">Ballar</p>
+                            <h3 className="text-lg font-semibold text-slate-900">{profile.gamification_profile.points}</h3>
+                            <p className="text-slate-500">Ballar</p>
                         </div>
                         
-                        <div className="text-center p-6 bg-white/5 rounded-lg">
+                        <div className="text-center p-6 bg-slate-100/70 rounded-lg">
                             <div className="inline-flex items-center justify-center p-3 rounded-full bg-purple-500/20 mb-4">
                                 <Award className="h-8 w-8 text-purple-400" />
                             </div>
-                            <h3 className="text-lg font-semibold text-white">{profile.gamification_profile.badges.length}</h3>
-                            <p className="text-gray-400">Mukofotlar</p>
+                            <h3 className="text-lg font-semibold text-slate-900">{profile.gamification_profile.badges.length}</h3>
+                            <p className="text-slate-500">Mukofotlar</p>
                         </div>
                     </div>
                     
                     {profile.gamification_profile.badges.length > 0 && (
                         <div className="mt-6">
-                            <h4 className="text-md font-semibold text-white mb-3">Mukofotlar</h4>
+                            <h4 className="text-md font-semibold text-slate-900 mb-3">Mukofotlar</h4>
                             <div className="flex flex-wrap gap-2">
                                 {profile.gamification_profile.badges.map((badge: string, index: number) => (
                                     <span key={index} className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 rounded-full text-sm">
@@ -460,7 +460,7 @@ const Profile: React.FC = () => {
                 <div className="space-y-4">
                     <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
                         <h3 className="text-sm font-medium text-blue-300 mb-2">Test To'lov</h3>
-                        <p className="text-xs text-gray-400 mb-3">
+                        <p className="text-xs text-slate-500 mb-3">
                             Click to'lov tizimini sinab ko'rish uchun 1000 so'm miqdorida test to'lovini amalga oshirish mumkin.
                         </p>
                         
@@ -480,13 +480,13 @@ const Profile: React.FC = () => {
                         </Button>
                         
                         {processingPayment && (
-                            <div className="text-xs text-gray-400 text-center">
+                            <div className="text-xs text-slate-500 text-center">
                                 To'lov tayyorlanmoqda, iltimos kuting...
                             </div>
                         )}
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-white/10">
+                    <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200/90">
                         <Button variant="danger" onClick={logout}>
                             Chiqish
                         </Button>

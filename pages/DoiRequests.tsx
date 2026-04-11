@@ -74,8 +74,8 @@ const DoiRequests: React.FC = () => {
             <Bot className="h-6 w-6 text-cyan-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">DOI so'rovlari</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-xl font-bold text-slate-900">DOI so'rovlari</h1>
+            <p className="text-sm text-slate-500">
               {isReviewer
                 ? "Mualliflar DOI raqami olish uchun yuborgan so'rovlar. Saytdan DOI raqamini oling, taqrizchi linkini kiriting va saqlang — muallif arxivida ko'radi va bildirishnoma oladi."
                 : "Sizning DOI so'rovlaringiz. Taqrizchi link kiritgach shu yerda va arxivda ko'rinadi."}
@@ -84,19 +84,19 @@ const DoiRequests: React.FC = () => {
         </div>
 
         {loading ? (
-          <p className="text-gray-400">Yuklanmoqda…</p>
+          <p className="text-slate-500">Yuklanmoqda…</p>
         ) : list.length === 0 ? (
-          <p className="text-gray-400">So'rovlar yo'q.</p>
+          <p className="text-slate-500">So'rovlar yo'q.</p>
         ) : (
           <div className="space-y-4">
             {list.map((req) => (
               <div
                 key={req.id}
-                className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center gap-4"
+                className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center gap-4"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-white truncate">{req.author_short}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="font-medium text-slate-900 truncate">{req.author_short}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
                     {new Date(req.created_at).toLocaleDateString('uz-UZ')} · {req.status === 'submitted' ? 'Taqrizchida' : req.status === 'completed' ? 'Yakunlangan' : req.status}
                   </p>
                   {req.file_url && (
@@ -127,7 +127,7 @@ const DoiRequests: React.FC = () => {
                       value={linkInputs[req.id] ?? ''}
                       onChange={(e) => setLinkInputs((prev) => ({ ...prev, [req.id]: e.target.value }))}
                       placeholder="https://..."
-                      className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 min-w-[200px]"
+                      className="px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 min-w-[200px]"
                     />
                     <Button
                       onClick={() => handleSaveLink(req.id)}

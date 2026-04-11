@@ -149,7 +149,7 @@ const Prices: React.FC = () => {
     if (!user || user.role !== 'super_admin') {
         return (
             <div className="text-center py-12">
-                <p className="text-gray-400">Bu sahifaga faqat bosh administrator kirishi mumkin.</p>
+                <p className="text-slate-500">Bu sahifaga faqat bosh administrator kirishi mumkin.</p>
             </div>
         );
     }
@@ -165,8 +165,8 @@ const Prices: React.FC = () => {
                             <DollarSign className="h-6 w-6 text-green-400" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-white">Barcha Narxlar</h1>
-                            <p className="text-sm text-gray-400">
+                            <h1 className="text-xl font-bold text-slate-900">Barcha Narxlar</h1>
+                            <p className="text-sm text-slate-500">
                                 Xizmat va jurnal narxlarini boshqarish
                             </p>
                         </div>
@@ -174,13 +174,13 @@ const Prices: React.FC = () => {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex gap-2 mb-6 border-b border-white/10">
+                <div className="flex gap-2 mb-6 border-b border-slate-200/90">
                     <button
                         onClick={() => setActiveTab('services')}
                         className={`px-4 py-2 text-sm font-medium transition-colors ${
                             activeTab === 'services'
                                 ? 'text-green-400 border-b-2 border-green-400'
-                                : 'text-gray-400 hover:text-white'
+                                : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
                         Xizmat Narxlari ({servicePrices.length})
@@ -190,7 +190,7 @@ const Prices: React.FC = () => {
                         className={`px-4 py-2 text-sm font-medium transition-colors ${
                             activeTab === 'journals'
                                 ? 'text-blue-400 border-b-2 border-blue-400'
-                                : 'text-gray-400 hover:text-white'
+                                : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
                         Jurnal Narxlari ({journalPrices.length})
@@ -208,9 +208,9 @@ const Prices: React.FC = () => {
                             <div className="space-y-6">
                                 {Object.entries(groupedServices).map(([category, categoryPrices]) => (
                                     <div key={category}>
-                                        <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                                        <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
                                             {category}
-                                            <span className="text-xs px-2 py-1 rounded bg-white/10 text-gray-300">
+                                            <span className="text-xs px-2 py-1 rounded bg-white/10 text-slate-600">
                                                 {categoryPrices.length} ta xizmat
                                             </span>
                                         </h3>
@@ -218,11 +218,11 @@ const Prices: React.FC = () => {
                                             {categoryPrices.map((price) => (
                                                 <div
                                                     key={price.id}
-                                                    className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/30 transition-colors"
+                                                    className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 hover:border-green-500/30 transition-colors"
                                                 >
                                                     <div className="mb-3">
-                                                        <p className="text-sm font-medium text-gray-300">{price.label}</p>
-                                                        <p className="text-xs text-gray-500 mt-1">{price.service_key}</p>
+                                                        <p className="text-sm font-medium text-slate-600">{price.label}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{price.service_key}</p>
                                                     </div>
                                                     
                                                     {editingServiceId === price.id ? (
@@ -234,7 +234,7 @@ const Prices: React.FC = () => {
                                                                     ...prev,
                                                                     [price.id]: Number(e.target.value)
                                                                 }))}
-                                                                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-green-500"
+                                                                className="w-full px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 focus:ring-2 focus:ring-green-500"
                                                                 min="0"
                                                                 step="1000"
                                                             />
@@ -262,7 +262,7 @@ const Prices: React.FC = () => {
                                                                 <p className="text-lg font-bold text-green-400">
                                                                     {formatPrice(price.amount)}
                                                                 </p>
-                                                                <p className="text-xs text-gray-500 mt-1">
+                                                                <p className="text-xs text-slate-500 mt-1">
                                                                     {new Date(price.updated_at).toLocaleDateString('uz-UZ')}
                                                                 </p>
                                                             </div>
@@ -289,27 +289,27 @@ const Prices: React.FC = () => {
                                 {journalPrices.map((journal) => (
                                     <div
                                         key={journal.id}
-                                        className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-500/30 transition-colors"
+                                        className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 hover:border-blue-500/30 transition-colors"
                                     >
                                         <div className="mb-3">
                                             <div className="flex items-center gap-2">
-                                                <p className="text-lg font-semibold text-white">{journal.name}</p>
+                                                <p className="text-lg font-semibold text-slate-900">{journal.name}</p>
                                                 {journal.issn && (
-                                                    <span className="text-xs px-2 py-1 rounded bg-white/10 text-gray-300">
+                                                    <span className="text-xs px-2 py-1 rounded bg-white/10 text-slate-600">
                                                         ISSN: {journal.issn}
                                                     </span>
                                                 )}
                                             </div>
                                             {journal.category_name && (
-                                                <p className="text-sm text-gray-400 mt-1">Kategoriya: {journal.category_name}</p>
+                                                <p className="text-sm text-slate-500 mt-1">Kategoriya: {journal.category_name}</p>
                                             )}
                                         </div>
                                         
                                         {editingJournalId === journal.id ? (
-                                            <div className="space-y-3 p-4 rounded-lg bg-white/5">
+                                            <div className="space-y-3 p-4 rounded-lg bg-slate-100/70">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div>
-                                                        <label className="block text-sm font-medium text-gray-400 mb-1">
+                                                        <label className="block text-sm font-medium text-slate-500 mb-1">
                                                             Nashr qilish to'lovi
                                                         </label>
                                                         <input
@@ -322,13 +322,13 @@ const Prices: React.FC = () => {
                                                                     publicationFee: Number(e.target.value)
                                                                 }
                                                             }))}
-                                                            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500"
+                                                            className="w-full px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 focus:ring-2 focus:ring-blue-500"
                                                             min="0"
                                                             step="1000"
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label className="block text-sm font-medium text-gray-400 mb-1">
+                                                        <label className="block text-sm font-medium text-slate-500 mb-1">
                                                             Bet narxi
                                                         </label>
                                                         <input
@@ -341,7 +341,7 @@ const Prices: React.FC = () => {
                                                                     pricePerPage: Number(e.target.value)
                                                                 }
                                                             }))}
-                                                            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500"
+                                                            className="w-full px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 focus:ring-2 focus:ring-blue-500"
                                                             min="0"
                                                             step="1000"
                                                         />
@@ -369,13 +369,13 @@ const Prices: React.FC = () => {
                                             <div className="flex items-center justify-between">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
                                                     <div>
-                                                        <p className="text-xs text-gray-400 mb-1">Nashr qilish to'lovi</p>
+                                                        <p className="text-xs text-slate-500 mb-1">Nashr qilish to'lovi</p>
                                                         <p className="text-lg font-bold text-green-400">
                                                             {formatPrice(journal.publicationFee)}
                                                         </p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs text-gray-400 mb-1">Bet narxi</p>
+                                                        <p className="text-xs text-slate-500 mb-1">Bet narxi</p>
                                                         <p className="text-lg font-bold text-cyan-400">
                                                             {formatPrice(journal.pricePerPage)}
                                                         </p>

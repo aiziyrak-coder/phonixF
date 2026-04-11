@@ -57,7 +57,7 @@ const PublicArticleShare: React.FC = () => {
     return (
       <div className="max-w-3xl mx-auto py-10">
         <Card title="Maqola ma'lumotlari yuklanmoqda">
-          <div className="flex items-center justify-center py-12 text-gray-300">
+          <div className="flex items-center justify-center py-12 text-slate-600">
             <Loader2 className="h-6 w-6 animate-spin mr-2" />
             Yuklanmoqda...
           </div>
@@ -82,28 +82,28 @@ const PublicArticleShare: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 py-10 px-4">
+    <div className="min-h-screen bg-slate-50/90 py-10 px-4">
       <div className="max-w-2xl mx-auto">
         <Card title="Nashr etilgan maqola">
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-white leading-snug">{article.title}</h2>
-              <p className="text-sm text-gray-400 mt-1">
-                Muallif: <span className="text-gray-200">{article.author_name || 'Noma’lum'}</span>
+              <h2 className="text-xl font-bold text-slate-900 leading-snug">{article.title}</h2>
+              <p className="text-sm text-slate-500 mt-1">
+                Muallif: <span className="text-slate-700">{article.author_name || 'Noma’lum'}</span>
                 {' · '}
-                Jurnal: <span className="text-gray-200">{article.journal_name || 'Noma’lum'}</span>
+                Jurnal: <span className="text-slate-700">{article.journal_name || 'Noma’lum'}</span>
               </p>
               {article.doi && (
-                <p className="text-sm text-gray-400 mt-0.5">DOI: <span className="text-gray-200">{article.doi}</span></p>
+                <p className="text-sm text-slate-500 mt-0.5">DOI: <span className="text-slate-700">{article.doi}</span></p>
               )}
             </div>
 
             {/* Jurnal linki va sertifikat — share sahifasining asosiy qismi */}
-            <div className="rounded-xl bg-white/5 border border-white/10 p-4 space-y-4">
-              <h3 className="text-sm font-semibold text-gray-300">Nashr natijalari</h3>
+            <div className="rounded-xl bg-slate-100/70 border border-slate-200/90 p-4 space-y-4">
+              <h3 className="text-sm font-semibold text-slate-600">Nashr natijalari</h3>
               {article.publication_link ? (
                 <div>
-                  <p className="text-xs text-gray-400 mb-1">Maqola chop etilgan jurnal havolasi</p>
+                  <p className="text-xs text-slate-500 mb-1">Maqola chop etilgan jurnal havolasi</p>
                   <a
                     href={article.publication_link}
                     target="_blank"
@@ -115,11 +115,11 @@ const PublicArticleShare: React.FC = () => {
                   </a>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">Jurnal havolasi hali kiritilmagan.</p>
+                <p className="text-sm text-slate-500">Jurnal havolasi hali kiritilmagan.</p>
               )}
               {article.certificate_download_link ? (
                 <div>
-                  <p className="text-xs text-gray-400 mb-1">Nashr sertifikati</p>
+                  <p className="text-xs text-slate-500 mb-1">Nashr sertifikati</p>
                   <a
                     href={article.certificate_download_link}
                     target="_blank"
@@ -132,7 +132,7 @@ const PublicArticleShare: React.FC = () => {
                   </a>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">Sertifikat hali yuklanmagan.</p>
+                <p className="text-sm text-slate-500">Sertifikat hali yuklanmagan.</p>
               )}
             </div>
 
@@ -143,15 +143,15 @@ const PublicArticleShare: React.FC = () => {
             )}
 
           <div className="pt-2">
-            <h3 className="text-lg font-semibold text-white mb-3">Antiplagiat tarixi</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-3">Antiplagiat tarixi</h3>
             {Array.isArray(article.plagiarism_history) && article.plagiarism_history.length > 0 ? (
               <div className="space-y-2">
                 {article.plagiarism_history.map((item, index) => (
-                  <div key={`${item.checked_at}-${index}`} className="p-3 rounded-lg bg-white/5 border border-white/10">
-                    <p className="text-xs text-gray-400">
+                  <div key={`${item.checked_at}-${index}`} className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90">
+                    <p className="text-xs text-slate-500">
                       Tekshiruv vaqti: {item.checked_at ? new Date(item.checked_at).toLocaleString() : 'Noma’lum'}
                     </p>
-                    <div className="mt-1 text-sm text-gray-200 flex flex-col sm:flex-row sm:gap-6">
+                    <div className="mt-1 text-sm text-slate-700 flex flex-col sm:flex-row sm:gap-6">
                       <span>Plagiat: <strong>{item.plagiarism_percentage ?? '—'}%</strong></span>
                       <span>AI kontent: <strong>{item.ai_content_percentage ?? '—'}%</strong></span>
                     </div>
@@ -159,7 +159,7 @@ const PublicArticleShare: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="p-3 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-400">
+              <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 text-sm text-slate-500">
                 Hozircha antiplagiat tarixi mavjud emas.
               </div>
             )}

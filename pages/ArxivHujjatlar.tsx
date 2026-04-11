@@ -102,7 +102,7 @@ const ArxivHujjatlar: React.FC = () => {
     if (user.role !== Role.Author) {
         return (
             <Card title="Arxiv hujjatlar">
-                <p className="text-gray-400">Arxiv hujjatlar faqat mualliflar uchun.</p>
+                <p className="text-slate-500">Arxiv hujjatlar faqat mualliflar uchun.</p>
             </Card>
         );
     }
@@ -112,8 +112,8 @@ const ArxivHujjatlar: React.FC = () => {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-white">Arxiv hujjatlar</h1>
-                <p className="text-gray-400 mt-1">
+                <h1 className="text-2xl font-bold text-slate-900">Arxiv hujjatlar</h1>
+                <p className="text-slate-500 mt-1">
                     Barcha maqolalar, UDK ma&apos;lumotnomalar, nashr sertifikatlari va taqriz natijalari shu yerga avtomatik yig&apos;iladi.
                 </p>
             </div>
@@ -124,7 +124,7 @@ const ArxivHujjatlar: React.FC = () => {
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
                     </div>
                 ) : archiveItems.length === 0 ? (
-                    <div className="text-center py-12 text-gray-400">
+                    <div className="text-center py-12 text-slate-500">
                         <FileText className="h-14 w-14 mx-auto mb-3 opacity-50" />
                         <p className="text-lg">Hozircha arxiv hujjatlari yo&apos;q.</p>
                         <p className="text-sm mt-2">Maqola yuborilganda, UDK buyurtma berilganda va taqrizlar yakunlanganda hujjatlar shu yerga qo&apos;shiladi.</p>
@@ -132,11 +132,11 @@ const ArxivHujjatlar: React.FC = () => {
                 ) : (
                     <>
                         <div className="flex flex-wrap items-center gap-2 mb-4">
-                            <Filter className="h-4 w-4 text-gray-400" />
+                            <Filter className="h-4 w-4 text-slate-500" />
                             <select
                                 value={archiveFilter}
                                 onChange={(e) => setArchiveFilter(e.target.value)}
-                                className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                                className="bg-slate-100/70 border border-slate-200/90 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-blue-500"
                             >
                                 <option value="">Barcha turi</option>
                                 {Object.entries(ARCHIVE_TYPE_LABELS).map(([k, v]) => (
@@ -147,19 +147,19 @@ const ArxivHujjatlar: React.FC = () => {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="border-b border-white/10">
-                                        <th className="pb-2 text-sm font-medium text-gray-400">Tur</th>
-                                        <th className="pb-2 text-sm font-medium text-gray-400">Nomi</th>
-                                        <th className="pb-2 text-sm font-medium text-gray-400 hidden sm:table-cell">Sana</th>
-                                        <th className="pb-2 text-sm font-medium text-gray-400 w-32">Amallar</th>
+                                    <tr className="border-b border-slate-200/90">
+                                        <th className="pb-2 text-sm font-medium text-slate-500">Tur</th>
+                                        <th className="pb-2 text-sm font-medium text-slate-500">Nomi</th>
+                                        <th className="pb-2 text-sm font-medium text-slate-500 hidden sm:table-cell">Sana</th>
+                                        <th className="pb-2 text-sm font-medium text-slate-500 w-32">Amallar</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filtered.map((it) => (
-                                        <tr key={it.id} className="border-b border-white/5 hover:bg-white/5">
+                                        <tr key={it.id} className="border-b border-white/5 hover:bg-slate-100/70">
                                             <td className="py-3 text-sm text-blue-300">{ARCHIVE_TYPE_LABELS[it.type] || it.label}</td>
-                                            <td className="py-3 text-white truncate max-w-[200px] sm:max-w-none" title={it.title}>{it.title}</td>
-                                            <td className="py-3 text-sm text-gray-400 hidden sm:table-cell">
+                                            <td className="py-3 text-slate-900 truncate max-w-[200px] sm:max-w-none" title={it.title}>{it.title}</td>
+                                            <td className="py-3 text-sm text-slate-500 hidden sm:table-cell">
                                                 {it.date ? new Date(it.date).toLocaleDateString('uz-UZ') : '—'}
                                             </td>
                                             <td className="py-3">
@@ -186,7 +186,7 @@ const ArxivHujjatlar: React.FC = () => {
                                 </tbody>
                             </table>
                         </div>
-                        <p className="text-xs text-gray-500 mt-3">Jami: {filtered.length} ta hujjat</p>
+                        <p className="text-xs text-slate-500 mt-3">Jami: {filtered.length} ta hujjat</p>
                     </>
                 )}
             </Card>

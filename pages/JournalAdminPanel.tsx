@@ -190,38 +190,38 @@ const JournalAdminPanel: React.FC = () => {
                     <div className="flex items-center justify-center mb-3">
                         <FileText className="h-8 w-8 text-blue-400" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white">{tabCounts.new}</h3>
-                    <p className="text-gray-400">Yangi Kelganlar</p>
+                    <h3 className="text-2xl font-bold text-slate-900">{tabCounts.new}</h3>
+                    <p className="text-slate-500">Yangi Kelganlar</p>
                 </Card>
                 
                 <Card className="text-center">
                     <div className="flex items-center justify-center mb-3">
                         <Clock className="h-8 w-8 text-yellow-400" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white">{tabCounts.pending}</h3>
-                    <p className="text-gray-400">Nashrni kutmoqda</p>
+                    <h3 className="text-2xl font-bold text-slate-900">{tabCounts.pending}</h3>
+                    <p className="text-slate-500">Nashrni kutmoqda</p>
                 </Card>
                 
                 <Card className="text-center">
                     <div className="flex items-center justify-center mb-3">
                         <BookOpen className="h-8 w-8 text-green-400" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white">{tabCounts.all}</h3>
-                    <p className="text-gray-400">Jami nashrlar</p>
+                    <h3 className="text-2xl font-bold text-slate-900">{tabCounts.all}</h3>
+                    <p className="text-slate-500">Jami nashrlar</p>
                 </Card>
             </div>
             
             <Card title="Jurnal Administratori Paneli">
-                <div className="mb-6 border-b border-white/10 flex">
+                <div className="mb-6 border-b border-slate-200/90 flex">
                     <button
                         onClick={() => setActiveTab('new')}
                         className={`px-4 py-3 font-medium text-sm transition-colors ${
                             activeTab === 'new'
                                 ? 'border-b-2 border-blue-400 text-blue-400'
-                                : 'text-gray-400 hover:text-white'
+                                : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
-                        Yangi Kelganlar <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'new' ? 'bg-blue-500/20 text-blue-300' : 'bg-white/10 text-gray-300'}`}>{tabCounts.new}</span>
+                        Yangi Kelganlar <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'new' ? 'bg-blue-500/20 text-blue-300' : 'bg-white/10 text-slate-600'}`}>{tabCounts.new}</span>
                     </button>
                     
                     <button
@@ -229,10 +229,10 @@ const JournalAdminPanel: React.FC = () => {
                         className={`px-4 py-3 font-medium text-sm transition-colors ${
                             activeTab === 'pending'
                                 ? 'border-b-2 border-yellow-400 text-yellow-400'
-                                : 'text-gray-400 hover:text-white'
+                                : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
-                        Nashrni kutmoqda <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'pending' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-white/10 text-gray-300'}`}>{tabCounts.pending}</span>
+                        Nashrni kutmoqda <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'pending' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-white/10 text-slate-600'}`}>{tabCounts.pending}</span>
                     </button>
                     
                     <button
@@ -240,15 +240,15 @@ const JournalAdminPanel: React.FC = () => {
                         className={`px-4 py-3 font-medium text-sm transition-colors ${
                             activeTab === 'all'
                                 ? 'border-b-2 border-green-400 text-green-400'
-                                : 'text-gray-400 hover:text-white'
+                                : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
-                        Barcha Maqolalar <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'all' ? 'bg-green-500/20 text-green-300' : 'bg-white/10 text-gray-300'}`}>{tabCounts.all}</span>
+                        Barcha Maqolalar <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'all' ? 'bg-green-500/20 text-green-300' : 'bg-white/10 text-slate-600'}`}>{tabCounts.all}</span>
                     </button>
                 </div>
                 
-                <div className="flex items-center bg-white/5 border border-white/10 rounded-xl mb-6 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-                    <Search className="text-gray-400 mx-4 shrink-0" size={20} />
+                <div className="flex items-center bg-slate-100/70 border border-slate-200/90 rounded-xl mb-6 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+                    <Search className="text-slate-500 mx-4 shrink-0" size={20} />
                     <input
                         type="text"
                         placeholder="Maqola sarlavhasi bo'yicha qidirish..."
@@ -262,7 +262,7 @@ const JournalAdminPanel: React.FC = () => {
                     {filteredArticles.length > 0 ? (
                         filteredArticles.map(article => {
                             const statusData = {
-                                [ArticleStatus.Draft]: { text: 'Qoralama', color: 'bg-gray-500/20 text-gray-300' },
+                                [ArticleStatus.Draft]: { text: 'Qoralama', color: 'bg-gray-500/20 text-slate-600' },
                                 [ArticleStatus.Yangi]: { text: 'Yangi', color: 'bg-blue-500/20 text-blue-300' },
                                 [ArticleStatus.WithEditor]: { text: 'Redaktorda', color: 'bg-indigo-500/20 text-indigo-300' },
                                 [ArticleStatus.QabulQilingan]: { text: 'Qabul Qilingan', color: 'bg-yellow-500/20 text-yellow-300' },
@@ -272,27 +272,27 @@ const JournalAdminPanel: React.FC = () => {
                                 [ArticleStatus.Rejected]: { text: 'Rad etilgan', color: 'bg-red-500/20 text-red-300' },
                                 [ArticleStatus.NashrgaYuborilgan]: { text: 'Nashrga Yuborilgan', color: 'bg-purple-500/20 text-purple-300' },
                                 [ArticleStatus.WritingInProgress]: { text: 'Yozilmoqda', color: 'bg-cyan-500/20 text-cyan-300' },
-                            }[article.status] || { text: article.status, color: 'bg-gray-500/20 text-gray-300' };
+                            }[article.status] || { text: article.status, color: 'bg-gray-500/20 text-slate-600' };
                             
                             return (
                                 <div 
                                     key={article.id}
-                                    className="p-5 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-200 border border-transparent hover:border-white/10"
+                                    className="p-5 bg-slate-100/70 rounded-xl hover:bg-white/10 transition-all duration-200 border border-transparent hover:border-slate-200/90"
                                 >
                                     <div className="flex justify-between items-start gap-4">
                                         <div className="flex-1">
-                                            <h4 className="text-lg font-semibold text-white">{article.title}</h4>
-                                            <p className="text-sm text-gray-400 mt-2 line-clamp-2">{article.abstract}</p>
+                                            <h4 className="text-lg font-semibold text-slate-900">{article.title}</h4>
+                                            <p className="text-sm text-slate-500 mt-2 line-clamp-2">{article.abstract}</p>
                                             
                                             <div className="flex flex-wrap gap-2 mt-3">
                                                 {article.keywords.map((keyword, index) => (
-                                                    <span key={index} className="text-xs px-2 py-1 bg-white/10 text-gray-300 rounded">
+                                                    <span key={index} className="text-xs px-2 py-1 bg-white/10 text-slate-600 rounded">
                                                         {keyword}
                                                     </span>
                                                 ))}
                                             </div>
                                             
-                                            <div className="flex justify-between items-center mt-4 text-xs text-gray-500">
+                                            <div className="flex justify-between items-center mt-4 text-xs text-slate-500">
                                                 <span>{new Date(article.submissionDate).toLocaleDateString()}</span>
                                                 <span>Sahifalar: {article.pageCount || 0}</span>
                                             </div>
@@ -346,7 +346,7 @@ const JournalAdminPanel: React.FC = () => {
                             );
                         })
                     ) : (
-                        <p className="text-center text-gray-400 py-8">
+                        <p className="text-center text-slate-500 py-8">
                             {searchQuery 
                                 ? `"${searchQuery}" bo'yicha hech narsa topilmadi.` 
                                 : "Ushbu bo'limda hozircha maqolalar mavjud emas."}

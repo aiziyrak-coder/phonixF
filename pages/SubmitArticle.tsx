@@ -344,8 +344,8 @@ const SubmitArticle: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Maqola yuborish</h1>
-        <p className="text-gray-400">Maqolangizni nashr qilish uchun yuboring</p>
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">Maqola yuborish</h1>
+        <p className="text-slate-500">Maqolangizni nashr qilish uchun yuboring</p>
       </div>
 
       {/* Progress Steps */}
@@ -362,10 +362,10 @@ const SubmitArticle: React.FC = () => {
                   isCompleted ? 'bg-green-600' :
                   isActive ? 'bg-blue-600' : 'bg-gray-600'
                 }`}>
-                  {isCompleted ? <CheckCircle className="w-6 h-6 text-white" /> : <Icon className="w-6 h-6 text-white" />}
+                  {isCompleted ? <CheckCircle className="w-6 h-6 text-slate-900" /> : <Icon className="w-6 h-6 text-slate-900" />}
                 </div>
                 <span className={`text-sm font-medium ${
-                  isActive ? 'text-blue-400' : isCompleted ? 'text-green-400' : 'text-gray-400'
+                  isActive ? 'text-blue-400' : isCompleted ? 'text-green-400' : 'text-slate-500'
                 }`}>
                   {step.title}
                 </span>
@@ -373,7 +373,7 @@ const SubmitArticle: React.FC = () => {
             );
           })}
         </div>
-        <div className="mt-4 bg-gray-700 rounded-full h-2">
+        <div className="mt-4 bg-slate-100/90 rounded-full h-2">
           <div
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
@@ -385,22 +385,22 @@ const SubmitArticle: React.FC = () => {
       <Card className="p-6">
         {currentStep === 1 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-2">Jurnal tanlang</h2>
-            <p className="text-gray-400 text-sm mb-4">Jurnal kartasiga bosing — tanlash va keyingi qadamga o&apos;ting (Keyingi tugmasini bosish shart emas).</p>
+            <h2 className="text-xl font-semibold text-slate-900 mb-2">Jurnal tanlang</h2>
+            <p className="text-slate-500 text-sm mb-4">Jurnal kartasiga bosing — tanlash va keyingi qadamga o&apos;ting (Keyingi tugmasini bosish shart emas).</p>
 
             {/* Filtr — faqat jurnal tanlash qadamida, kartalar ustida; mobilda carddan chiqmaslik */}
-            <div className="w-full min-w-0 overflow-hidden flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 p-3 rounded-lg bg-black/20 border border-white/10 mb-4">
-              <span className="flex items-center gap-2 text-sm font-medium text-gray-400 shrink-0">
+            <div className="w-full min-w-0 overflow-hidden flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 p-3 rounded-lg bg-white/60 border border-slate-200/90 mb-4">
+              <span className="flex items-center gap-2 text-sm font-medium text-slate-500 shrink-0">
                 <Filter size={18} className="text-blue-400" />
                 Filtr
               </span>
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 min-w-0 w-full sm:flex-1">
                 <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
-                  <BookOpen size={16} className="text-gray-500 shrink-0" />
+                  <BookOpen size={16} className="text-slate-500 shrink-0" />
                   <select
                     value={journalFilterType}
                     onChange={(e) => setJournalFilterType(e.target.value)}
-                    className="flex-1 min-w-0 w-full max-w-full bg-white/5 border border-white/10 rounded-lg pl-3 pr-8 py-2 text-sm text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+                    className="flex-1 min-w-0 w-full max-w-full bg-slate-100/70 border border-slate-200/90 rounded-lg pl-3 pr-8 py-2 text-sm text-slate-900 focus:outline-none focus:border-blue-500 cursor-pointer"
                     style={{ minWidth: 0 }}
                     aria-label="Nashr turi"
                   >
@@ -411,11 +411,11 @@ const SubmitArticle: React.FC = () => {
                   </select>
                 </div>
                 <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
-                  <Layers size={16} className="text-gray-500 shrink-0" />
+                  <Layers size={16} className="text-slate-500 shrink-0" />
                   <select
                     value={journalFilterSubject}
                     onChange={(e) => setJournalFilterSubject(e.target.value)}
-                    className="flex-1 min-w-0 w-full max-w-full bg-white/5 border border-white/10 rounded-lg pl-3 pr-8 py-2 text-sm text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+                    className="flex-1 min-w-0 w-full max-w-full bg-slate-100/70 border border-slate-200/90 rounded-lg pl-3 pr-8 py-2 text-sm text-slate-900 focus:outline-none focus:border-blue-500 cursor-pointer"
                     style={{ minWidth: 0 }}
                     aria-label="Soha"
                   >
@@ -429,7 +429,7 @@ const SubmitArticle: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => { setJournalFilterType(''); setJournalFilterSubject(''); }}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 self-start sm:self-center"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-900 hover:bg-white/10 transition-colors shrink-0 self-start sm:self-center"
                     aria-label="Filterni tozalash"
                   >
                     <X size={16} />
@@ -444,9 +444,9 @@ const SubmitArticle: React.FC = () => {
               value={journalSearch}
               onChange={(e) => setJournalSearch(e.target.value)}
               placeholder="Jurnal nomi yoki tavsifi bo'yicha qidirish..."
-              className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 mb-4"
+              className="w-full px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 mb-4"
             />
-            <p className="text-sm text-gray-400 mb-4">Jurnallar: {journals.length} | Ko&apos;rsatilmoqda: {filteredJournals.length}</p>
+            <p className="text-sm text-slate-500 mb-4">Jurnallar: {journals.length} | Ko&apos;rsatilmoqda: {filteredJournals.length}</p>
             {errors.journalId && <p className="text-red-500 text-sm mb-2">{errors.journalId}</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredJournals.map((j) => {
@@ -461,10 +461,10 @@ const SubmitArticle: React.FC = () => {
                     key={j.id}
                     type="button"
                     onClick={() => selectJournalAndNext(j.id)}
-                    className="text-left rounded-xl border-2 border-white/10 bg-white/5 hover:border-blue-500/50 hover:bg-white/10 transition-all duration-200 group overflow-hidden"
+                    className="text-left rounded-xl border-2 border-slate-200/90 bg-slate-100/70 hover:border-blue-500/50 hover:bg-white/10 transition-all duration-200 group overflow-hidden"
                   >
                     <div className="flex flex-col">
-                      <div className="w-full h-36 sm:h-40 rounded-t-xl bg-white/5 flex items-center justify-center overflow-hidden border-b border-white/10">
+                      <div className="w-full h-36 sm:h-40 rounded-t-xl bg-slate-100/70 flex items-center justify-center overflow-hidden border-b border-slate-200/90">
                         {j.image_url ? (
                           <img
                             src={j.image_url.startsWith('http') ? j.image_url : apiService.getMediaUrl(j.image_url)}
@@ -476,15 +476,15 @@ const SubmitArticle: React.FC = () => {
                         )}
                       </div>
                       <div className="p-4 min-w-0">
-                        <h3 className="font-semibold text-white truncate">{j.name}</h3>
+                        <h3 className="font-semibold text-slate-900 truncate">{j.name}</h3>
                         {j.description && (
-                          <p className="text-sm text-gray-400 mt-1 line-clamp-2">{j.description}</p>
+                          <p className="text-sm text-slate-500 mt-1 line-clamp-2">{j.description}</p>
                         )}
-                        {j.issn && <p className="text-xs text-gray-500 mt-1 font-mono">{j.issn}</p>}
+                        {j.issn && <p className="text-xs text-slate-500 mt-1 font-mono">{j.issn}</p>}
                         {priceText && (
                           <p className="text-sm font-medium text-blue-300 mt-2">{priceText}</p>
                         )}
-                        {priceText && <p className="text-xs text-gray-400">To&apos;liq to&apos;lov</p>}
+                        {priceText && <p className="text-xs text-slate-500">To&apos;liq to&apos;lov</p>}
                       </div>
                     </div>
                   </button>
@@ -492,7 +492,7 @@ const SubmitArticle: React.FC = () => {
               })}
             </div>
             {filteredJournals.length === 0 && (
-              <p className="text-center text-gray-400 py-8">Qidiruv bo&apos;yicha jurnal topilmadi.</p>
+              <p className="text-center text-slate-500 py-8">Qidiruv bo&apos;yicha jurnal topilmadi.</p>
             )}
           </div>
         )}
@@ -500,24 +500,24 @@ const SubmitArticle: React.FC = () => {
         {currentStep === 2 && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-white mb-4">Fayl yuklash</h2>
+              <h2 className="text-xl font-semibold text-slate-900 mb-4">Fayl yuklash</h2>
               <div
-                className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-gray-500 transition-colors"
+                className="border-2 border-dashed border-slate-200 rounded-lg p-8 text-center cursor-pointer hover:border-gray-500 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
               >
                 {formData.file ? (
                   <div className="space-y-2">
                     <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
-                    <p className="text-white font-medium">{formData.file.name}</p>
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-slate-900 font-medium">{formData.file.name}</p>
+                    <p className="text-slate-500 text-sm">
                       {(formData.file.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <UploadCloud className="w-12 h-12 text-gray-400 mx-auto" />
-                    <p className="text-white font-medium">Faylni tanlang</p>
-                    <p className="text-gray-400 text-sm">DOC yoki DOCX (Word)</p>
+                    <UploadCloud className="w-12 h-12 text-slate-500 mx-auto" />
+                    <p className="text-slate-900 font-medium">Faylni tanlang</p>
+                    <p className="text-slate-500 text-sm">DOC yoki DOCX (Word)</p>
                   </div>
                 )}
               </div>
@@ -535,79 +535,79 @@ const SubmitArticle: React.FC = () => {
 
         {currentStep === 3 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Maqola tavsifi</h2>
-            <p className="text-gray-400 text-sm mb-4">Maqola mavzusi va muallif ism-familiyasi majburiy (ma&apos;lumotnomada ko&apos;rsatiladi).</p>
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Maqola tavsifi</h2>
+            <p className="text-slate-500 text-sm mb-4">Maqola mavzusi va muallif ism-familiyasi majburiy (ma&apos;lumotnomada ko&apos;rsatiladi).</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
                   Maqola mavzusi (sarlavha) *
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
                   placeholder="Masalan: O'zbekiston iqtisodiyotida raqamlashtirish tendensiyalari"
                 />
                 {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
                   Muallif ism-familiyasi *
                 </label>
                 <input
                   type="text"
                   value={formData.authorName}
                   onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
-                  className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
                   placeholder="Masalan: Ali Valiyev"
                 />
                 {errors.authorName && <p className="text-red-500 text-sm mt-1">{errors.authorName}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-slate-600 mb-2">
                   Jurnal
                 </label>
-                <p className="px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white">
+                <p className="px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900">
                   {journals.find((j) => j.id === formData.journalId)?.name || '—'}
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 Abstrakt *
               </label>
               <textarea
                 value={formData.abstract}
                 onChange={(e) => setFormData({ ...formData, abstract: e.target.value })}
                 rows={4}
-                className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
                 placeholder="Maqola abstraktini kiriting"
               />
               {errors.abstract && <p className="text-red-500 text-sm mt-1">{errors.abstract}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 Kalit so'zlar *
               </label>
               <input
                 type="text"
                 value={formData.keywords}
                 onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                className="w-full px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
                 placeholder="Kalit so'zlarni vergul bilan ajratib kiriting"
               />
               {errors.keywords && <p className="text-red-500 text-sm mt-1">{errors.keywords}</p>}
             </div>
 
             {/* Plagiarism Check Section */}
-            <div className="border-t border-gray-600 pt-6">
-              <h3 className="text-lg font-medium text-white mb-4">Antiplagiat tekshiruvi</h3>
+            <div className="border-t border-slate-200 pt-6">
+              <h3 className="text-lg font-medium text-slate-900 mb-4">Antiplagiat tekshiruvi</h3>
 
               <div className="flex items-center justify-between mb-4">
                 <Button
@@ -639,7 +639,7 @@ const SubmitArticle: React.FC = () => {
                     <strong>Plagiat foizi:</strong> {plagiarism.toFixed(1)}% |
                     <strong> AI kontent:</strong> {aiContent.toFixed(1)}%
                   </p>
-                  <p className="text-gray-400 text-xs mt-1">
+                  <p className="text-slate-500 text-xs mt-1">
                     Tekshiruv vaqti: {new Date(checkedAt).toLocaleString()}
                   </p>
                 </div>
@@ -658,31 +658,31 @@ const SubmitArticle: React.FC = () => {
 
         {currentStep === 4 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Hammualliflar</h2>
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Hammualliflar</h2>
 
             {formData.coAuthors.map((coAuthor, index) => (
               <div key={index} className="flex gap-4 items-end">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Hammuallif ismi
                   </label>
                   <input
                     type="text"
                     value={coAuthor.name}
                     onChange={(e) => updateCoAuthor(index, 'name', e.target.value)}
-                    className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
                     placeholder="Ism familiyani kiriting"
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-600 mb-2">
                     Email
                   </label>
                   <input
                     type="email"
                     value={coAuthor.email}
                     onChange={(e) => updateCoAuthor(index, 'email', e.target.value)}
-                    className="w-full px-3 py-2 bg-white/5 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
                     placeholder="email@example.com"
                   />
                 </div>
@@ -704,17 +704,17 @@ const SubmitArticle: React.FC = () => {
 
         {currentStep === 5 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Tasdiqlash</h2>
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Tasdiqlash</h2>
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-medium text-white mb-2">Fayl</h3>
-                <p className="text-gray-300">{formData.file?.name}</p>
+                <h3 className="text-lg font-medium text-slate-900 mb-2">Fayl</h3>
+                <p className="text-slate-600">{formData.file?.name}</p>
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-white mb-2">Maqola ma'lumotlari</h3>
-                <div className="bg-white/5 rounded-lg p-4 space-y-2">
+                <h3 className="text-lg font-medium text-slate-900 mb-2">Maqola ma'lumotlari</h3>
+                <div className="bg-slate-100/70 rounded-lg p-4 space-y-2">
                   <p><strong>Mavzu (sarlavha):</strong> {formData.title || '—'}</p>
                   <p><strong>Muallif (ism-familiya):</strong> {formData.authorName || '—'}</p>
                   <p><strong>Jurnal:</strong> {journals.find(j => j.id === formData.journalId)?.name || '—'}</p>
@@ -725,7 +725,7 @@ const SubmitArticle: React.FC = () => {
 
               {checkedAt && (
                 <div>
-                  <h3 className="text-lg font-medium text-white mb-2">Antiplagiat natijalari</h3>
+                  <h3 className="text-lg font-medium text-slate-900 mb-2">Antiplagiat natijalari</h3>
                   <PlagiarismBadges
                     plagiarism={plagiarism}
                     ai={aiContent}
@@ -736,10 +736,10 @@ const SubmitArticle: React.FC = () => {
 
               {formData.coAuthors.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-medium text-white mb-2">Hammualliflar</h3>
+                  <h3 className="text-lg font-medium text-slate-900 mb-2">Hammualliflar</h3>
                   <div className="space-y-2">
                     {formData.coAuthors.map((coAuthor, index) => (
-                      <div key={index} className="bg-white/5 rounded-lg p-3">
+                      <div key={index} className="bg-slate-100/70 rounded-lg p-3">
                         <p>{coAuthor.name} - {coAuthor.email}</p>
                       </div>
                     ))}
@@ -769,7 +769,7 @@ const SubmitArticle: React.FC = () => {
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between mt-8 pt-6 border-t border-gray-600">
+        <div className="flex justify-between mt-8 pt-6 border-t border-slate-200">
           <Button
             onClick={prevStep}
             disabled={currentStep === 1}

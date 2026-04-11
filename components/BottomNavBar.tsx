@@ -50,11 +50,11 @@ const BottomNavBar: React.FC = () => {
         navLinksConfig[Role.Author];
 
     const linkBaseClass =
-        'flex min-w-[3.75rem] max-w-[5.5rem] shrink-0 flex-col items-center justify-center text-center text-gray-400 hover:text-blue-400 transition-colors h-full px-1 py-1';
-    const activeClass = 'text-blue-400';
+        'flex min-w-[3.75rem] max-w-[5.5rem] shrink-0 flex-col items-center justify-center text-center text-slate-500 hover:text-blue-600 transition-colors h-full px-1 py-1';
+    const activeClass = 'text-blue-700 font-semibold';
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-40 min-h-[4.5rem] pb-[max(0.25rem,env(safe-area-inset-bottom))] bg-black/30 backdrop-blur-xl border-t border-white/10">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 min-h-[4.5rem] pb-[max(0.25rem,env(safe-area-inset-bottom))] bg-white/85 backdrop-blur-2xl border-t border-slate-200/70 shadow-[0_-8px_32px_-12px_rgba(15,23,42,0.08)]">
             <div
                 className="flex h-full w-full flex-nowrap items-stretch justify-start gap-0 overflow-x-auto overflow-y-hidden px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
                 style={{ WebkitOverflowScrolling: 'touch' }}

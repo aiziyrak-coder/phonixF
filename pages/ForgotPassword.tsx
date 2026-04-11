@@ -18,8 +18,8 @@ const ForgotPassword: React.FC = () => {
             <Mail className="h-7 w-7 text-blue-400" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white mb-2">Parolni unutdingizmi?</h2>
-            <p className="text-sm text-gray-400 leading-relaxed">
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Parolni unutdingizmi?</h2>
+            <p className="text-sm text-slate-500 leading-relaxed">
               Platformada avtomatik parol tiklash hozircha mavjud emas. Iltimos, platforma administratori
               yoki qo‘llab-quvvatlash xizmatiga murojaat qiling — ular hisobingizni tasdiqlab, yangi parol
               o‘rnatishda yordam beradi.

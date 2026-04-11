@@ -97,9 +97,9 @@ const Login: React.FC = () => {
         <AuthLayout title="Tizimga kirish">
             <Card>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                     <h2 className="text-2xl font-bold text-center text-white">Tizimga kirish</h2>
+                     <h2 className="text-2xl font-bold text-center text-slate-900">Tizimga kirish</h2>
                     <div>
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+                        <label htmlFor="phone" className="block text-sm font-medium text-slate-600 mb-2">
                             Telefon raqam
                         </label>
                         <div className="flex items-center phone-input-group">
@@ -127,7 +127,7 @@ const Login: React.FC = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                        <label htmlFor="password" className="block text-sm font-medium text-slate-600 mb-2">
                             Parol
                         </label>
                         <input
@@ -171,7 +171,7 @@ const Login: React.FC = () => {
                 </form>
 
                  <div className="mt-6 text-center text-sm">
-                    <p className="text-gray-400">
+                    <p className="text-slate-500">
                         Hisobingiz yo'qmi?{' '}
                         <Link to="/register" className="font-semibold text-blue-400 hover:text-blue-300">
                             Ro'yxatdan o'tish
@@ -179,21 +179,21 @@ const Login: React.FC = () => {
                     </p>
                 </div>
                 
-                <div className="mt-6 pt-6 border-t border-white/10">
-                     <p className="text-sm text-gray-400 mb-4 text-center">Test uchun istalgan foydalanuvchi ustiga bosing:</p>
-                    <div className="overflow-x-auto rounded-lg border border-white/10">
+                <div className="mt-6 pt-6 border-t border-slate-200/90">
+                     <p className="text-sm text-slate-500 mb-4 text-center">Test uchun istalgan foydalanuvchi ustiga bosing:</p>
+                    <div className="overflow-x-auto rounded-lg border border-slate-200/90">
                         <table className="w-full text-sm text-left">
-                            <thead className="bg-white/5">
+                            <thead className="bg-slate-100/70">
                                 <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Rol</th>
-                                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Parol</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Rol</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Parol</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/10">
+                            <tbody className="divide-y divide-slate-200/80">
                                 {MOCK_USERS.map(user => (
-                                    <tr key={user.id} onClick={() => handleAutofill(user)} className="cursor-pointer hover:bg-white/5 transition-colors">
-                                        <td className="px-4 py-2 text-gray-200">{roleNames[user.role]}</td>
-                                        <td className="px-4 py-2 text-gray-200 font-mono">{user.password}</td>
+                                    <tr key={user.id} onClick={() => handleAutofill(user)} className="cursor-pointer hover:bg-slate-100/70 transition-colors">
+                                        <td className="px-4 py-2 text-slate-700">{roleNames[user.role]}</td>
+                                        <td className="px-4 py-2 text-slate-700 font-mono">{user.password}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -141,7 +141,7 @@ const PriceManagement: React.FC = () => {
   if (!user || user.role !== 'super_admin') {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-400">Bu sahifaga faqat bosh administrator kirishi mumkin.</p>
+        <p className="text-slate-500">Bu sahifaga faqat bosh administrator kirishi mumkin.</p>
       </div>
     );
   }
@@ -157,8 +157,8 @@ const PriceManagement: React.FC = () => {
               <DollarSign className="h-6 w-6 text-green-400" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Xizmat Narxlari</h1>
-              <p className="text-sm text-gray-400">
+              <h1 className="text-xl font-bold text-slate-900">Xizmat Narxlari</h1>
+              <p className="text-sm text-slate-500">
                 Barcha pullik xizmatlar narxlarini boshqarish
               </p>
             </div>
@@ -174,14 +174,14 @@ const PriceManagement: React.FC = () => {
             <Loader2 className="h-8 w-8 animate-spin text-green-400" />
           </div>
         ) : prices.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">Hozircha xizmatlar yo'q.</p>
+          <p className="text-slate-500 text-center py-8">Hozircha xizmatlar yo'q.</p>
         ) : (
           <div className="space-y-6">
             {Object.entries(groupedPrices).map(([category, categoryPrices]) => (
               <div key={category}>
-                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
                   {category}
-                  <span className="text-xs px-2 py-1 rounded bg-white/10 text-gray-300">
+                  <span className="text-xs px-2 py-1 rounded bg-white/10 text-slate-600">
                     {categoryPrices.length} ta xizmat
                   </span>
                 </h3>
@@ -189,11 +189,11 @@ const PriceManagement: React.FC = () => {
                   {categoryPrices.map((price) => (
                     <div
                       key={price.id}
-                      className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/30 transition-colors"
+                      className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 hover:border-green-500/30 transition-colors"
                     >
                       <div className="mb-3">
-                        <p className="text-sm font-medium text-gray-300">{price.label}</p>
-                        <p className="text-xs text-gray-500 mt-1">{price.service_key}</p>
+                        <p className="text-sm font-medium text-slate-600">{price.label}</p>
+                        <p className="text-xs text-slate-500 mt-1">{price.service_key}</p>
                       </div>
                       
                       {editingId === price.id ? (
@@ -205,7 +205,7 @@ const PriceManagement: React.FC = () => {
                               ...prev,
                               [price.id]: Number(e.target.value)
                             }))}
-                            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-green-500"
+                            className="w-full px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 focus:ring-2 focus:ring-green-500"
                             min="0"
                             step="1000"
                           />
@@ -234,7 +234,7 @@ const PriceManagement: React.FC = () => {
                             <p className="text-lg font-bold text-green-400">
                               {formatPrice(price.amount, price.currency)}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-slate-500 mt-1">
                               Oxirgi yangilanish: {new Date(price.updated_at).toLocaleDateString('uz-UZ')}
                             </p>
                           </div>
@@ -267,38 +267,38 @@ const PriceManagement: React.FC = () => {
 
       {/* Add New Service Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-xl p-6 max-w-md w-full border border-white/10">
-            <h3 className="text-lg font-semibold text-white mb-4">Yangi Xizmat Qo'shish</h3>
+        <div className="fixed inset-0 bg-slate-900/35 flex items-center justify-center z-50 p-4">
+          <div className="bg-white/55 rounded-xl p-6 max-w-md w-full border border-slate-200/90">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Yangi Xizmat Qo'shish</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Xizmat Kodi (service_key) *</label>
+                <label className="block text-sm font-medium text-slate-500 mb-1">Xizmat Kodi (service_key) *</label>
                 <input
                   type="text"
                   value={newService.service_key}
                   onChange={(e) => setNewService(prev => ({ ...prev, service_key: e.target.value }))}
                   placeholder="masalan: custom_service"
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Xizmat Nomi *</label>
+                <label className="block text-sm font-medium text-slate-500 mb-1">Xizmat Nomi *</label>
                 <input
                   type="text"
                   value={newService.label}
                   onChange={(e) => setNewService(prev => ({ ...prev, label: e.target.value }))}
                   placeholder="Masalan: Maxsus xizmat"
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Narx (so'm) *</label>
+                <label className="block text-sm font-medium text-slate-500 mb-1">Narx (so'm) *</label>
                 <input
                   type="number"
                   value={newService.amount}
                   onChange={(e) => setNewService(prev => ({ ...prev, amount: Number(e.target.value) }))}
                   placeholder="0"
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 focus:ring-2 focus:ring-green-500"
                   min="0"
                   step="1000"
                 />

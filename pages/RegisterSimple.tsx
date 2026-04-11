@@ -158,8 +158,8 @@ const RegisterSimple: React.FC = () => {
                 {step === 1 ? (
                     <form onSubmit={handleStep1Submit} className="space-y-4">
                         <div className="text-center mb-6">
-                            <h2 className="text-2xl font-bold text-white mb-2">Ro'yxatdan o'tish</h2>
-                            <p className="text-sm text-gray-400">Asosiy ma'lumotlarni kiriting</p>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Ro'yxatdan o'tish</h2>
+                            <p className="text-sm text-slate-500">Asosiy ma'lumotlarni kiriting</p>
                         </div>
                         
                         {error && (
@@ -169,16 +169,16 @@ const RegisterSimple: React.FC = () => {
                         )}
                         
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-slate-600 mb-2">
                                 Telefon raqam *
                             </label>
                             <div className="flex items-center gap-2">
-                                <span className="px-3 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 font-medium whitespace-nowrap">+998</span>
+                                <span className="px-3 py-3 bg-slate-100/90 border border-slate-200 rounded-lg text-slate-600 font-medium whitespace-nowrap">+998</span>
                                 <input 
                                     type="tel"
                                     value={phone}
                                     onChange={handlePhoneChange}
-                                    className="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                    className="flex-1 p-3 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500"
                                     placeholder="90 123 45 67"
                                     required
                                     autoComplete="tel"
@@ -186,27 +186,27 @@ const RegisterSimple: React.FC = () => {
                                     maxLength={9}
                                 />
                             </div>
-                            <p className="text-xs text-gray-400 mt-1">Faqat raqam kiriting (masalan: 901234567)</p>
+                            <p className="text-xs text-slate-500 mt-1">Faqat raqam kiriting (masalan: 901234567)</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Ism *</label>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">Ism *</label>
                                 <input 
                                     type="text" 
                                     required 
-                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                    className="w-full p-3 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500"
                                     value={firstName}
                                     onChange={(e) => setFirstName(e.target.value)}
                                     placeholder="Ismingiz"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Familiya *</label>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">Familiya *</label>
                                 <input 
                                     type="text" 
                                     required 
-                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                    className="w-full p-3 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500"
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
                                     placeholder="Familiyangiz"
@@ -215,13 +215,13 @@ const RegisterSimple: React.FC = () => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Parol *</label>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">Parol *</label>
                             <div className="relative">
                                 <input 
                                     type={showPassword ? "text" : "password"}
                                     required 
                                     autoComplete="new-password"
-                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500 pr-10"
+                                    className="w-full p-3 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500 pr-10"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Kamida 6 ta belgi"
@@ -231,22 +231,22 @@ const RegisterSimple: React.FC = () => {
                                 type="button"
                                 aria-label={showPassword ? 'Parolni yashirish' : 'Parolni ko‘rsatish'}
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white p-1"
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-900 p-1"
                                 >
                                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
-                            <p className="text-xs text-gray-400 mt-1">Kamida 6 ta belgi (har qanday belgilar)</p>
+                            <p className="text-xs text-slate-500 mt-1">Kamida 6 ta belgi (har qanday belgilar)</p>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Parolni tasdiqlang *</label>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">Parolni tasdiqlang *</label>
                             <div className="relative">
                                 <input 
                                     type={showPasswordConfirm ? "text" : "password"}
                                     required 
                                     autoComplete="new-password"
-                                    className="w-full p-3 pr-10 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                    className="w-full p-3 pr-10 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500"
                                     value={passwordConfirm}
                                     onChange={(e) => setPasswordConfirm(e.target.value)}
                                     placeholder="Parolni qayta kiriting"
@@ -256,7 +256,7 @@ const RegisterSimple: React.FC = () => {
                                     type="button"
                                     aria-label={showPasswordConfirm ? 'Parolni yashirish' : 'Parolni ko‘rsatish'}
                                     onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white p-1"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-900 p-1"
                                 >
                                     {showPasswordConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
@@ -277,13 +277,13 @@ const RegisterSimple: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={() => { setStep(1); setError(''); }}
-                                className="text-gray-400 hover:text-white mb-4 flex items-center gap-2 mx-auto"
+                                className="text-slate-500 hover:text-slate-900 mb-4 flex items-center gap-2 mx-auto"
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 Orqaga
                             </button>
-                            <h2 className="text-2xl font-bold text-white mb-2">Qo'shimcha ma'lumotlar</h2>
-                            <p className="text-sm text-gray-400">Bu maydonlar ixtiyoriy</p>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Qo'shimcha ma'lumotlar</h2>
+                            <p className="text-sm text-slate-500">Bu maydonlar ixtiyoriy</p>
                         </div>
                         
                         {error && (
@@ -293,32 +293,32 @@ const RegisterSimple: React.FC = () => {
                         )}
                         
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Email <span className="text-gray-500 text-xs">(ixtiyoriy)</span>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">
+                                Email <span className="text-slate-500 text-xs">(ixtiyoriy)</span>
                             </label>
                                 <input 
                                     type="email" 
                                     autoComplete="email"
-                                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                    className="w-full p-3 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="email@example.com"
                                 />
-                            <p className="text-xs text-gray-400 mt-1">Bo'sh qoldirish mumkin</p>
+                            <p className="text-xs text-slate-500 mt-1">Bo'sh qoldirish mumkin</p>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Ish yoki o'qish joyi <span className="text-gray-500 text-xs">(ixtiyoriy)</span>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">
+                                Ish yoki o'qish joyi <span className="text-slate-500 text-xs">(ixtiyoriy)</span>
                             </label>
                             <input 
                                 type="text" 
-                                className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                className="w-full p-3 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500"
                                 value={affiliation}
                                 onChange={(e) => setAffiliation(e.target.value)}
                                 placeholder="Tashkilot nomi..."
                             />
-                            <p className="text-xs text-gray-400 mt-1">Bo'sh qoldirish mumkin</p>
+                            <p className="text-xs text-slate-500 mt-1">Bo'sh qoldirish mumkin</p>
                         </div>
 
                         <Button 
@@ -342,7 +342,7 @@ const RegisterSimple: React.FC = () => {
                 )}
                 
                 <div className="mt-6 text-center text-sm">
-                    <p className="text-gray-400">
+                    <p className="text-slate-500">
                         Hisobingiz bormi?{' '}
                         <Link to="/login" className="font-semibold text-blue-400 hover:text-blue-300">
                             Kirish

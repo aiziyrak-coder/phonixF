@@ -249,16 +249,16 @@ const ArticleChatDock: React.FC = () => {
 
   return (
     <aside
-      className="flex flex-col fixed right-0 z-[55] border-l border-white/10 bg-gray-950/97 backdrop-blur-md shadow-[-8px_0_32px_rgba(0,0,0,0.4)] top-[5.25rem] bottom-0 min-w-0"
+      className="flex flex-col fixed right-0 z-[55] border-l border-slate-200/80 bg-white/80 backdrop-blur-2xl shadow-[-12px_0_48px_-16px_rgba(15,23,42,0.12)] top-[5.25rem] bottom-0 min-w-0"
       style={{ width: panelWidthPx }}
       aria-label="Operator va muallif chat paneli"
     >
-      <div className="shrink-0 px-2.5 pt-2.5 pb-2 border-b border-white/10 bg-gradient-to-r from-indigo-950/90 to-gray-950/95">
-        <div className="flex items-center gap-2 text-white">
-          <MessageSquare className="h-4 w-4 text-indigo-400 shrink-0" aria-hidden />
+      <div className="shrink-0 px-2.5 pt-2.5 pb-2 border-b border-slate-200/70 bg-gradient-to-br from-violet-50/95 via-white/90 to-cyan-50/90">
+        <div className="flex items-center gap-2 text-slate-900">
+          <MessageSquare className="h-4 w-4 text-violet-600 shrink-0" aria-hidden />
           <span className="text-xs font-semibold leading-tight">Operatorlar bilan aloqa</span>
         </div>
-        <p className="text-[10px] text-gray-400 mt-1 leading-snug">
+        <p className="text-[10px] text-slate-500 mt-1 leading-snug">
           Chat har doim ochiq. Suhbat tanlangan maqola bo‘yicha yuradi — boshqa sahifaga o‘tsangiz ham shu thread saqlanadi.
         </p>
         <label htmlFor="global-chat-article" className="sr-only">
@@ -269,7 +269,7 @@ const ArticleChatDock: React.FC = () => {
           value={selectValue}
           disabled={listLoading || metaLoading}
           onChange={(e) => onSelectArticle(e.target.value)}
-          className="mt-2 w-full rounded-lg bg-gray-900/95 border border-white/15 text-white text-[11px] py-2 px-2 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="mt-2 w-full rounded-lg bg-white/95 border border-slate-200/90 text-slate-900 text-[11px] py-2 px-2 shadow-sm focus:ring-2 focus:ring-violet-400/50 focus:border-violet-300"
         >
           <option value="">{listLoading ? 'Maqolalar yuklanmoqda…' : '— Maqola tanlang —'}</option>
           {articleOptions.map((a) => (
@@ -280,7 +280,7 @@ const ArticleChatDock: React.FC = () => {
         </select>
         <Link
           to="/articles"
-          className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-indigo-400 hover:text-indigo-300"
+          className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-violet-600 hover:text-violet-800 font-medium"
         >
           <FileText className="h-3 w-3 shrink-0" aria-hidden />
           Maqolalar ro‘yxati
@@ -290,12 +290,12 @@ const ArticleChatDock: React.FC = () => {
       <div className="flex-1 min-h-0 flex flex-col">
         {metaLoading && !selectedArticleId ? (
           <div className="flex-1 flex items-center justify-center px-3 py-6">
-            <p className="text-xs text-gray-500 text-center">Tekshirilmoqda…</p>
+            <p className="text-xs text-slate-500 text-center">Tekshirilmoqda…</p>
           </div>
         ) : !selectedArticleId ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-2 px-3 py-6 text-center">
-            <FileText className="h-8 w-8 text-gray-600" aria-hidden />
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <FileText className="h-8 w-8 text-slate-400" aria-hidden />
+            <p className="text-xs text-slate-500 leading-relaxed">
               Operatorlarga yozish uchun yuqoridan o‘z maqolangizni tanlang yoki maqola kartasini oching — chat avtomatik bog‘lanadi.
             </p>
           </div>

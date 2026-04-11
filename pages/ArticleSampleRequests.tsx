@@ -57,8 +57,8 @@ const ArticleSampleRequests: React.FC = () => {
             <FileText className="h-6 w-6 text-amber-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Maqola namuna so'rovlari</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-xl font-bold text-slate-900">Maqola namuna so'rovlari</h1>
+            <p className="text-sm text-slate-500">
               {isReviewer
                 ? "Mualliflar maqola namunasi olish uchun yuborgan so'rovlar. Talablar va mavzuni ko'ring."
                 : "Sizning maqola namuna so'rovlaringiz. Taqrizchi bajarganida status yangilanadi."}
@@ -67,21 +67,21 @@ const ArticleSampleRequests: React.FC = () => {
         </div>
 
         {loading ? (
-          <p className="text-gray-400 flex items-center gap-2">
+          <p className="text-slate-500 flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" /> Yuklanmoqda…
           </p>
         ) : list.length === 0 ? (
-          <p className="text-gray-400">So'rovlar yo'q.</p>
+          <p className="text-slate-500">So'rovlar yo'q.</p>
         ) : (
           <div className="space-y-4">
             {list.map((req) => (
               <div
                 key={req.id}
-                className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col gap-2"
+                className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90 flex flex-col gap-2"
               >
-                <p className="font-medium text-white">{req.author_short}</p>
-                <p className="text-sm text-gray-300 line-clamp-2">{req.topic}</p>
-                <p className="text-xs text-gray-500">
+                <p className="font-medium text-slate-900">{req.author_short}</p>
+                <p className="text-sm text-slate-600 line-clamp-2">{req.topic}</p>
+                <p className="text-xs text-slate-500">
                   {new Date(req.created_at).toLocaleDateString('uz-UZ')} ·{' '}
                   {qualityLabels[req.quality_level] || req.quality_level} · {req.pages} sahifa ·{' '}
                   {req.status === 'submitted'
@@ -93,7 +93,7 @@ const ArticleSampleRequests: React.FC = () => {
                     : req.status}
                 </p>
                 {req.requirements && (
-                  <p className="text-sm text-gray-400 mt-1 line-clamp-3">{req.requirements}</p>
+                  <p className="text-sm text-slate-500 mt-1 line-clamp-3">{req.requirements}</p>
                 )}
               </div>
             ))}

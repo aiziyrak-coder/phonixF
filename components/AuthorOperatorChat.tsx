@@ -111,9 +111,9 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
       }
     >
       {initialLoading ? (
-        <p className={`text-center text-gray-500 ${isDock ? 'py-4 text-xs' : 'py-6 text-sm'}`}>Yuklanmoqda...</p>
+        <p className={`text-center text-slate-500 ${isDock ? 'py-4 text-xs' : 'py-6 text-sm'}`}>Yuklanmoqda...</p>
       ) : messages.length === 0 ? (
-        <p className={`text-center text-gray-500 ${isDock ? 'py-4 text-xs' : 'py-6 text-sm'}`}>
+        <p className={`text-center text-slate-500 ${isDock ? 'py-4 text-xs' : 'py-6 text-sm'}`}>
           Hozircha xabar yo‘q. Birinchi xabarni yozing.
         </p>
       ) : (
@@ -125,14 +125,14 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
                 className={`${isDock ? 'max-w-[92%] px-3 py-2' : 'max-w-[85%] sm:max-w-[70%] px-4 py-2.5'} rounded-2xl ${
                   own
                     ? 'bg-blue-600/90 text-white rounded-br-md'
-                    : 'bg-white/10 text-gray-100 rounded-bl-md border border-white/10'
+                    : 'bg-white/90 text-slate-800 rounded-bl-md border border-slate-200/80 shadow-sm'
                 }`}
               >
                 <div className={`font-semibold opacity-90 mb-0.5 ${isDock ? 'text-[10px]' : 'text-xs'}`}>
                   {msg.display_name}
                 </div>
                 <p className={`whitespace-pre-wrap break-words ${isDock ? 'text-xs' : 'text-sm'}`}>{msg.body}</p>
-                <div className={`mt-1 ${own ? 'text-blue-100' : 'text-gray-500'} ${isDock ? 'text-[9px]' : 'text-[10px]'}`}>
+                <div className={`mt-1 ${own ? 'text-blue-100' : 'text-slate-500'} ${isDock ? 'text-[9px]' : 'text-[10px]'}`}>
                   {new Date(msg.created_at).toLocaleString('uz-UZ')}
                 </div>
               </div>
@@ -145,7 +145,7 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
   );
 
   const inputBlock = (
-    <div className={`flex gap-2 ${isDock ? 'flex-col shrink-0 p-2 border-t border-white/10 bg-gray-950/90' : 'flex-col sm:flex-row'}`}>
+    <div className={`flex gap-2 ${isDock ? 'flex-col shrink-0 p-2 border-t border-slate-200/80 bg-white/75 backdrop-blur-sm' : 'flex-col sm:flex-row'}`}>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -159,8 +159,8 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
         rows={isDock ? 2 : 3}
         className={
           isDock
-            ? 'w-full rounded-lg bg-gray-900/90 border border-white/10 text-white placeholder-gray-500 px-2.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none min-h-[52px]'
-            : 'flex-1 rounded-xl bg-gray-900/80 border border-white/10 text-white placeholder-gray-500 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[80px]'
+            ? 'w-full rounded-lg bg-white/95 border border-slate-200/90 text-slate-900 placeholder-slate-400 px-2.5 py-2 text-xs focus:ring-2 focus:ring-blue-400/40 focus:border-blue-300 resize-none min-h-[52px] shadow-sm'
+            : 'flex-1 rounded-xl bg-white/95 border border-slate-200/90 text-slate-900 placeholder-slate-400 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400/40 focus:border-blue-300 resize-y min-h-[80px] shadow-sm'
         }
         maxLength={10000}
       />
@@ -181,17 +181,17 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
     return (
       <div className="flex flex-col h-full min-h-0 text-left">
         {!embeddedInGlobalDock && (
-          <div className="shrink-0 px-3 py-2 border-b border-white/10 bg-gradient-to-r from-blue-950/80 to-gray-950/90">
+          <div className="shrink-0 px-3 py-2 border-b border-slate-200/80 bg-gradient-to-r from-sky-50/95 to-violet-50/90">
             <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-blue-400 shrink-0" />
-              <span className="text-sm font-semibold text-white leading-tight">{title}</span>
+              <MessageSquare className="h-4 w-4 text-blue-600 shrink-0" />
+              <span className="text-sm font-semibold text-slate-900 leading-tight">{title}</span>
             </div>
-            <p className="text-[10px] text-gray-500 mt-1 line-clamp-2 leading-snug">{hint}</p>
+            <p className="text-[10px] text-slate-500 mt-1 line-clamp-2 leading-snug">{hint}</p>
           </div>
         )}
         {embeddedInGlobalDock && (
-          <div className="shrink-0 px-2.5 py-1.5 border-b border-white/10 bg-gray-950/80">
-            <p className="text-[10px] text-gray-500 leading-snug line-clamp-2">{hint}</p>
+          <div className="shrink-0 px-2.5 py-1.5 border-b border-slate-200/80 bg-slate-50/90">
+            <p className="text-[10px] text-slate-500 leading-snug line-clamp-2">{hint}</p>
           </div>
         )}
         {messagesBlock}
@@ -202,7 +202,7 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
 
   return (
     <Card title={title}>
-      <p className="text-sm text-gray-400 mb-4 flex items-start gap-2">
+      <p className="text-sm text-slate-500 mb-4 flex items-start gap-2">
         <MessageSquare className="h-4 w-4 shrink-0 mt-0.5 text-blue-400" />
         {hint}
       </p>

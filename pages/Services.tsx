@@ -100,7 +100,7 @@ const services = [
 // Also, define the component as a React.FC for better type safety with props like `key`.
 const ServiceCard: React.FC<{ service: (typeof services)[number] }> = ({ service }) => {
     const cardContent = (
-        <div className={`h-full flex flex-col p-6 text-center transition-all duration-300 ${!service.isAvailable ? 'opacity-50' : 'group-hover:bg-white/5'}`}>
+        <div className={`h-full flex flex-col p-6 text-center transition-all duration-300 ${!service.isAvailable ? 'opacity-50' : 'group-hover:bg-slate-100/70'}`}>
             {service.isAvailable ? (
                 <div className="absolute top-3 right-3 px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-300">Mavjud</div>
             ) : (
@@ -112,12 +112,12 @@ const ServiceCard: React.FC<{ service: (typeof services)[number] }> = ({ service
             
             <div className="flex-shrink-0 mb-4">
                 <div className={`mx-auto w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br ${service.isAvailable ? 'from-blue-500 to-cyan-400' : 'from-gray-700 to-gray-600'}`}>
-                    <service.icon className="text-white" size={32} />
+                    <service.icon className="text-slate-900" size={32} />
                 </div>
             </div>
             <div className="flex-grow">
-                <h3 className="text-lg font-bold text-white mb-2">{service.title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{service.description}</p>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{service.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{service.description}</p>
             </div>
             {service.isAvailable && service.link && (
                 <div className="mt-6">
@@ -129,12 +129,12 @@ const ServiceCard: React.FC<{ service: (typeof services)[number] }> = ({ service
         </div>
     );
 
-    const commonClasses = "relative bg-black/20 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-lg h-full overflow-hidden";
+    const commonClasses = "relative bg-white/60 backdrop-blur-2xl border border-slate-200/90 rounded-2xl shadow-lg h-full overflow-hidden";
 
     if (service.isAvailable && service.link) {
         return (
             <Link to={service.link} className="block group">
-                 <div className={`${commonClasses} transition-all duration-300 hover:shadow-2xl hover:border-white/20`}>
+                 <div className={`${commonClasses} transition-all duration-300 hover:shadow-2xl hover:border-slate-300/80`}>
                     {cardContent}
                 </div>
             </Link>
@@ -151,7 +151,7 @@ const ServiceCard: React.FC<{ service: (typeof services)[number] }> = ({ service
 const Services = () => {
     return (
         <Card title="Xizmatlar Markazi">
-            <p className="text-center text-gray-300 mb-8 -mt-4 max-w-2xl mx-auto">Tadqiqot va nashr jarayonlaringizni osonlashtirish uchun mo'ljallangan keng qamrovli xizmatlarimizdan foydalaning.</p>
+            <p className="text-center text-slate-600 mb-8 -mt-4 max-w-2xl mx-auto">Tadqiqot va nashr jarayonlaringizni osonlashtirish uchun mo'ljallangan keng qamrovli xizmatlarimizdan foydalaning.</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {services.map((service) => (
                     <ServiceCard key={service.title} service={service} />

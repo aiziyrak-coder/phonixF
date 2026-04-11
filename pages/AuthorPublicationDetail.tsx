@@ -233,32 +233,32 @@ const AuthorPublicationDetail: React.FC = () => {
               <h3 className="text-lg font-semibold mb-4">Nashr ma'lumotlari</h3>
               <div className="space-y-3">
                 <div>
-                  <div className="text-sm text-gray-500">Muallif</div>
+                  <div className="text-sm text-slate-500">Muallif</div>
                   <div className="font-medium">{publication.author_name}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">Ilmiy soha</div>
+                  <div className="text-sm text-slate-500">Ilmiy soha</div>
                   <div className="font-medium">{publication.scientific_field_name}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">Nashr sanasi</div>
+                  <div className="text-sm text-slate-500">Nashr sanasi</div>
                   <div className="font-medium">{new Date(publication.publication_date).toLocaleDateString('uz-UZ')}</div>
                 </div>
                 {publication.doi && (
                   <div>
-                    <div className="text-sm text-gray-500">DOI</div>
+                    <div className="text-sm text-slate-500">DOI</div>
                     <div className="font-medium">{publication.doi}</div>
                   </div>
                 )}
                 {publication.pages && (
                   <div>
-                    <div className="text-sm text-gray-500">Sahifalar</div>
+                    <div className="text-sm text-slate-500">Sahifalar</div>
                     <div className="font-medium">{publication.pages}</div>
                   </div>
                 )}
                 {publication.co_authors && (
                   <div>
-                    <div className="text-sm text-gray-500">Hammualliflar</div>
+                    <div className="text-sm text-slate-500">Hammualliflar</div>
                     <div className="font-medium">{publication.co_authors}</div>
                   </div>
                 )}

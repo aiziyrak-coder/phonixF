@@ -111,7 +111,7 @@ const UdkRequests: React.FC = () => {
       case 'submitted': return 'text-yellow-400';
       case 'completed': return 'text-green-400';
       case 'rejected': return 'text-red-400';
-      default: return 'text-gray-400';
+      default: return 'text-slate-500';
     }
   };
 
@@ -123,8 +123,8 @@ const UdkRequests: React.FC = () => {
             <Library className="h-6 w-6 text-indigo-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">UDK so'rovlari</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-xl font-bold text-slate-900">UDK so'rovlari</h1>
+            <p className="text-sm text-slate-500">
               {isReviewer
                 ? "Mualliflar UDK raqami olish uchun yuborgan so'rovlar. Mavzu va annotatsiyani o'qib, mos UDK kodini kiriting."
                 : "Sizning UDK so'rovlaringiz. Taqrizchi UDK kodini kiritgach bu yerda ko'rinadi."}
@@ -137,7 +137,7 @@ const UdkRequests: React.FC = () => {
             <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
           </div>
         ) : list.length === 0 ? (
-          <p className="text-gray-400 py-4">UDK so'rovlari yo'q.</p>
+          <p className="text-slate-500 py-4">UDK so'rovlari yo'q.</p>
         ) : (
           <div className="space-y-4">
             {/* Kutilayotgan so'rovlar (submitted) */}
@@ -152,12 +152,12 @@ const UdkRequests: React.FC = () => {
                     >
                       <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-white">{req.author_short}</p>
+                          <p className="font-semibold text-slate-900">{req.author_short}</p>
                           <p className="text-sm text-indigo-300 mt-1 font-medium">{req.title}</p>
                           {req.abstract && (
-                            <p className="text-xs text-gray-400 mt-2 line-clamp-3">{req.abstract}</p>
+                            <p className="text-xs text-slate-500 mt-2 line-clamp-3">{req.abstract}</p>
                           )}
-                          <p className="text-xs text-gray-500 mt-2">
+                          <p className="text-xs text-slate-500 mt-2">
                             {new Date(req.created_at).toLocaleDateString('uz-UZ')}
                           </p>
                           {req.file_url && (
@@ -180,7 +180,7 @@ const UdkRequests: React.FC = () => {
                               [req.id]: { ...prev[req.id], code: e.target.value }
                             }))}
                             placeholder="UDK kodi (masalan: 332.055.2)"
-                            className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500"
+                            className="px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500"
                           />
                           <input
                             type="text"
@@ -190,7 +190,7 @@ const UdkRequests: React.FC = () => {
                               [req.id]: { ...prev[req.id], description: e.target.value }
                             }))}
                             placeholder="UDK tavsifi (ixtiyoriy)"
-                            className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500"
+                            className="px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500"
                           />
                           <div className="flex gap-2">
                             <Button
@@ -219,24 +219,24 @@ const UdkRequests: React.FC = () => {
             )}
 
             {/* Barcha so'rovlar ro'yxati */}
-            <h3 className="text-lg font-semibold text-white mb-3">
+            <h3 className="text-lg font-semibold text-slate-900 mb-3">
               {isReviewer ? 'Barcha so\'rovlar' : 'Mening so\'rovlarim'}
             </h3>
             {list.map((req) => (
               <div
                 key={req.id}
-                className="p-4 rounded-xl bg-white/5 border border-white/10"
+                className="p-4 rounded-xl bg-slate-100/70 border border-slate-200/90"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-medium text-white">{req.author_short}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(req.status)} bg-white/5`}>
+                      <p className="font-medium text-slate-900">{req.author_short}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded ${getStatusColor(req.status)} bg-slate-100/70`}>
                         {getStatusLabel(req.status)}
                       </span>
                     </div>
                     <p className="text-sm text-indigo-300 mt-1">{req.title}</p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1">
                       {new Date(req.created_at).toLocaleDateString('uz-UZ')}
                     </p>
                     {req.status === 'completed' && req.udk_code && (
@@ -269,15 +269,15 @@ const UdkRequests: React.FC = () => {
 
       {/* Reject Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-xl p-6 max-w-md w-full border border-white/10">
-            <h3 className="text-lg font-semibold text-white mb-4">UDK so'rovini rad etish</h3>
+        <div className="fixed inset-0 bg-slate-900/35 flex items-center justify-center z-50 p-4">
+          <div className="bg-white/55 rounded-xl p-6 max-w-md w-full border border-slate-200/90">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">UDK so'rovini rad etish</h3>
             <textarea
               value={rejectInputs[showRejectModal] ?? ''}
               onChange={(e) => setRejectInputs((prev) => ({ ...prev, [showRejectModal]: e.target.value }))}
               placeholder="Rad etish sababi (ixtiyoriy)"
               rows={3}
-              className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500 resize-none"
+              className="w-full px-3 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-red-500 resize-none"
             />
             <div className="flex gap-3 mt-4">
               <Button

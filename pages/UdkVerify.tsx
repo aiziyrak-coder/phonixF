@@ -39,8 +39,8 @@ const UdkVerify: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <div className="text-center text-gray-400">
+      <div className="min-h-screen bg-slate-50/90 flex items-center justify-center p-4">
+        <div className="text-center text-slate-500">
           <Loader2 className="h-10 w-10 animate-spin mx-auto mb-3 text-indigo-400" />
           <p>Ma\'lumotnoma tekshirilmoqda...</p>
         </div>
@@ -49,52 +49,52 @@ const UdkVerify: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50/90 flex items-center justify-center p-4">
       <Card className="max-w-lg w-full">
         {data?.valid ? (
           <>
             <div className="flex items-center gap-3 text-green-500 mb-4">
               <CheckCircle className="h-10 w-10 shrink-0" />
-              <h1 className="text-xl font-bold text-white">Ma\'lumotnoma haqiqiy</h1>
+              <h1 className="text-xl font-bold text-slate-900">Ma\'lumotnoma haqiqiy</h1>
             </div>
-            <p className="text-sm text-gray-400 mb-6">
+            <p className="text-sm text-slate-500 mb-6">
               Ushbu UDK ma\'lumotnoma platforma tomonidan berilgan va tasdiqlangan.
             </p>
             <dl className="space-y-3 text-sm">
               {data.document_number && (
                 <>
-                  <dt className="text-gray-500">Hujjat raqami</dt>
-                  <dd className="text-white font-mono">{data.document_number}</dd>
+                  <dt className="text-slate-500">Hujjat raqami</dt>
+                  <dd className="text-slate-900 font-mono">{data.document_number}</dd>
                 </>
               )}
               {data.document_date && (
                 <>
-                  <dt className="text-gray-500">Hujjat sanasi</dt>
-                  <dd className="text-white">{data.document_date}</dd>
+                  <dt className="text-slate-500">Hujjat sanasi</dt>
+                  <dd className="text-slate-900">{data.document_date}</dd>
                 </>
               )}
               {data.author_name && (
                 <>
-                  <dt className="text-gray-500">Muallif</dt>
-                  <dd className="text-white">{data.author_name}</dd>
+                  <dt className="text-slate-500">Muallif</dt>
+                  <dd className="text-slate-900">{data.author_name}</dd>
                 </>
               )}
               {data.title && (
                 <>
-                  <dt className="text-gray-500">Ish nomi</dt>
-                  <dd className="text-white">{data.title}</dd>
+                  <dt className="text-slate-500">Ish nomi</dt>
+                  <dd className="text-slate-900">{data.title}</dd>
                 </>
               )}
               {data.udk_code && (
                 <>
-                  <dt className="text-gray-500">UDK raqami</dt>
+                  <dt className="text-slate-500">UDK raqami</dt>
                   <dd className="text-indigo-300 font-mono font-semibold">{data.udk_code}</dd>
                 </>
               )}
               {data.udk_description && (
                 <>
-                  <dt className="text-gray-500">Tavsif</dt>
-                  <dd className="text-gray-300">{data.udk_description}</dd>
+                  <dt className="text-slate-500">Tavsif</dt>
+                  <dd className="text-slate-600">{data.udk_description}</dd>
                 </>
               )}
             </dl>
@@ -103,14 +103,14 @@ const UdkVerify: React.FC = () => {
           <>
             <div className="flex items-center gap-3 text-red-400 mb-4">
               <XCircle className="h-10 w-10 shrink-0" />
-              <h1 className="text-xl font-bold text-white">Tekshirish natijasi</h1>
+              <h1 className="text-xl font-bold text-slate-900">Tekshirish natijasi</h1>
             </div>
-            <p className="text-gray-300">
+            <p className="text-slate-600">
               {data?.detail || 'Ma\'lumotnoma topilmadi yoki haqiqiy emas.'}
             </p>
           </>
         )}
-        <p className="text-xs text-gray-500 mt-6">
+        <p className="text-xs text-slate-500 mt-6">
           www.ilmiyfaoliyat.uz — Phoenix Ilmiy Nashrlar Markazi
         </p>
       </Card>

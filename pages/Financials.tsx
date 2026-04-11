@@ -110,7 +110,7 @@ const Financials: React.FC = () => {
         'pending': 'bg-yellow-500/20 text-yellow-300',
         'completed': 'bg-green-500/20 text-green-300',
         'failed': 'bg-red-500/20 text-red-300',
-        'cancelled': 'bg-gray-500/20 text-gray-300',
+        'cancelled': 'bg-gray-500/20 text-slate-600',
     };
 
     const handleExport = () => {
@@ -205,8 +205,8 @@ const Financials: React.FC = () => {
                             <div className="h-8 w-8 text-green-400 font-bold text-xl">+</div>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400">Jami tushum</p>
-                            <p className="text-2xl font-bold text-white">{totalIncome.toLocaleString()} so'm</p>
+                            <p className="text-sm text-slate-500">Jami tushum</p>
+                            <p className="text-2xl font-bold text-slate-900">{totalIncome.toLocaleString()} so'm</p>
                         </div>
                     </div>
                 </Card>
@@ -217,8 +217,8 @@ const Financials: React.FC = () => {
                             <div className="h-8 w-8 text-red-400 font-bold text-xl">-</div>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400">Jami chiqim</p>
-                            <p className="text-2xl font-bold text-white">{totalExpenses.toLocaleString()} so'm</p>
+                            <p className="text-sm text-slate-500">Jami chiqim</p>
+                            <p className="text-2xl font-bold text-slate-900">{totalExpenses.toLocaleString()} so'm</p>
                         </div>
                     </div>
                 </Card>
@@ -229,8 +229,8 @@ const Financials: React.FC = () => {
                             <div className="h-8 w-8 text-blue-400 font-bold text-xl">=</div>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400">Balans</p>
-                            <p className="text-2xl font-bold text-white">{(totalIncome - totalExpenses).toLocaleString()} so'm</p>
+                            <p className="text-sm text-slate-500">Balans</p>
+                            <p className="text-2xl font-bold text-slate-900">{(totalIncome - totalExpenses).toLocaleString()} so'm</p>
                         </div>
                     </div>
                 </Card>
@@ -243,7 +243,7 @@ const Financials: React.FC = () => {
                         {Object.entries(incomeByServiceType).length > 0 ? (
                             Object.entries(incomeByServiceType).map(([serviceType, amount]) => (
                                 <div key={serviceType} className="flex justify-between items-center">
-                                    <span className="text-gray-300">
+                                    <span className="text-slate-600">
                                         {serviceTypeNames[serviceType] || serviceType}
                                     </span>
                                     <span className="font-medium text-green-400">
@@ -252,7 +252,7 @@ const Financials: React.FC = () => {
                                 </div>
                             ))
                         ) : (
-                            <p className="text-center text-gray-400 py-4">Ma'lumot mavjud emas</p>
+                            <p className="text-center text-slate-500 py-4">Ma'lumot mavjud emas</p>
                         )}
                     </div>
                 </Card>
@@ -262,7 +262,7 @@ const Financials: React.FC = () => {
                         {Object.entries(expensesByServiceType).length > 0 ? (
                             Object.entries(expensesByServiceType).map(([serviceType, amount]) => (
                                 <div key={serviceType} className="flex justify-between items-center">
-                                    <span className="text-gray-300">
+                                    <span className="text-slate-600">
                                         {serviceTypeNames[serviceType] || serviceType}
                                     </span>
                                     <span className="font-medium text-red-400">
@@ -271,7 +271,7 @@ const Financials: React.FC = () => {
                                 </div>
                             ))
                         ) : (
-                            <p className="text-center text-gray-400 py-4">Ma'lumot mavjud emas</p>
+                            <p className="text-center text-slate-500 py-4">Ma'lumot mavjud emas</p>
                         )}
                     </div>
                 </Card>
@@ -281,9 +281,9 @@ const Financials: React.FC = () => {
                 <div className="mb-6 flex flex-col lg:flex-row gap-4">
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Qidirish</label>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">Qidirish</label>
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 h-4 w-4" />
                                 <input
                                     type="text"
                                     placeholder="Foydalanuvchi yoki xizmat bo'yicha qidirish..."
@@ -295,7 +295,7 @@ const Financials: React.FC = () => {
                         </div>
                         
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Sana oralig'i</label>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">Sana oralig'i</label>
                             <div className="grid grid-cols-2 gap-2">
                                 <input
                                     type="date"
@@ -313,7 +313,7 @@ const Financials: React.FC = () => {
                         </div>
                         
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Xizmat turi</label>
+                            <label className="block text-sm font-medium text-slate-600 mb-2">Xizmat turi</label>
                             <select
                                 className="w-full"
                                 value={serviceType}
@@ -334,18 +334,18 @@ const Financials: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-lg border border-white/10">
+                <div className="overflow-x-auto rounded-lg border border-slate-200/90">
                     <table className="w-full text-left">
-                        <thead className="bg-white/5">
+                        <thead className="bg-slate-100/70">
                             <tr>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Foydalanuvchi</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Xizmat</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Miqdor</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Sana</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Holat</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Foydalanuvchi</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Xizmat</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Miqdor</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Sana</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Holat</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/10">
+                        <tbody className="divide-y divide-slate-200/80">
                             {filteredTransactions.length > 0 ? (
                                 filteredTransactions.map(transaction => {
                                     const user = users.find(u => u.id === transaction.user);
@@ -355,9 +355,9 @@ const Financials: React.FC = () => {
                                     const amountPrefix = isFailed ? '' : '+';
                                     const amountColor = isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400';
                                     return (
-                                        <tr key={transaction.id} className="hover:bg-white/5 transition-colors">
-                                            <td className="px-4 py-4 text-sm text-gray-300">{userName}</td>
-                                            <td className="px-4 py-4 text-sm text-gray-300">
+                                        <tr key={transaction.id} className="hover:bg-slate-100/70 transition-colors">
+                                            <td className="px-4 py-4 text-sm text-slate-600">{userName}</td>
+                                            <td className="px-4 py-4 text-sm text-slate-600">
                                                 {serviceTypeNames[transaction.service_type] || transaction.service_type || 'Noma\'lum'}
                                             </td>
                                             <td className="px-4 py-4 text-sm font-medium">
@@ -365,11 +365,11 @@ const Financials: React.FC = () => {
                                                     {amountPrefix}{Number(transaction.amount || 0).toLocaleString()} {transaction.currency}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-gray-300">
+                                            <td className="px-4 py-4 text-sm text-slate-600">
                                                 {new Date(transaction.created_at).toLocaleDateString()}
                                             </td>
                                             <td className="px-4 py-4 text-sm">
-                                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[transaction.status] || 'bg-gray-500/20 text-gray-300'}`}>
+                                                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[transaction.status] || 'bg-gray-500/20 text-slate-600'}`}>
                                                     {transaction.status === 'completed' ? 'Tugallangan' : transaction.status === 'failed' ? 'Bekor qilindi' : transaction.status === 'cancelled' ? 'Bekor qilindi' : transaction.status === 'pending' ? 'Kutilmoqda' : transaction.status}
                                                 </span>
                                                 {isFailed && (transaction.error_note || '') && (
@@ -382,9 +382,9 @@ const Financials: React.FC = () => {
                             ) : (
                                 <tr>
                                     <td colSpan={5} className="px-4 py-12 text-center">
-                                        <Filter className="mx-auto h-12 w-12 text-gray-400" />
-                                        <h3 className="mt-2 text-sm font-medium text-white">Tranzaksiyalar topilmadi</h3>
-                                        <p className="mt-1 text-sm text-gray-400">
+                                        <Filter className="mx-auto h-12 w-12 text-slate-500" />
+                                        <h3 className="mt-2 text-sm font-medium text-slate-900">Tranzaksiyalar topilmadi</h3>
+                                        <p className="mt-1 text-sm text-slate-500">
                                             {searchQuery || dateRange.start || dateRange.end || serviceType !== 'all' 
                                                 ? 'Tanlangan filtrlar bo\'yicha hech narsa topilmadi.' 
                                                 : 'Hozircha tranzaksiyalar mavjud emas.'}

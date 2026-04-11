@@ -77,8 +77,8 @@ const LoginSimple: React.FC = () => {
             <Card>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="text-center mb-6">
-                        <h2 className="text-2xl font-bold text-white mb-2">Tizimga kirish</h2>
-                        <p className="text-sm text-gray-400">Telefon raqam va parol bilan kirish</p>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Tizimga kirish</h2>
+                        <p className="text-sm text-slate-500">Telefon raqam va parol bilan kirish</p>
                     </div>
                     
                     {error && (
@@ -88,18 +88,18 @@ const LoginSimple: React.FC = () => {
                     )}
                     
                     <div>
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+                        <label htmlFor="phone" className="block text-sm font-medium text-slate-600 mb-2">
                             Telefon raqam
                         </label>
                         <div className="flex items-center gap-2">
-                            <span className="px-3 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-300 font-medium whitespace-nowrap">+998</span>
+                            <span className="px-3 py-3 bg-slate-100/90 border border-slate-200 rounded-lg text-slate-600 font-medium whitespace-nowrap">+998</span>
                             <input
                                 type="tel"
                                 name="phone"
                                 id="phone"
                                 value={phone}
                                 onChange={handlePhoneChange}
-                                className="flex-1 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                className="flex-1 p-3 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500"
                                 placeholder="90 123 45 67"
                                 required
                                 autoComplete="tel"
@@ -109,11 +109,11 @@ const LoginSimple: React.FC = () => {
                                 aria-describedby="phone-hint"
                             />
                         </div>
-                        <p id="phone-hint" className="text-xs text-gray-400 mt-1">9 ta raqam (masalan 901234567)</p>
+                        <p id="phone-hint" className="text-xs text-slate-500 mt-1">9 ta raqam (masalan 901234567)</p>
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                        <label htmlFor="password" className="block text-sm font-medium text-slate-600 mb-2">
                             Parol
                         </label>
                         <div className="relative">
@@ -125,13 +125,13 @@ const LoginSimple: React.FC = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 autoComplete="current-password"
                                 required
-                                className="w-full p-3 pr-10 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                className="w-full p-3 pr-10 bg-white/50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500"
                                 placeholder="Parolingizni kiriting"
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-slate-900"
                             >
                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </button>
@@ -167,7 +167,7 @@ const LoginSimple: React.FC = () => {
                 </form>
 
                 <div className="mt-6 text-center text-sm">
-                    <p className="text-gray-400">
+                    <p className="text-slate-500">
                         Hisobingiz yo'qmi?{' '}
                         <Link to="/register" className="font-semibold text-blue-400 hover:text-blue-300">
                             Ro'yxatdan o'tish

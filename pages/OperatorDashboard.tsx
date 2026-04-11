@@ -138,7 +138,7 @@ const OperatorDashboard: React.FC = () => {
       rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
       BekorQilindi: 'bg-red-500/20 text-red-400 border-red-500/30',
     };
-    return badges[status] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    return badges[status] || 'bg-gray-500/20 text-slate-500 border-gray-500/30';
   };
 
   if (loading) {
@@ -146,7 +146,7 @@ const OperatorDashboard: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400">Ma'lumotlar yuklanmoqda...</p>
+          <p className="text-slate-500">Ma'lumotlar yuklanmoqda...</p>
         </div>
       </div>
     );
@@ -158,10 +158,10 @@ const OperatorDashboard: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
               👑 Operator Dashboard
             </h1>
-            <p className="text-gray-400">
+            <p className="text-slate-500">
               Barcha so'rovlarni nazorat qilish va boshqarish markazi
             </p>
           </div>
@@ -187,10 +187,10 @@ const OperatorDashboard: React.FC = () => {
                 {user?.firstName?.[0]}{user?.lastName?.[0]}
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">
+                <h2 className="text-xl font-bold text-slate-900">
                   {`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Operator'}
                 </h2>
-                <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="flex items-center gap-2 text-sm text-slate-500">
                   <Shield className="h-4 w-4" />
                   <span>Senior Operator</span>
                   <span>•</span>
@@ -199,7 +199,7 @@ const OperatorDashboard: React.FC = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-400 mb-1">Platformadagi roli</div>
+              <div className="text-sm text-slate-500 mb-1">Platformadagi roli</div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30">
                 <Award className="h-4 w-4 text-blue-400" />
                 <span className="font-semibold text-blue-400">Bosh Operator</span>
@@ -276,7 +276,7 @@ const OperatorDashboard: React.FC = () => {
 
       <Card className="mb-8 border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-gray-900/80">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+          <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-cyan-400" />
             Muallif chatlari (oxirgi xabarlar)
           </h3>
@@ -286,27 +286,27 @@ const OperatorDashboard: React.FC = () => {
             </Button>
           </Link>
         </div>
-        <p className="text-sm text-gray-400 mb-4">
+        <p className="text-sm text-slate-500 mb-4">
           Har bir maqola alohida yozishma. Muallif yozganida barcha operatorlarga bildirishnoma boradi.
         </p>
         {chatInbox.length === 0 ? (
-          <p className="text-gray-500 text-sm py-4 text-center">Hozircha faol chatlar yo‘q. Maqolalar ro‘yxatidan oching.</p>
+          <p className="text-slate-500 text-sm py-4 text-center">Hozircha faol chatlar yo‘q. Maqolalar ro‘yxatidan oching.</p>
         ) : (
           <ul className="space-y-2 max-h-64 overflow-y-auto">
             {chatInbox.slice(0, 15).map((row) => (
               <li key={row.id}>
                 <Link
                   to={`/articles/${row.id}`}
-                  className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-800/60 hover:bg-gray-700/60 border border-white/5 transition-colors"
+                  className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/70 backdrop-blur-sm hover:bg-white/90 border border-slate-200/80 transition-colors shadow-sm"
                 >
                   <div className="min-w-0">
-                    <p className="font-medium text-white truncate">{row.title}</p>
-                    <p className="text-xs text-gray-400 truncate">
+                    <p className="font-medium text-slate-900 truncate">{row.title}</p>
+                    <p className="text-xs text-slate-500 truncate">
                       {row.author_name}
                       {row.journal_name ? ` · ${row.journal_name}` : ''}
                     </p>
                   </div>
-                  <span className="text-xs text-gray-500 shrink-0">
+                  <span className="text-xs text-slate-500 shrink-0">
                     {row.last_message_at
                       ? new Date(row.last_message_at).toLocaleString('uz-UZ')
                       : ''}
@@ -321,7 +321,7 @@ const OperatorDashboard: React.FC = () => {
       {/* Recent Activity */}
       <Card className="mb-8">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+          <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <Activity className="h-5 w-5 text-blue-400" />
             Oxirgi Faollik
           </h3>
@@ -332,7 +332,7 @@ const OperatorDashboard: React.FC = () => {
         </div>
         <div className="space-y-3">
           {stats?.recentActivities.slice(0, 5).map((activity, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors">
+            <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-white/70 backdrop-blur-sm hover:bg-white/90 border border-slate-200/70 transition-colors shadow-sm">
               <div className="flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                   activity.type === 'udk' ? 'bg-blue-500/20 text-blue-400' :
@@ -344,15 +344,15 @@ const OperatorDashboard: React.FC = () => {
                    <FileText className="h-5 w-5" />}
                 </div>
                 <div>
-                  <p className="font-medium text-white">{activity.title || 'So\'rov'}</p>
-                  <p className="text-sm text-gray-400">{activity.author_name || 'Noma\'lum'}</p>
+                  <p className="font-medium text-slate-900">{activity.title || 'So\'rov'}</p>
+                  <p className="text-sm text-slate-500">{activity.author_name || 'Noma\'lum'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(activity.status)}`}>
                   {activity.status}
                 </span>
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-slate-500">
                   {new Date(activity.created_at || activity.submission_date).toLocaleDateString('uz-UZ')}
                 </span>
               </div>
@@ -403,12 +403,12 @@ const StatCard: React.FC<{
     <div className="relative">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-white">{value}</p>
-          {description && <p className="text-xs text-gray-500 mt-1">{description}</p>}
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-slate-900">{value}</p>
+          {description && <p className="text-xs text-slate-500 mt-1">{description}</p>}
         </div>
         <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient}`}>
-          <Icon className="h-6 w-6 text-white" />
+          <Icon className="h-6 w-6 text-slate-900" />
         </div>
       </div>
       {alert && (
@@ -441,11 +441,11 @@ const ServiceStatCard: React.FC<{
       <Card className={`h-full border ${colors[color]} hover:scale-105 transition-transform cursor-pointer`}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-400 mb-1">{title}</p>
-            <p className="text-2xl font-bold text-white">{count}</p>
+            <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
+            <p className="text-2xl font-bold text-slate-900">{count}</p>
           </div>
           <div className={`p-3 rounded-xl bg-gradient-to-br ${color === 'blue' ? 'from-blue-600 to-cyan-600' : color === 'purple' ? 'from-purple-600 to-pink-600' : color === 'green' ? 'from-green-600 to-emerald-600' : 'from-orange-600 to-red-600'}`}>
-            <Icon className="h-6 w-6 text-white" />
+            <Icon className="h-6 w-6 text-slate-900" />
           </div>
         </div>
       </Card>
@@ -469,14 +469,14 @@ const QuickActionCard: React.FC<{
 
   return (
     <Link to={link}>
-      <Card className={`h-full border border-gray-700 ${colors[color]} transition-all cursor-pointer hover:shadow-lg`}>
+      <Card className={`h-full border border-slate-200 ${colors[color]} transition-all cursor-pointer hover:shadow-lg`}>
         <div className="flex items-start gap-4">
           <div className={`p-4 rounded-xl bg-gradient-to-br from-${color}-600/20 to-${color}-600/10`}>
             <Icon className={`h-8 w-8 text-${color}-400`} />
           </div>
           <div className="flex-1">
-            <h3 className="font-bold text-white mb-1">{title}</h3>
-            <p className="text-sm text-gray-400">{description}</p>
+            <h3 className="font-bold text-slate-900 mb-1">{title}</h3>
+            <p className="text-sm text-slate-500">{description}</p>
           </div>
         </div>
       </Card>

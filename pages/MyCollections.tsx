@@ -113,18 +113,18 @@ const MyCollections: React.FC = () => {
 
     return (
         <Card title="Mening To'plamlarim">
-            <p className="text-gray-300 mb-6 -mt-4">Bu yerda sizning maqolalaringiz kiritilgan jurnallarning oylik to'plamlarini topishingiz mumkin.</p>
+            <p className="text-slate-600 mb-6 -mt-4">Bu yerda sizning maqolalaringiz kiritilgan jurnallarning oylik to'plamlarini topishingiz mumkin.</p>
             <div className="space-y-4">
                 {myCollections.length > 0 ? (
                     myCollections.map(issue => {
                         const journal = journals.find(j => j.id === issue.journal);
                         return (
-                             <div key={issue.id} className="p-5 bg-white/5 rounded-xl border border-white/10">
+                             <div key={issue.id} className="p-5 bg-slate-100/70 rounded-xl border border-slate-200/90">
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                     <div>
-                                        <h3 className="text-xl font-bold text-white">{journal?.name}</h3>
+                                        <h3 className="text-xl font-bold text-slate-900">{journal?.name}</h3>
                                         <p className="font-semibold text-blue-300 mt-1">{issue.issue_number} soni</p>
-                                        <p className="text-xs text-gray-400 mt-2">
+                                        <p className="text-xs text-slate-500 mt-2">
                                             Nashr sanasi: {new Date(issue.publication_date).toLocaleDateString()}
                                         </p>
                                     </div>
@@ -155,9 +155,9 @@ const MyCollections: React.FC = () => {
                     })
                 ) : (
                     <div className="text-center py-12">
-                        <Archive className="mx-auto h-16 w-16 text-gray-500" />
-                        <h3 className="mt-4 text-xl font-semibold text-white">To'plamlar Hozircha Mavjud Emas</h3>
-                        <p className="mt-2 text-sm text-gray-400">Maqolangiz biror sonda nashr etilganda va admin to'plam havolasini yuborganda, u shu yerda paydo bo'ladi.</p>
+                        <Archive className="mx-auto h-16 w-16 text-slate-500" />
+                        <h3 className="mt-4 text-xl font-semibold text-slate-900">To'plamlar Hozircha Mavjud Emas</h3>
+                        <p className="mt-2 text-sm text-slate-500">Maqolangiz biror sonda nashr etilganda va admin to'plam havolasini yuborganda, u shu yerda paydo bo'ladi.</p>
                     </div>
                 )}
             </div>
