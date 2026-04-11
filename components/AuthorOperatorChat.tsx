@@ -21,6 +21,8 @@ interface AuthorOperatorChatProps {
   authorDisplayName?: string;
   /** O‘ng tomonda ixcham doimiy panel */
   variant?: 'default' | 'dock';
+  /** Global panelda tashqi sarlavha bor — ichki gradient blokni yashirish */
+  embeddedInGlobalDock?: boolean;
 }
 
 /**
@@ -32,6 +34,7 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
   viewerIsAuthor,
   authorDisplayName,
   variant = 'default',
+  embeddedInGlobalDock = false,
 }) => {
   const [messages, setMessages] = useState<OperatorChatMessage[]>([]);
   const [text, setText] = useState('');
@@ -177,13 +180,20 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
   if (isDock) {
     return (
       <div className="flex flex-col h-full min-h-0 text-left">
-        <div className="shrink-0 px-3 py-2 border-b border-white/10 bg-gradient-to-r from-blue-950/80 to-gray-950/90">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-blue-400 shrink-0" />
-            <span className="text-sm font-semibold text-white leading-tight">{title}</span>
+        {!embeddedInGlobalDock && (
+          <div className="shrink-0 px-3 py-2 border-b border-white/10 bg-gradient-to-r from-blue-950/80 to-gray-950/90">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-blue-400 shrink-0" />
+              <span className="text-sm font-semibold text-white leading-tight">{title}</span>
+            </div>
+            <p className="text-[10px] text-gray-500 mt-1 line-clamp-2 leading-snug">{hint}</p>
           </div>
-          <p className="text-[10px] text-gray-500 mt-1 line-clamp-2 leading-snug">{hint}</p>
-        </div>
+        )}
+        {embeddedInGlobalDock && (
+          <div className="shrink-0 px-2.5 py-1.5 border-b border-white/10 bg-gray-950/80">
+            <p className="text-[10px] text-gray-500 leading-snug line-clamp-2">{hint}</p>
+          </div>
+        )}
         {messagesBlock}
         {inputBlock}
       </div>

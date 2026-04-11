@@ -11,6 +11,7 @@ import { apiService } from '../services/apiService';
 import { toast } from 'react-toastify';
 import { getAuthorWorkflowStepsFromStatus, getAuthorWorkflowProgressPercent } from '../utils/articleAuthorWorkflow';
 import AuthorOperatorChat from '../components/AuthorOperatorChat';
+import { ARTICLE_CHAT_DOCK_BREAKPOINT_PX } from '../components/ArticleChatDock';
 import { useMediaMinWidth } from '../hooks/useMediaMinWidth';
 
 // Type for the API response which has different field names
@@ -47,7 +48,7 @@ const ArticleDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
     const navigate = useNavigate();
-    const isLargeScreen = useMediaMinWidth(1024);
+    const isLargeScreen = useMediaMinWidth(ARTICLE_CHAT_DOCK_BREAKPOINT_PX);
     const [article, setArticle] = useState<ArticleApiResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
