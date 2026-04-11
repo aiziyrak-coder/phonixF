@@ -108,9 +108,9 @@ const UdkRequests: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'submitted': return 'text-yellow-400';
-      case 'completed': return 'text-green-400';
-      case 'rejected': return 'text-red-400';
+      case 'submitted': return 'text-yellow-800';
+      case 'completed': return 'text-emerald-800';
+      case 'rejected': return 'text-red-700';
       default: return 'text-slate-500';
     }
   };
@@ -143,7 +143,7 @@ const UdkRequests: React.FC = () => {
             {/* Kutilayotgan so'rovlar (submitted) */}
             {isReviewer && submittedList.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-yellow-400 mb-3">Kutilayotgan so'rovlar ({submittedList.length})</h3>
+                <h3 className="text-lg font-semibold text-yellow-800 mb-3">Kutilayotgan so'rovlar ({submittedList.length})</h3>
                 <div className="space-y-4">
                   {submittedList.map((req) => (
                     <div
@@ -165,7 +165,7 @@ const UdkRequests: React.FC = () => {
                               href={req.file_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:underline mt-2"
+                              className="inline-flex items-center gap-1 text-sm text-cyan-800 hover:underline mt-2"
                             >
                               <FileText size={14} /> Faylni yuklab olish
                             </a>
@@ -240,12 +240,12 @@ const UdkRequests: React.FC = () => {
                       {new Date(req.created_at).toLocaleDateString('uz-UZ')}
                     </p>
                     {req.status === 'completed' && req.udk_code && (
-                      <p className="text-sm text-green-400 mt-2">
+                      <p className="text-sm text-emerald-800 mt-2">
                         UDK: {req.udk_code} {req.udk_description && `— ${req.udk_description}`}
                       </p>
                     )}
                     {req.status === 'rejected' && req.reject_reason && (
-                      <p className="text-sm text-red-400 mt-2">
+                      <p className="text-sm text-red-700 mt-2">
                         Sabab: {req.reject_reason}
                       </p>
                     )}
@@ -254,7 +254,7 @@ const UdkRequests: React.FC = () => {
                         href={req.file_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:underline mt-2"
+                        className="inline-flex items-center gap-1 text-sm text-cyan-800 hover:underline mt-2"
                       >
                         <ExternalLink size={14} /> Fayl
                       </a>

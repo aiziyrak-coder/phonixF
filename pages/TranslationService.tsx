@@ -244,7 +244,7 @@ const TranslationService: React.FC = () => {
                     DOC, DOCX, PDF (MAX. 10MB)
                   </p>
                   {file && (
-                    <p className="mt-2 text-sm text-green-400 flex items-center">
+                    <p className="mt-2 text-sm text-emerald-800 flex items-center">
                       <CheckCircle className="w-4 h-4 mr-1" />
                       {file.name}
                     </p>
@@ -327,20 +327,20 @@ const TranslationService: React.FC = () => {
               {analysisResult && (
                 <div className="p-4 bg-slate-100/70 rounded-lg border border-slate-200/90">
                   <h3 className="font-medium text-slate-900 mb-3 flex items-center">
-                    <Languages className="mr-2 h-5 w-5 text-blue-400" />
+                    <Languages className="mr-2 h-5 w-5 text-blue-800" />
                     Tahlil Natijalari
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="p-3 bg-blue-900/20 rounded border border-blue-700/30">
-                      <p className="text-sm text-blue-300">Fayl nomi</p>
+                      <p className="text-sm text-blue-900">Fayl nomi</p>
                       <p className="font-medium text-slate-900 truncate">{analysisResult.fileName}</p>
                     </div>
                     <div className="p-3 bg-green-900/20 rounded border border-green-700/30">
-                      <p className="text-sm text-green-300">So'zlar soni</p>
+                      <p className="text-sm text-emerald-900">So'zlar soni</p>
                       <p className="font-medium text-slate-900">{analysisResult.wordCount.toLocaleString()}</p>
                     </div>
                     <div className="p-3 bg-yellow-900/20 rounded border border-yellow-700/30">
-                      <p className="text-sm text-yellow-300">Taxminiy narx</p>
+                      <p className="text-sm text-yellow-900">Taxminiy narx</p>
                       <p className="font-medium text-slate-900">{analysisResult.cost.toLocaleString()} so'm</p>
                     </div>
                   </div>
@@ -387,9 +387,9 @@ const TranslationService: React.FC = () => {
           {/* Information Section */}
           <div className="p-4 bg-blue-900/10 border border-blue-700/30 rounded-lg">
             <div className="flex items-start">
-              <AlertCircle className="h-5 w-5 text-blue-400 mt-0.5 mr-2 flex-shrink-0" />
+              <AlertCircle className="h-5 w-5 text-blue-800 mt-0.5 mr-2 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-blue-300">Muhim Ma'lumot</h4>
+                <h4 className="font-medium text-blue-900">Muhim Ma'lumot</h4>
                 <p className="mt-1 text-sm text-slate-600">
                   Tarjima xizmati uchun narx so&apos;zlar soniga qarab hisoblanadi. Hozirgi narx:{' '}
                   <span className="font-semibold text-blue-200">
@@ -415,7 +415,7 @@ const TranslationService: React.FC = () => {
                   Tarjima xizmati uchun to'lov:
                 </p>
                 <div className="p-3 bg-blue-900/20 rounded border border-blue-700/30 mb-4">
-                  <p className="text-sm text-blue-300">So'zlar soni: {analysisResult?.wordCount.toLocaleString()}</p>
+                  <p className="text-sm text-blue-900">So'zlar soni: {analysisResult?.wordCount.toLocaleString()}</p>
                   <p className="text-lg font-bold text-slate-900 mt-1">{analysisResult?.cost.toLocaleString()} so'm</p>
                 </div>
                 <div className="flex gap-3">
@@ -437,7 +437,7 @@ const TranslationService: React.FC = () => {
             )}
             {paymentStatus === 'success' && (
               <div className="text-center">
-                <div className="text-green-500 text-4xl mb-4">✓</div>
+                <div className="text-green-800 text-4xl mb-4">✓</div>
                 <p className="mt-4 text-lg font-medium text-slate-700">To'lov muvaffaqiyatli!</p>
                 <Button onClick={() => { closePaymentModal(); handleSubmit(true); }} className="w-full mt-6">
                   So'rovni Davom Ettirish

@@ -95,21 +95,21 @@ const ClickPayment: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
             <Card className="max-w-md w-full">
                 <div className="text-center mb-6">
-                    <CreditCard className="h-16 w-16 mx-auto mb-4 text-blue-400" />
+                    <CreditCard className="h-16 w-16 mx-auto mb-4 text-blue-800" />
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">Click To'lov</h2>
                     <p className="text-slate-500">To'lovni amalga oshirish uchun tugmani bosing</p>
                 </div>
 
                 {isLoading && (
                     <div className="text-center py-8">
-                        <Loader className="h-12 w-12 mx-auto animate-spin text-blue-400 mb-4" />
+                        <Loader className="h-12 w-12 mx-auto animate-spin text-blue-800 mb-4" />
                         <p className="text-slate-500">To'lov sahifasi tayyorlanmoqda...</p>
                     </div>
                 )}
 
                 {error && (
                     <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg mb-4">
-                        <div className="flex items-center gap-2 text-red-300">
+                        <div className="flex items-center gap-2 text-red-800">
                             <XCircle className="h-5 w-5" />
                             <p>{error}</p>
                         </div>
@@ -119,7 +119,7 @@ const ClickPayment: React.FC = () => {
                 {status === 'success' && paymentUrl && (
                     <div className="space-y-4">
                         <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
-                            <div className="flex items-center gap-2 text-green-300 mb-2">
+                            <div className="flex items-center gap-2 text-emerald-900 mb-2">
                                 <CheckCircle className="h-5 w-5" />
                                 <p className="font-semibold">Click to&apos;lov sahifasi tayyor</p>
                             </div>
@@ -133,7 +133,7 @@ const ClickPayment: React.FC = () => {
                         {/* Kompyuter: QR; mobil: avtomatik Click — QR kerak emas */}
                         {useMobileAutoFlow ? (
                             <div className="flex flex-col items-center justify-center p-8 bg-slate-100/70 rounded-xl border border-slate-200/90 min-h-[140px]">
-                                <Loader className="h-10 w-10 animate-spin text-cyan-400 mb-3" />
+                                <Loader className="h-10 w-10 animate-spin text-cyan-800 mb-3" />
                                 <p className="text-slate-700 text-sm text-center font-medium">
                                     Click to&apos;lov sahifasiga yo&apos;naltirilmoqdasiz...
                                 </p>
@@ -184,12 +184,12 @@ const ClickPayment: React.FC = () => {
 
                         {transaction?.status === 'completed' && transaction?.udk_certificate_url && (
                             <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
-                                <p className="font-semibold text-green-300 mb-2">UDK tasdiqlangan ma&apos;lumotnoma tayyor</p>
+                                <p className="font-semibold text-emerald-900 mb-2">UDK tasdiqlangan ma&apos;lumotnoma tayyor</p>
                                 <a
                                     href={transaction.udk_certificate_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 text-sm text-green-400 hover:underline"
+                                    className="inline-flex items-center gap-2 text-sm text-emerald-800 hover:underline"
                                 >
                                     Ma&apos;lumotnomani yuklab olish
                                 </a>

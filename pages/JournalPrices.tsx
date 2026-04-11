@@ -99,7 +99,7 @@ const JournalPrices: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 rounded-xl bg-blue-500/20">
-                            <TrendingUp className="h-6 w-6 text-blue-400" />
+                            <TrendingUp className="h-6 w-6 text-blue-800" />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-slate-900">Jurnal Narxlari</h1>
@@ -112,7 +112,7 @@ const JournalPrices: React.FC = () => {
 
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
                     </div>
                 ) : prices.length === 0 ? (
                     <p className="text-slate-500 text-center py-8">Hozircha jurnallar yo'q.</p>
@@ -206,13 +206,13 @@ const JournalPrices: React.FC = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
                                             <div>
                                                 <p className="text-xs text-slate-500 mb-1">Nashr qilish to'lovi</p>
-                                                <p className="text-lg font-bold text-green-400">
+                                                <p className="text-lg font-bold text-emerald-800">
                                                     {formatPrice(journal.publicationFee)}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-xs text-slate-500 mb-1">Bet narxi</p>
-                                                <p className="text-lg font-bold text-cyan-400">
+                                                <p className="text-lg font-bold text-cyan-800">
                                                     {formatPrice(journal.pricePerPage)}
                                                 </p>
                                             </div>

@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Sahifani yangilang yoki bosh sahifaga qayting. Muammo takrorlansa, administratorga xabar bering.
             </p>
             {import.meta.env.DEV && (
-              <pre className="text-left text-xs text-red-300/90 bg-black/40 rounded-lg p-3 mb-6 overflow-auto max-h-32">
+              <pre className="text-left text-xs text-red-800/90 bg-black/40 rounded-lg p-3 mb-6 overflow-auto max-h-32">
                 {this.state.message}
               </pre>
             )}

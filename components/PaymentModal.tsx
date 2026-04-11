@@ -79,7 +79,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
         {status === 'success' && (
           <div className="text-center">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+            <CheckCircle className="h-16 w-16 text-green-800 mx-auto mb-4" />
             <p className="mt-4 text-lg font-medium text-slate-700">To'lov muvaffaqiyatli!</p>
             <p className="mt-2 text-sm text-slate-500">To'lov sahifasiga yo'naltirilmoqdasiz</p>
           </div>

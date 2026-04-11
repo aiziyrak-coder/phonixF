@@ -102,9 +102,9 @@ const ServiceCard: React.FC<{ service: (typeof services)[number] }> = ({ service
     const cardContent = (
         <div className={`h-full flex flex-col p-6 text-center transition-all duration-300 ${!service.isAvailable ? 'opacity-50' : 'group-hover:bg-slate-100/70'}`}>
             {service.isAvailable ? (
-                <div className="absolute top-3 right-3 px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-300">Mavjud</div>
+                <div className="absolute top-3 right-3 px-2 py-1 text-xs rounded-full bg-green-500/20 text-emerald-900">Mavjud</div>
             ) : (
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-300">
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-900">
                     <Lock size={12}/>
                     <span>Tez Kunda</span>
                 </div>
@@ -121,7 +121,7 @@ const ServiceCard: React.FC<{ service: (typeof services)[number] }> = ({ service
             </div>
             {service.isAvailable && service.link && (
                 <div className="mt-6">
-                    <span className="font-semibold text-blue-400 flex items-center justify-center group-hover:text-blue-300">
+                    <span className="font-semibold text-blue-800 flex items-center justify-center group-hover:text-blue-700">
                         Boshlash <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </span>
                 </div>

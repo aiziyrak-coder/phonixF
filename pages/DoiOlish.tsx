@@ -92,7 +92,7 @@ const DoiOlish: React.FC = () => {
       <Card>
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2.5 rounded-xl bg-cyan-500/20">
-            <Bot className="h-6 w-6 text-cyan-400" />
+            <Bot className="h-6 w-6 text-cyan-800" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">DOI Raqami Olish</h1>
@@ -149,7 +149,7 @@ const DoiOlish: React.FC = () => {
 
             <div className="p-4 rounded-lg bg-slate-100/70 border border-slate-200/90">
               <p className="text-sm text-slate-600">
-                <span className="font-semibold text-cyan-400">Narx:</span> {amount.toLocaleString()} so'm
+                <span className="font-semibold text-cyan-800">Narx:</span> {amount.toLocaleString()} so'm
               </p>
               <p className="text-xs text-slate-500 mt-1">
                 To'lovdan keyin so'rov taqrizchiga yuboriladi. Taqrizchi DOI raqamini olib linkni yuklaydi; link arxivingizda va bildirishnomada chiqadi.

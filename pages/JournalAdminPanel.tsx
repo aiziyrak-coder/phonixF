@@ -155,7 +155,7 @@ const JournalAdminPanel: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
             </Card>
         );
@@ -188,7 +188,7 @@ const JournalAdminPanel: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <Card className="text-center">
                     <div className="flex items-center justify-center mb-3">
-                        <FileText className="h-8 w-8 text-blue-400" />
+                        <FileText className="h-8 w-8 text-blue-800" />
                     </div>
                     <h3 className="text-2xl font-bold text-slate-900">{tabCounts.new}</h3>
                     <p className="text-slate-500">Yangi Kelganlar</p>
@@ -196,7 +196,7 @@ const JournalAdminPanel: React.FC = () => {
                 
                 <Card className="text-center">
                     <div className="flex items-center justify-center mb-3">
-                        <Clock className="h-8 w-8 text-yellow-400" />
+                        <Clock className="h-8 w-8 text-yellow-800" />
                     </div>
                     <h3 className="text-2xl font-bold text-slate-900">{tabCounts.pending}</h3>
                     <p className="text-slate-500">Nashrni kutmoqda</p>
@@ -204,7 +204,7 @@ const JournalAdminPanel: React.FC = () => {
                 
                 <Card className="text-center">
                     <div className="flex items-center justify-center mb-3">
-                        <BookOpen className="h-8 w-8 text-green-400" />
+                        <BookOpen className="h-8 w-8 text-emerald-800" />
                     </div>
                     <h3 className="text-2xl font-bold text-slate-900">{tabCounts.all}</h3>
                     <p className="text-slate-500">Jami nashrlar</p>
@@ -217,33 +217,33 @@ const JournalAdminPanel: React.FC = () => {
                         onClick={() => setActiveTab('new')}
                         className={`px-4 py-3 font-medium text-sm transition-colors ${
                             activeTab === 'new'
-                                ? 'border-b-2 border-blue-400 text-blue-400'
+                                ? 'border-b-2 border-blue-400 text-blue-800'
                                 : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
-                        Yangi Kelganlar <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'new' ? 'bg-blue-500/20 text-blue-300' : 'bg-white/10 text-slate-600'}`}>{tabCounts.new}</span>
+                        Yangi Kelganlar <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'new' ? 'bg-blue-500/20 text-blue-900' : 'bg-white/10 text-slate-600'}`}>{tabCounts.new}</span>
                     </button>
                     
                     <button
                         onClick={() => setActiveTab('pending')}
                         className={`px-4 py-3 font-medium text-sm transition-colors ${
                             activeTab === 'pending'
-                                ? 'border-b-2 border-yellow-400 text-yellow-400'
+                                ? 'border-b-2 border-yellow-400 text-yellow-800'
                                 : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
-                        Nashrni kutmoqda <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'pending' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-white/10 text-slate-600'}`}>{tabCounts.pending}</span>
+                        Nashrni kutmoqda <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'pending' ? 'bg-yellow-500/20 text-yellow-900' : 'bg-white/10 text-slate-600'}`}>{tabCounts.pending}</span>
                     </button>
                     
                     <button
                         onClick={() => setActiveTab('all')}
                         className={`px-4 py-3 font-medium text-sm transition-colors ${
                             activeTab === 'all'
-                                ? 'border-b-2 border-green-400 text-green-400'
+                                ? 'border-b-2 border-green-400 text-emerald-800'
                                 : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
-                        Barcha Maqolalar <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'all' ? 'bg-green-500/20 text-green-300' : 'bg-white/10 text-slate-600'}`}>{tabCounts.all}</span>
+                        Barcha Maqolalar <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === 'all' ? 'bg-green-500/20 text-emerald-900' : 'bg-white/10 text-slate-600'}`}>{tabCounts.all}</span>
                     </button>
                 </div>
                 
@@ -263,15 +263,15 @@ const JournalAdminPanel: React.FC = () => {
                         filteredArticles.map(article => {
                             const statusData = {
                                 [ArticleStatus.Draft]: { text: 'Qoralama', color: 'bg-gray-500/20 text-slate-600' },
-                                [ArticleStatus.Yangi]: { text: 'Yangi', color: 'bg-blue-500/20 text-blue-300' },
+                                [ArticleStatus.Yangi]: { text: 'Yangi', color: 'bg-blue-500/20 text-blue-900' },
                                 [ArticleStatus.WithEditor]: { text: 'Redaktorda', color: 'bg-indigo-500/20 text-indigo-300' },
-                                [ArticleStatus.QabulQilingan]: { text: 'Qabul Qilingan', color: 'bg-yellow-500/20 text-yellow-300' },
-                                [ArticleStatus.Revision]: { text: 'Tahrirga qaytarilgan', color: 'bg-orange-500/20 text-orange-300' },
-                                [ArticleStatus.Accepted]: { text: 'Qabul qilingan', color: 'bg-teal-500/20 text-teal-300' },
-                                [ArticleStatus.Published]: { text: 'Nashr etilgan', color: 'bg-green-500/20 text-green-300' },
-                                [ArticleStatus.Rejected]: { text: 'Rad etilgan', color: 'bg-red-500/20 text-red-300' },
-                                [ArticleStatus.NashrgaYuborilgan]: { text: 'Nashrga Yuborilgan', color: 'bg-purple-500/20 text-purple-300' },
-                                [ArticleStatus.WritingInProgress]: { text: 'Yozilmoqda', color: 'bg-cyan-500/20 text-cyan-300' },
+                                [ArticleStatus.QabulQilingan]: { text: 'Qabul Qilingan', color: 'bg-yellow-500/20 text-yellow-900' },
+                                [ArticleStatus.Revision]: { text: 'Tahrirga qaytarilgan', color: 'bg-orange-500/20 text-orange-900' },
+                                [ArticleStatus.Accepted]: { text: 'Qabul qilingan', color: 'bg-teal-500/20 text-teal-900' },
+                                [ArticleStatus.Published]: { text: 'Nashr etilgan', color: 'bg-green-500/20 text-emerald-900' },
+                                [ArticleStatus.Rejected]: { text: 'Rad etilgan', color: 'bg-red-500/20 text-red-800' },
+                                [ArticleStatus.NashrgaYuborilgan]: { text: 'Nashrga Yuborilgan', color: 'bg-purple-500/20 text-purple-900' },
+                                [ArticleStatus.WritingInProgress]: { text: 'Yozilmoqda', color: 'bg-cyan-500/20 text-cyan-900' },
                             }[article.status] || { text: article.status, color: 'bg-gray-500/20 text-slate-600' };
                             
                             return (
@@ -309,7 +309,7 @@ const JournalAdminPanel: React.FC = () => {
                                                     className="p-2 rounded-md hover:bg-white/10 transition-colors"
                                                     title="Ko'rish"
                                                 >
-                                                    <Eye className="h-4 w-4 text-blue-400" />
+                                                    <Eye className="h-4 w-4 text-blue-800" />
                                                 </button>
                                                 
                                                 <button 
@@ -317,7 +317,7 @@ const JournalAdminPanel: React.FC = () => {
                                                     className="p-2 rounded-md hover:bg-white/10 transition-colors"
                                                     title="Tahrirlash"
                                                 >
-                                                    <Edit3 className="h-4 w-4 text-yellow-400" />
+                                                    <Edit3 className="h-4 w-4 text-yellow-800" />
                                                 </button>
                                                 
                                                 {article.status !== ArticleStatus.Accepted && article.status !== ArticleStatus.Published && (
@@ -326,7 +326,7 @@ const JournalAdminPanel: React.FC = () => {
                                                         className="p-2 rounded-md hover:bg-white/10 transition-colors"
                                                         title="Qabul qilish"
                                                     >
-                                                        <CheckCircle className="h-4 w-4 text-green-400" />
+                                                        <CheckCircle className="h-4 w-4 text-emerald-800" />
                                                     </button>
                                                 )}
                                                 
@@ -336,7 +336,7 @@ const JournalAdminPanel: React.FC = () => {
                                                         className="p-2 rounded-md hover:bg-white/10 transition-colors"
                                                         title="Rad etish"
                                                     >
-                                                        <XCircle className="h-4 w-4 text-red-400" />
+                                                        <XCircle className="h-4 w-4 text-red-700" />
                                                     </button>
                                                 )}
                                             </div>

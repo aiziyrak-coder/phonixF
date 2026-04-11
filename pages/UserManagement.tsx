@@ -267,11 +267,11 @@ const UserManagement: React.FC = () => {
     };
 
     const roleColors: Record<string, string> = {
-        'author': 'bg-blue-500/20 text-blue-300',
-        'reviewer': 'bg-purple-500/20 text-purple-300',
+        'author': 'bg-blue-500/20 text-blue-900',
+        'reviewer': 'bg-purple-500/20 text-purple-900',
         'journal_admin': 'bg-indigo-500/20 text-indigo-300',
-        'super_admin': 'bg-red-500/20 text-red-300',
-        'accountant': 'bg-green-500/20 text-green-300',
+        'super_admin': 'bg-red-500/20 text-red-800',
+        'accountant': 'bg-green-500/20 text-emerald-900',
     };
 
     /** Export all loaded users to an Excel (.xlsx) file. */
@@ -307,7 +307,7 @@ const UserManagement: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
             </Card>
         );
@@ -368,7 +368,7 @@ const UserManagement: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={() => { setFilterRole(''); setFilterAffiliation(''); }}
-                                className="text-sm text-blue-400 hover:text-blue-300"
+                                className="text-sm text-blue-800 hover:text-blue-700"
                             >
                                 Filterni tozalash
                             </button>
@@ -799,7 +799,7 @@ const UserManagement: React.FC = () => {
                                     placeholder="Parolni kiriting"
                                     autoFocus
                                 />
-                                {deleteError && <p className="mt-2 text-sm text-red-400">{deleteError}</p>}
+                                {deleteError && <p className="mt-2 text-sm text-red-700">{deleteError}</p>}
                             </div>
                             <div className="flex justify-end gap-4 pt-4">
                                 <Button type="button" variant="secondary" onClick={handleDeleteCancel} disabled={isDeleting}>Bekor qilish</Button>

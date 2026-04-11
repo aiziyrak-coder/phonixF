@@ -141,23 +141,23 @@ const convertToArticleType = (apiArticle: ArticleApiResponse): Article => {
 const getStatusDisplayData = (status: ArticleStatus | TranslationStatus): { text: string; color: string } => {
     const map: Record<ArticleStatus | TranslationStatus, { text: string; color: string }> = {
         [ArticleStatus.Draft]: { text: 'Qoralama', color: 'bg-gray-500/20 text-slate-600' },
-        [ArticleStatus.Yangi]: { text: 'Yangi', color: 'bg-blue-500/20 text-blue-300' },
+        [ArticleStatus.Yangi]: { text: 'Yangi', color: 'bg-blue-500/20 text-blue-900' },
         [ArticleStatus.WithEditor]: { text: 'Redaktorda', color: 'bg-indigo-500/20 text-indigo-300' },
-        [ArticleStatus.QabulQilingan]: { text: 'Qabul Qilingan', color: 'bg-yellow-500/20 text-yellow-300' },
-        [ArticleStatus.Revision]: { text: 'Tahrirga qaytarilgan', color: 'bg-orange-500/20 text-orange-300' },
-        [ArticleStatus.Accepted]: { text: 'Ma\'qullangan', color: 'bg-teal-500/20 text-teal-300' },
-        [ArticleStatus.Published]: { text: 'Nashr etilgan', color: 'bg-green-500/20 text-green-300' },
-        [ArticleStatus.Rejected]: { text: 'Rad etilgan', color: 'bg-red-500/20 text-red-300' },
-        [ArticleStatus.PlagiarismReview]: { text: 'Antiplagiat ko\'rib chiqish', color: 'bg-amber-500/20 text-amber-300' },
-        [ArticleStatus.NashrgaYuborilgan]: { text: 'Nashrga Yuborilgan', color: 'bg-purple-500/20 text-purple-300' },
-        [ArticleStatus.WritingInProgress]: { text: 'Yozilmoqda', color: 'bg-cyan-500/20 text-cyan-300' },
-        [ArticleStatus.ContractProcessing]: { text: 'Shartnoma rasmiylashtirilmoqda', color: 'bg-amber-500/20 text-amber-300' },
-        [ArticleStatus.IsbnProcessing]: { text: 'ISBN olinmoqda', color: 'bg-amber-500/20 text-amber-300' },
-        [ArticleStatus.AuthorDataVerified]: { text: 'Muallif ma\'lumotlari tasdiqlandi', color: 'bg-teal-500/20 text-teal-300' },
-        [ArticleStatus.PaymentCompleted]: { text: 'To\'lov yakunlandi', color: 'bg-green-500/20 text-green-300' },
-        [TranslationStatus.Jarayonda]: { text: 'Jarayonda', color: 'bg-yellow-500/20 text-yellow-300' },
-        [TranslationStatus.Bajarildi]: { text: 'Bajarildi', color: 'bg-green-500/20 text-green-300' },
-        [TranslationStatus.BekorQilindi]: { text: 'Bekor Qilindi', color: 'bg-red-500/20 text-red-300' },
+        [ArticleStatus.QabulQilingan]: { text: 'Qabul Qilingan', color: 'bg-yellow-500/20 text-yellow-900' },
+        [ArticleStatus.Revision]: { text: 'Tahrirga qaytarilgan', color: 'bg-orange-500/20 text-orange-900' },
+        [ArticleStatus.Accepted]: { text: 'Ma\'qullangan', color: 'bg-teal-500/20 text-teal-900' },
+        [ArticleStatus.Published]: { text: 'Nashr etilgan', color: 'bg-green-500/20 text-emerald-900' },
+        [ArticleStatus.Rejected]: { text: 'Rad etilgan', color: 'bg-red-500/20 text-red-800' },
+        [ArticleStatus.PlagiarismReview]: { text: 'Antiplagiat ko\'rib chiqish', color: 'bg-amber-500/20 text-amber-900' },
+        [ArticleStatus.NashrgaYuborilgan]: { text: 'Nashrga Yuborilgan', color: 'bg-purple-500/20 text-purple-900' },
+        [ArticleStatus.WritingInProgress]: { text: 'Yozilmoqda', color: 'bg-cyan-500/20 text-cyan-900' },
+        [ArticleStatus.ContractProcessing]: { text: 'Shartnoma rasmiylashtirilmoqda', color: 'bg-amber-500/20 text-amber-900' },
+        [ArticleStatus.IsbnProcessing]: { text: 'ISBN olinmoqda', color: 'bg-amber-500/20 text-amber-900' },
+        [ArticleStatus.AuthorDataVerified]: { text: 'Muallif ma\'lumotlari tasdiqlandi', color: 'bg-teal-500/20 text-teal-900' },
+        [ArticleStatus.PaymentCompleted]: { text: 'To\'lov yakunlandi', color: 'bg-green-500/20 text-emerald-900' },
+        [TranslationStatus.Jarayonda]: { text: 'Jarayonda', color: 'bg-yellow-500/20 text-yellow-900' },
+        [TranslationStatus.Bajarildi]: { text: 'Bajarildi', color: 'bg-green-500/20 text-emerald-900' },
+        [TranslationStatus.BekorQilindi]: { text: 'Bekor Qilindi', color: 'bg-red-500/20 text-red-800' },
     };
     const entry = map[status as ArticleStatus | TranslationStatus];
     if (entry) return entry;
@@ -264,10 +264,10 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
             onClick={() => navigate(`/articles/${article.id}`)}
         >
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
-                <h4 className="text-base sm:text-lg font-semibold text-blue-400 leading-snug">{article.title}</h4>
+                <h4 className="text-base sm:text-lg font-semibold text-blue-800 leading-snug">{article.title}</h4>
                 <div className="flex items-center gap-2 shrink-0">
                     {article.fast_track && (
-                        <span className="text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap bg-yellow-500/20 text-yellow-300 flex items-center gap-1.5">
+                        <span className="text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap bg-yellow-500/20 text-yellow-900 flex items-center gap-1.5">
                             <Rocket size={14} /> TOP
                         </span>
                     )}
@@ -279,7 +279,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                             {isAuthor && currentStatus === ArticleStatus.Published && (
                                 <button
                                     onClick={handleShare}
-                                    className="p-1.5 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-500/30 transition-colors"
+                                    className="p-1.5 rounded-lg bg-green-600/20 text-emerald-800 hover:bg-green-500/30 transition-colors"
                                     title="Share — jurnal linki va sertifikat havolasini ulashish"
                                 >
                                     <Share2 size={16} />
@@ -311,7 +311,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                                                         disabled={isUpdating}
                                                         className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
                                                             currentStatus === status 
-                                                                ? 'bg-blue-600/30 text-blue-300' 
+                                                                ? 'bg-blue-600/30 text-blue-900' 
                                                                 : 'text-slate-600 hover:bg-slate-100/80'
                                                         }`}
                                                     >
@@ -331,7 +331,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
             <p className="text-sm text-slate-500 mt-2 line-clamp-2">{article.abstract}</p>
             {authorWorkflowSteps.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-slate-200/90" onClick={(e) => e.stopPropagation()}>
-                    <p className="text-xs text-slate-500 mb-2">Jarayon: <span className="text-blue-300">{authorStageHint}</span></p>
+                    <p className="text-xs text-slate-500 mb-2">Jarayon: <span className="text-blue-900">{authorStageHint}</span></p>
                     <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center">
                         {authorWorkflowSteps.map((step, i) => (
                             <div key={step.name} className="flex items-center gap-1.5 sm:gap-2 min-w-0">
@@ -339,7 +339,7 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                                     title={step.name}
                                     className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded-md truncate max-w-[72px] sm:max-w-none ${
                                         step.done
-                                            ? 'bg-emerald-500/20 text-emerald-300'
+                                            ? 'bg-emerald-500/20 text-emerald-900'
                                             : step.current
                                               ? 'bg-blue-500/25 text-blue-200 ring-1 ring-blue-400/50'
                                               : 'bg-slate-100/70 text-slate-500'
@@ -402,7 +402,7 @@ const TranslationItem: React.FC<{ request: TranslationRequestApiResponse }> = ({
                         <span>Sana: {new Date(request.submission_date).toLocaleDateString()}</span>
                     </div>
                 </div>
-                 <span className="text-sm font-semibold text-green-400">{request.cost?.toLocaleString() || 0} so'm</span>
+                 <span className="text-sm font-semibold text-emerald-800">{request.cost?.toLocaleString() || 0} so'm</span>
             </div>
         </div>
     );
@@ -712,7 +712,7 @@ const Articles: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => { setError(null); fetchData(); }} className="mt-4">Qayta urinish</Button>
             </Card>
         );
@@ -729,11 +729,11 @@ const Articles: React.FC = () => {
                             onClick={() => setActiveTab(tab.id)}
                             className={`px-4 py-3 font-medium text-sm transition-colors ${
                                 activeTab === tab.id
-                                    ? 'border-b-2 border-blue-400 text-blue-400'
+                                    ? 'border-b-2 border-blue-400 text-blue-800'
                                     : 'text-slate-500 hover:text-slate-900'
                             }`}
                         >
-                            {tab.label} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-blue-500/20 text-blue-300' : 'bg-white/10 text-slate-600'}`}>{tabCount}</span>
+                            {tab.label} <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? 'bg-blue-500/20 text-blue-900' : 'bg-white/10 text-slate-600'}`}>{tabCount}</span>
                         </button>
                     )
                 })}
@@ -883,12 +883,12 @@ const Articles: React.FC = () => {
                     </div>
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`p-3 rounded-xl border transition-all ${hasActiveFilters ? 'bg-blue-500/20 border-blue-500/40 text-blue-300' : 'bg-slate-100/70 border-slate-200/90 text-slate-500 hover:text-white'}`}
+                        className={`p-3 rounded-xl border transition-all ${hasActiveFilters ? 'bg-blue-500/20 border-blue-500/40 text-blue-900' : 'bg-slate-100/70 border-slate-200/90 text-slate-500 hover:text-white'}`}
                     >
                         <Filter size={20} />
                     </button>
                     {hasActiveFilters && (
-                        <button onClick={clearFilters} className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 hover:text-red-300 transition-all">
+                        <button onClick={clearFilters} className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 hover:text-red-800 transition-all">
                             <X size={20} />
                         </button>
                     )}

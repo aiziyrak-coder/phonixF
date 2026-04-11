@@ -70,7 +70,7 @@ const PublicArticleShare: React.FC = () => {
     return (
       <div className="max-w-3xl mx-auto py-10">
         <Card title="Maqola topilmadi">
-          <p className="text-red-300">{error || 'Maqola topilmadi.'}</p>
+          <p className="text-red-800">{error || 'Maqola topilmadi.'}</p>
           <div className="mt-5">
             <Link to="/login">
               <Button>Kirish sahifasiga o‘tish</Button>
@@ -108,7 +108,7 @@ const PublicArticleShare: React.FC = () => {
                     href={article.publication_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium"
+                    className="inline-flex items-center gap-2 text-blue-800 hover:text-blue-700 font-medium"
                   >
                     <ExternalLink size={18} />
                     Jurnal havolasini ochish
@@ -137,7 +137,7 @@ const PublicArticleShare: React.FC = () => {
             </div>
 
             {(!article.publication_link && !article.certificate_download_link) && (
-              <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-200 text-sm">
+              <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-950 text-sm">
                 Nashr havolasi va sertifikat hali to‘ldirilmagan.
               </div>
             )}

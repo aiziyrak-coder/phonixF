@@ -54,7 +54,7 @@ const ArticleSampleRequests: React.FC = () => {
       <Card>
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2.5 rounded-xl bg-amber-500/20">
-            <FileText className="h-6 w-6 text-amber-400" />
+            <FileText className="h-6 w-6 text-amber-800" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">Maqola namuna so'rovlari</h1>

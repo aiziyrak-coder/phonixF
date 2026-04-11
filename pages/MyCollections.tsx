@@ -98,7 +98,7 @@ const MyCollections: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <div className="text-red-400 p-4 bg-red-900/20 rounded-lg">
+                <div className="text-red-700 p-4 bg-red-900/20 rounded-lg">
                     <p>{error}</p>
                     <button 
                         onClick={() => window.location.reload()} 
@@ -123,7 +123,7 @@ const MyCollections: React.FC = () => {
                                 <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                     <div>
                                         <h3 className="text-xl font-bold text-slate-900">{journal?.name}</h3>
-                                        <p className="font-semibold text-blue-300 mt-1">{issue.issue_number} soni</p>
+                                        <p className="font-semibold text-blue-900 mt-1">{issue.issue_number} soni</p>
                                         <p className="text-xs text-slate-500 mt-2">
                                             Nashr sanasi: {new Date(issue.publication_date).toLocaleDateString()}
                                         </p>

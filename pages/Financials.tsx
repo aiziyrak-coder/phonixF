@@ -107,9 +107,9 @@ const Financials: React.FC = () => {
     };
 
     const statusColors: Record<string, string> = {
-        'pending': 'bg-yellow-500/20 text-yellow-300',
-        'completed': 'bg-green-500/20 text-green-300',
-        'failed': 'bg-red-500/20 text-red-300',
+        'pending': 'bg-yellow-500/20 text-yellow-900',
+        'completed': 'bg-green-500/20 text-emerald-900',
+        'failed': 'bg-red-500/20 text-red-800',
         'cancelled': 'bg-gray-500/20 text-slate-600',
     };
 
@@ -158,7 +158,7 @@ const Financials: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <div className="text-red-400 p-4 bg-red-900/20 rounded-lg">
+                <div className="text-red-700 p-4 bg-red-900/20 rounded-lg">
                     <p>{error}</p>
                     <button 
                         onClick={() => window.location.reload()} 
@@ -202,7 +202,7 @@ const Financials: React.FC = () => {
                 <Card>
                     <div className="flex items-center">
                         <div className="p-3 rounded-xl bg-green-500/20 mr-4">
-                            <div className="h-8 w-8 text-green-400 font-bold text-xl">+</div>
+                            <div className="h-8 w-8 text-emerald-800 font-bold text-xl">+</div>
                         </div>
                         <div>
                             <p className="text-sm text-slate-500">Jami tushum</p>
@@ -214,7 +214,7 @@ const Financials: React.FC = () => {
                 <Card>
                     <div className="flex items-center">
                         <div className="p-3 rounded-xl bg-red-500/20 mr-4">
-                            <div className="h-8 w-8 text-red-400 font-bold text-xl">-</div>
+                            <div className="h-8 w-8 text-red-700 font-bold text-xl">-</div>
                         </div>
                         <div>
                             <p className="text-sm text-slate-500">Jami chiqim</p>
@@ -226,7 +226,7 @@ const Financials: React.FC = () => {
                 <Card>
                     <div className="flex items-center">
                         <div className="p-3 rounded-xl bg-blue-500/20 mr-4">
-                            <div className="h-8 w-8 text-blue-400 font-bold text-xl">=</div>
+                            <div className="h-8 w-8 text-blue-800 font-bold text-xl">=</div>
                         </div>
                         <div>
                             <p className="text-sm text-slate-500">Balans</p>
@@ -246,7 +246,7 @@ const Financials: React.FC = () => {
                                     <span className="text-slate-600">
                                         {serviceTypeNames[serviceType] || serviceType}
                                     </span>
-                                    <span className="font-medium text-green-400">
+                                    <span className="font-medium text-emerald-800">
                                         {amount.toLocaleString()} so'm
                                     </span>
                                 </div>
@@ -265,7 +265,7 @@ const Financials: React.FC = () => {
                                     <span className="text-slate-600">
                                         {serviceTypeNames[serviceType] || serviceType}
                                     </span>
-                                    <span className="font-medium text-red-400">
+                                    <span className="font-medium text-red-700">
                                         {amount.toLocaleString()} so'm
                                     </span>
                                 </div>
@@ -353,7 +353,7 @@ const Financials: React.FC = () => {
                                     const isCompleted = transaction.status === 'completed';
                                     const isFailed = transaction.status === 'failed' || transaction.status === 'cancelled';
                                     const amountPrefix = isFailed ? '' : '+';
-                                    const amountColor = isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400';
+                                    const amountColor = isCompleted ? 'text-emerald-800' : isFailed ? 'text-red-700' : 'text-yellow-800';
                                     return (
                                         <tr key={transaction.id} className="hover:bg-slate-100/70 transition-colors">
                                             <td className="px-4 py-4 text-sm text-slate-600">{userName}</td>
@@ -373,7 +373,7 @@ const Financials: React.FC = () => {
                                                     {transaction.status === 'completed' ? 'Tugallangan' : transaction.status === 'failed' ? 'Bekor qilindi' : transaction.status === 'cancelled' ? 'Bekor qilindi' : transaction.status === 'pending' ? 'Kutilmoqda' : transaction.status}
                                                 </span>
                                                 {isFailed && (transaction.error_note || '') && (
-                                                    <p className="text-xs text-red-300/90 mt-1 max-w-xs truncate" title={transaction.error_note}>Sabab: {transaction.error_note}</p>
+                                                    <p className="text-xs text-red-800/90 mt-1 max-w-xs truncate" title={transaction.error_note}>Sabab: {transaction.error_note}</p>
                                                 )}
                                             </td>
                                         </tr>

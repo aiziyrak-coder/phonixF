@@ -82,7 +82,7 @@ const LoginSimple: React.FC = () => {
                     </div>
                     
                     {error && (
-                        <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-sm text-red-300">
+                        <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-sm text-red-800">
                             {error}
                         </div>
                     )}
@@ -141,7 +141,7 @@ const LoginSimple: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <Link 
                             to="/forgot-password" 
-                            className="text-sm text-blue-400 hover:text-blue-300"
+                            className="text-sm text-blue-800 hover:text-blue-700"
                         >
                             Parolni unutdingizmi?
                         </Link>
@@ -169,7 +169,7 @@ const LoginSimple: React.FC = () => {
                 <div className="mt-6 text-center text-sm">
                     <p className="text-slate-500">
                         Hisobingiz yo'qmi?{' '}
-                        <Link to="/register" className="font-semibold text-blue-400 hover:text-blue-300">
+                        <Link to="/register" className="font-semibold text-blue-800 hover:text-blue-700">
                             Ro'yxatdan o'tish
                         </Link>
                     </p>

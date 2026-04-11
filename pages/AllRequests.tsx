@@ -221,7 +221,7 @@ const AllRequests: React.FC = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{index + 1}</td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center">
-                                                    <BookOpen className="w-4 h-4 mr-2 text-blue-400" />
+                                                    <BookOpen className="w-4 h-4 mr-2 text-blue-800" />
                                                     <span className="text-sm text-slate-900 font-medium">{request.articleTitle}</span>
                                                 </div>
                                             </td>
@@ -248,7 +248,7 @@ const AllRequests: React.FC = () => {
                                                         {request.assignedRole === 'reviewer' ? (
                                                             <CheckCircle className="w-4 h-4 text-indigo-400" />
                                                         ) : (
-                                                            <FileText className="w-4 h-4 text-green-400" />
+                                                            <FileText className="w-4 h-4 text-emerald-800" />
                                                         )}
                                                         <span>{request.assignedTo}</span>
                                                     </div>
@@ -263,7 +263,7 @@ const AllRequests: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                <button className="text-blue-400 hover:text-blue-300 transition-colors">
+                                                <button className="text-blue-800 hover:text-blue-700 transition-colors">
                                                     <Eye className="w-5 h-5" />
                                                 </button>
                                             </td>
@@ -281,38 +281,38 @@ const AllRequests: React.FC = () => {
                 <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 backdrop-blur-lg rounded-xl p-6 border border-blue-500/30">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-blue-300 mb-1">Jami so'rovlar</p>
+                            <p className="text-sm text-blue-900 mb-1">Jami so'rovlar</p>
                             <p className="text-3xl font-bold text-slate-900">{requests.length}</p>
                         </div>
-                        <FileText className="w-12 h-12 text-blue-400 opacity-50" />
+                        <FileText className="w-12 h-12 text-blue-800 opacity-50" />
                     </div>
                 </div>
                 <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 backdrop-blur-lg rounded-xl p-6 border border-yellow-500/30">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-yellow-300 mb-1">Tekshiruvda</p>
+                            <p className="text-sm text-yellow-900 mb-1">Tekshiruvda</p>
                             <p className="text-3xl font-bold text-slate-900">
                                 {requests.filter(r => r.status === ArticleStatus.PlagiarismReview).length}
                             </p>
                         </div>
-                        <Clock className="w-12 h-12 text-yellow-400 opacity-50" />
+                        <Clock className="w-12 h-12 text-yellow-800 opacity-50" />
                     </div>
                 </div>
                 <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 backdrop-blur-lg rounded-xl p-6 border border-green-500/30">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-green-300 mb-1">Yakunlangan</p>
+                            <p className="text-sm text-emerald-900 mb-1">Yakunlangan</p>
                             <p className="text-3xl font-bold text-slate-900">
                                 {requests.filter(r => r.status === ArticleStatus.Published).length}
                             </p>
                         </div>
-                        <CheckCircle className="w-12 h-12 text-green-400 opacity-50" />
+                        <CheckCircle className="w-12 h-12 text-emerald-800 opacity-50" />
                     </div>
                 </div>
                 <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 backdrop-blur-lg rounded-xl p-6 border border-purple-500/30">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-purple-300 mb-1">Rad etilgan</p>
+                            <p className="text-sm text-purple-900 mb-1">Rad etilgan</p>
                             <p className="text-3xl font-bold text-slate-900">
                                 {requests.filter(r => r.status === ArticleStatus.Rejected).length}
                             </p>

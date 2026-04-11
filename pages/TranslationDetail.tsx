@@ -87,7 +87,7 @@ const TranslationDetail: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => window.location.reload()} className="mt-4">
                     Qayta urinish
                 </Button>

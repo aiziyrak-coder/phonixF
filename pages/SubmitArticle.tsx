@@ -365,7 +365,7 @@ const SubmitArticle: React.FC = () => {
                   {isCompleted ? <CheckCircle className="w-6 h-6 text-slate-900" /> : <Icon className="w-6 h-6 text-slate-900" />}
                 </div>
                 <span className={`text-sm font-medium ${
-                  isActive ? 'text-blue-400' : isCompleted ? 'text-green-400' : 'text-slate-500'
+                  isActive ? 'text-blue-800' : isCompleted ? 'text-emerald-800' : 'text-slate-500'
                 }`}>
                   {step.title}
                 </span>
@@ -391,7 +391,7 @@ const SubmitArticle: React.FC = () => {
             {/* Filtr — faqat jurnal tanlash qadamida, kartalar ustida; mobilda carddan chiqmaslik */}
             <div className="w-full min-w-0 overflow-hidden flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 p-3 rounded-lg bg-white/60 border border-slate-200/90 mb-4">
               <span className="flex items-center gap-2 text-sm font-medium text-slate-500 shrink-0">
-                <Filter size={18} className="text-blue-400" />
+                <Filter size={18} className="text-blue-800" />
                 Filtr
               </span>
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 min-w-0 w-full sm:flex-1">
@@ -472,7 +472,7 @@ const SubmitArticle: React.FC = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <BookOpen className="w-16 h-16 text-blue-400" />
+                          <BookOpen className="w-16 h-16 text-blue-800" />
                         )}
                       </div>
                       <div className="p-4 min-w-0">
@@ -482,7 +482,7 @@ const SubmitArticle: React.FC = () => {
                         )}
                         {j.issn && <p className="text-xs text-slate-500 mt-1 font-mono">{j.issn}</p>}
                         {priceText && (
-                          <p className="text-sm font-medium text-blue-300 mt-2">{priceText}</p>
+                          <p className="text-sm font-medium text-blue-900 mt-2">{priceText}</p>
                         )}
                         {priceText && <p className="text-xs text-slate-500">To&apos;liq to&apos;lov</p>}
                       </div>
@@ -507,7 +507,7 @@ const SubmitArticle: React.FC = () => {
               >
                 {formData.file ? (
                   <div className="space-y-2">
-                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
+                    <CheckCircle className="w-12 h-12 text-green-800 mx-auto" />
                     <p className="text-slate-900 font-medium">{formData.file.name}</p>
                     <p className="text-slate-500 text-sm">
                       {(formData.file.size / 1024 / 1024).toFixed(2)} MB
@@ -635,7 +635,7 @@ const SubmitArticle: React.FC = () => {
 
               {checkedAt && (
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                  <p className="text-blue-300 text-sm">
+                  <p className="text-blue-900 text-sm">
                     <strong>Plagiat foizi:</strong> {plagiarism.toFixed(1)}% |
                     <strong> AI kontent:</strong> {aiContent.toFixed(1)}%
                   </p>
@@ -646,7 +646,7 @@ const SubmitArticle: React.FC = () => {
               )}
 
               <div className="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                <p className="text-yellow-300 text-sm">
+                <p className="text-yellow-900 text-sm">
                   <strong>Qanday hisoblanadi?</strong> Antiplagiat tekshiruvi maqola matnini millionlab ilmiy manbalar bilan solishtiradi.
                   Plagiat foizi - matnning qanchalik mos kelishi, AI kontent - sun'iy intellekt tomonidan yaratilganlik darajasi.
                   Odatda plagiat 15% dan kam, AI kontent 10% dan kam bo'lishi kerak.
@@ -753,7 +753,7 @@ const SubmitArticle: React.FC = () => {
         {/* Pre-payment: to'lov kutilmoqda — to'lovni tekshirish */}
         {currentStep === steps.length && paymentPendingTransactionId && (
           <div className="mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
-            <p className="text-amber-200 text-sm mb-3">
+            <p className="text-amber-950 text-sm mb-3">
               Oldindan to&apos;lov talab qilinadi. To&apos;lovni amalga oshiring (yangi tabda ochilgan sahifada), keyin quyidagi tugmani bosing.
             </p>
             <Button

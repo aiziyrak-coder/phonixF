@@ -184,7 +184,7 @@ const Profile: React.FC = () => {
     if (error) {
         return (
             <Card title="Error">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => window.location.reload()} className="mt-4">Retry</Button>
             </Card>
         );
@@ -339,7 +339,7 @@ const Profile: React.FC = () => {
                             <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
-                                        <User className="h-5 w-5 text-blue-400 mr-3" />
+                                        <User className="h-5 w-5 text-blue-800 mr-3" />
                                         <div>
                                             <p className="text-sm text-slate-500">To'liq ism</p>
                                             <p className="text-slate-900">{profile.first_name} {profile.last_name} {profile.patronymic}</p>
@@ -347,7 +347,7 @@ const Profile: React.FC = () => {
                                     </div>
                                     
                                     <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
-                                        <Mail className="h-5 w-5 text-green-400 mr-3" />
+                                        <Mail className="h-5 w-5 text-emerald-800 mr-3" />
                                         <div>
                                             <p className="text-sm text-slate-500">Email</p>
                                             <p className="text-slate-900">{profile.email}</p>
@@ -363,7 +363,7 @@ const Profile: React.FC = () => {
                                     </div>
                                     
                                     <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
-                                        <Building className="h-5 w-5 text-yellow-400 mr-3" />
+                                        <Building className="h-5 w-5 text-yellow-800 mr-3" />
                                         <div>
                                             <p className="text-sm text-slate-500">Tashkilot</p>
                                             <p className="text-slate-900">{profile.affiliation}</p>
@@ -372,7 +372,7 @@ const Profile: React.FC = () => {
                                     
                                     {profile.orcid_id && (
                                         <div className="flex items-center p-3 bg-slate-100/70 rounded-lg">
-                                            <Hash className="h-5 w-5 text-red-400 mr-3" />
+                                            <Hash className="h-5 w-5 text-red-700 mr-3" />
                                             <div>
                                                 <p className="text-sm text-slate-500">ORCID ID</p>
                                                 <p className="text-slate-900">{profile.orcid_id}</p>
@@ -418,7 +418,7 @@ const Profile: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="text-center p-6 bg-slate-100/70 rounded-lg">
                             <div className="inline-flex items-center justify-center p-3 rounded-full bg-blue-500/20 mb-4">
-                                <Award className="h-8 w-8 text-blue-400" />
+                                <Award className="h-8 w-8 text-blue-800" />
                             </div>
                             <h3 className="text-lg font-semibold text-slate-900">{profile.gamification_profile.level}</h3>
                             <p className="text-slate-500">Daraja</p>
@@ -426,7 +426,7 @@ const Profile: React.FC = () => {
                         
                         <div className="text-center p-6 bg-slate-100/70 rounded-lg">
                             <div className="inline-flex items-center justify-center p-3 rounded-full bg-yellow-500/20 mb-4">
-                                <Award className="h-8 w-8 text-yellow-400" />
+                                <Award className="h-8 w-8 text-yellow-800" />
                             </div>
                             <h3 className="text-lg font-semibold text-slate-900">{profile.gamification_profile.points}</h3>
                             <p className="text-slate-500">Ballar</p>
@@ -446,7 +446,7 @@ const Profile: React.FC = () => {
                             <h4 className="text-md font-semibold text-slate-900 mb-3">Mukofotlar</h4>
                             <div className="flex flex-wrap gap-2">
                                 {profile.gamification_profile.badges.map((badge: string, index: number) => (
-                                    <span key={index} className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 rounded-full text-sm">
+                                    <span key={index} className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-900 rounded-full text-sm">
                                         {badge}
                                     </span>
                                 ))}
@@ -459,13 +459,13 @@ const Profile: React.FC = () => {
             <Card title="Hisobni boshqarish">
                 <div className="space-y-4">
                     <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                        <h3 className="text-sm font-medium text-blue-300 mb-2">Test To'lov</h3>
+                        <h3 className="text-sm font-medium text-blue-900 mb-2">Test To'lov</h3>
                         <p className="text-xs text-slate-500 mb-3">
                             Click to'lov tizimini sinab ko'rish uchun 1000 so'm miqdorida test to'lovini amalga oshirish mumkin.
                         </p>
                         
                         {error && (
-                            <div className="mb-3 p-2 bg-red-500/20 border border-red-500/30 rounded text-xs text-red-300">
+                            <div className="mb-3 p-2 bg-red-500/20 border border-red-500/30 rounded text-xs text-red-800">
                                 {error}
                             </div>
                         )}

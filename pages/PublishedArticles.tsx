@@ -228,7 +228,7 @@ const PublishedArticles: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <div className="text-red-400 p-4 bg-red-900/20 rounded-lg">
+                <div className="text-red-700 p-4 bg-red-900/20 rounded-lg">
                     <p>{error}</p>
                     <button 
                         onClick={() => window.location.reload()} 
@@ -316,7 +316,7 @@ const PublishedArticles: React.FC = () => {
             <p className="text-slate-600 mb-4 -mt-4">
                 Bu yerda <strong className="text-slate-900">o‘z jurnallaringiz</strong> uchun oylik to‘plamlarni boshqarishingiz mumkin.
                 {isSuperAdminUser && (
-                    <span className="block mt-1 text-amber-200/90 text-sm">Super admin: barcha jurnallardan birini tanlashingiz mumkin.</span>
+                    <span className="block mt-1 text-amber-950 text-sm">Super admin: barcha jurnallardan birini tanlashingiz mumkin.</span>
                 )}
             </p>
 
@@ -388,10 +388,10 @@ const PublishedArticles: React.FC = () => {
 
             {activeIssue ? (
                 <div className="p-6 bg-green-500/10 border border-green-500/20 rounded-lg text-center">
-                    <h3 className="text-xl font-bold text-green-300">
+                    <h3 className="text-xl font-bold text-emerald-900">
                         {MONTH_NAMES[selectedMonth]} {selectedYear} soni allaqachon yaratilgan.
                     </h3>
-                    <p className="text-green-400/80 mt-2">Ma'lumotlarni yangilash uchun quyidagi formadan foydalanishingiz mumkin.</p>
+                    <p className="text-emerald-900 mt-2">Ma'lumotlarni yangilash uchun quyidagi formadan foydalanishingiz mumkin.</p>
                 </div>
             ) : null}
 
@@ -433,7 +433,7 @@ const PublishedArticles: React.FC = () => {
                                                 href={pubLink}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300"
+                                                className="inline-flex items-center gap-1.5 text-blue-800 hover:text-blue-700"
                                             >
                                                 <ExternalLink className="h-4 w-4" /> Nashr havolasi
                                             </a>
@@ -452,7 +452,7 @@ const PublishedArticles: React.FC = () => {
                                 )}
 
                                 <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 space-y-3">
-                                    <p className="text-xs font-semibold text-amber-200/90 flex items-center gap-2">
+                                    <p className="text-xs font-semibold text-amber-950 flex items-center gap-2">
                                         <FileCheck className="h-4 w-4" /> Muallifga nashr havolasi va sertifikat
                                     </p>
                                     <p className="text-xs text-slate-500">

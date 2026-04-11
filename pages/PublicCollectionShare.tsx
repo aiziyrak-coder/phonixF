@@ -58,7 +58,7 @@ const PublicCollectionShare: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto py-10">
         <Card title="To'plam topilmadi">
-          <p className="text-red-300">{error || 'To\'plam topilmadi.'}</p>
+          <p className="text-red-800">{error || 'To\'plam topilmadi.'}</p>
           <div className="mt-5">
             <Link to="/login">
               <Button>Kirish sahifasiga o‘tish</Button>
@@ -75,10 +75,10 @@ const PublicCollectionShare: React.FC = () => {
     <div className="max-w-2xl mx-auto py-10">
       <Card title="Jurnal to'plami">
         <div className="flex items-center gap-4 mb-6">
-          <BookOpen className="h-12 w-12 text-blue-400 flex-shrink-0" />
+          <BookOpen className="h-12 w-12 text-blue-800 flex-shrink-0" />
           <div>
             <h1 className="text-xl font-bold text-slate-900">{issue.journal_name}</h1>
-            <p className="text-blue-300 font-semibold">{issue.issue_number} soni</p>
+            <p className="text-blue-900 font-semibold">{issue.issue_number} soni</p>
             <p className="text-sm text-slate-500 mt-1">
               Nashr sanasi: {new Date(issue.publication_date).toLocaleDateString('uz-UZ')}
             </p>
@@ -99,7 +99,7 @@ const PublicCollectionShare: React.FC = () => {
           <p className="text-slate-500">Yuklab olish havolasi hozircha mavjud emas.</p>
         )}
         <div className="mt-6 pt-4 border-t border-slate-200/90">
-          <Link to="/login" className="text-sm text-blue-400 hover:text-blue-300">
+          <Link to="/login" className="text-sm text-blue-800 hover:text-blue-700">
             Platformaga kirish
           </Link>
         </div>

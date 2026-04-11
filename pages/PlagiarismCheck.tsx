@@ -580,8 +580,8 @@ const PlagiarismCheck: React.FC = () => {
           <div className="mt-6 text-center space-y-4">
               <div className="p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg max-w-md mx-auto">
                   <p className="text-sm text-slate-600 mb-2">
-                      <span className="font-semibold text-blue-300">Narx:</span> {PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm
-                      {PLAGIARISM_CHECK_PRICE === 0 && <span className="text-green-400 ml-2">(test rejimi)</span>}
+                      <span className="font-semibold text-blue-900">Narx:</span> {PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm
+                      {PLAGIARISM_CHECK_PRICE === 0 && <span className="text-emerald-800 ml-2">(test rejimi)</span>}
                   </p>
                   {PLAGIARISM_CHECK_PRICE > 0 && (
                       <p className="text-xs text-slate-500">Antiplagiat tekshiruvi uchun to'lov talab qilinadi</p>
@@ -592,7 +592,7 @@ const PlagiarismCheck: React.FC = () => {
               </Button>
               {paymentVerifiedCompleted && (
                   <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg mt-4 max-w-xs mx-auto">
-                      <p className="text-green-300 text-sm font-medium mb-2">To'lov tasdiqlandi</p>
+                      <p className="text-emerald-900 text-sm font-medium mb-2">To'lov tasdiqlandi</p>
                       <Button onClick={() => handleCheck(true)} disabled={isChecking} className="w-full">
                           Tekshirishni davom ettirish
                       </Button>
@@ -625,15 +625,15 @@ const PlagiarismCheck: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto p-4 bg-slate-100/70 rounded-lg">
                       <div className="p-4 bg-slate-100/70 rounded-lg text-center">
                           <p className="text-sm text-slate-500">Originallik</p>
-                          <p className="text-4xl font-bold text-green-400 mt-1">{100 - result.plagiarism}%</p>
+                          <p className="text-4xl font-bold text-emerald-800 mt-1">{100 - result.plagiarism}%</p>
                       </div>
                       <div className="p-4 bg-slate-100/70 rounded-lg text-center">
                           <p className="text-sm text-slate-500">O'xshashlik (Plagiat)</p>
-                          <p className="text-4xl font-bold text-yellow-400 mt-1">{result.plagiarism}%</p>
+                          <p className="text-4xl font-bold text-yellow-800 mt-1">{result.plagiarism}%</p>
                       </div>
                       <div className="p-4 bg-slate-100/70 rounded-lg text-center">
                           <p className="text-sm text-slate-500">AI-Kontent</p>
-                          <p className="text-4xl font-bold text-cyan-400 mt-1">{result.aiContent}%</p>
+                          <p className="text-4xl font-bold text-cyan-800 mt-1">{result.aiContent}%</p>
                       </div>
                   </div>
 
@@ -643,10 +643,10 @@ const PlagiarismCheck: React.FC = () => {
                           {result.sources.map((source, index) => (
                           <div key={index} className="p-4 bg-slate-100/70 rounded-lg border border-slate-200/90">
                               <div className="flex justify-between items-start text-sm">
-                                  <a href={source.source.startsWith('http') ? source.source : `https://${source.source}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:underline break-all">
+                                  <a href={source.source.startsWith('http') ? source.source : `https://${source.source}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-800 hover:underline break-all">
                                       <LinkIcon size={14}/> {source.source.length > 60 ? source.source.slice(0, 57) + '...' : source.source}
                                   </a>
-                                  <span className="font-bold text-yellow-300 whitespace-nowrap ml-4">{source.similarity}% o'xshashlik</span>
+                                  <span className="font-bold text-yellow-900 whitespace-nowrap ml-4">{source.similarity}% o'xshashlik</span>
                               </div>
                               <blockquote className="mt-2 pl-3 border-l-2 border-yellow-500/50 text-xs text-slate-500 italic">
                                   {source.snippet}
@@ -711,7 +711,7 @@ const PlagiarismCheck: React.FC = () => {
                       <div>
                           <h3 className="text-xl font-semibold text-slate-900 mb-4">To'lovni tasdiqlash</h3>
                           <p className="text-slate-600 mb-4">
-                              Antiplagiat tekshiruvi uchun to'lov: <span className="font-bold text-blue-400">{PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm</span>
+                              Antiplagiat tekshiruvi uchun to'lov: <span className="font-bold text-blue-800">{PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm</span>
                           </p>
                           <div className="flex gap-3">
                               <Button onClick={handlePay} className="flex-1">
@@ -735,7 +735,7 @@ const PlagiarismCheck: React.FC = () => {
                   )}
                   {paymentStatus === 'success' && (
                       <div className="text-center">
-                          <div className="text-green-500 text-4xl mb-4">✓</div>
+                          <div className="text-green-800 text-4xl mb-4">✓</div>
                           <p className="mt-4 text-lg font-medium text-slate-700">To'lov muvaffaqiyatli!</p>
                           <Button onClick={() => { closePaymentModal(); handleCheck(true); }} className="w-full mt-6">
                               Tekshirishni Davom Ettirish

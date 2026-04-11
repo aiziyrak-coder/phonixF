@@ -174,7 +174,7 @@ const MaqolaNamunaOlish: React.FC = () => {
       <div className="max-w-[1600px] mx-auto">
         <div className="flex items-start gap-4 mb-6">
           <div className="p-3 rounded-xl bg-blue-600/20 border border-blue-500/30 shrink-0">
-            <FileText className="h-8 w-8 text-blue-400" />
+            <FileText className="h-8 w-8 text-blue-800" />
           </div>
           <div>
             <h1 className="text-3xl font-bold mb-2 text-slate-900">Maqola namuna olish</h1>
@@ -196,18 +196,18 @@ const MaqolaNamunaOlish: React.FC = () => {
           {prices && (
             <Card className="p-6 border border-blue-500/20 bg-blue-950/20">
               <h2 className="text-lg font-semibold mb-3 text-slate-900 flex items-center gap-2">
-                <span className="text-blue-400">Narxlar</span>
+                <span className="text-blue-800">Narxlar</span>
                 <span className="text-sm font-normal text-slate-500">(1 bet)</span>
               </h2>
               <ul className="space-y-2 text-slate-700 mb-4">
                 <li>
-                  Quyi sifatli — <span className="font-semibold text-blue-300">{prices.quyi?.toLocaleString('uz-UZ')} so&apos;m</span>
+                  Quyi sifatli — <span className="font-semibold text-blue-900">{prices.quyi?.toLocaleString('uz-UZ')} so&apos;m</span>
                 </li>
                 <li>
-                  O&apos;rta sifatli — <span className="font-semibold text-blue-300">{prices.orta?.toLocaleString('uz-UZ')} so&apos;m</span>
+                  O&apos;rta sifatli — <span className="font-semibold text-blue-900">{prices.orta?.toLocaleString('uz-UZ')} so&apos;m</span>
                 </li>
                 <li>
-                  Yuqori sifatli — <span className="font-semibold text-blue-300">{prices.yuqori?.toLocaleString('uz-UZ')} so&apos;m</span>
+                  Yuqori sifatli — <span className="font-semibold text-blue-900">{prices.yuqori?.toLocaleString('uz-UZ')} so&apos;m</span>
                 </li>
               </ul>
               <p className="text-sm text-slate-500 border-t border-blue-500/15 pt-4">

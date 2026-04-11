@@ -162,7 +162,7 @@ const Prices: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 rounded-xl bg-green-500/20">
-                            <DollarSign className="h-6 w-6 text-green-400" />
+                            <DollarSign className="h-6 w-6 text-emerald-800" />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-slate-900">Barcha Narxlar</h1>
@@ -179,7 +179,7 @@ const Prices: React.FC = () => {
                         onClick={() => setActiveTab('services')}
                         className={`px-4 py-2 text-sm font-medium transition-colors ${
                             activeTab === 'services'
-                                ? 'text-green-400 border-b-2 border-green-400'
+                                ? 'text-emerald-800 border-b-2 border-green-400'
                                 : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
@@ -189,7 +189,7 @@ const Prices: React.FC = () => {
                         onClick={() => setActiveTab('journals')}
                         className={`px-4 py-2 text-sm font-medium transition-colors ${
                             activeTab === 'journals'
-                                ? 'text-blue-400 border-b-2 border-blue-400'
+                                ? 'text-blue-800 border-b-2 border-blue-400'
                                 : 'text-slate-500 hover:text-slate-900'
                         }`}
                     >
@@ -199,7 +199,7 @@ const Prices: React.FC = () => {
 
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="h-8 w-8 animate-spin text-green-400" />
+                        <Loader2 className="h-8 w-8 animate-spin text-emerald-800" />
                     </div>
                 ) : (
                     <>
@@ -259,7 +259,7 @@ const Prices: React.FC = () => {
                                                     ) : (
                                                         <div className="flex items-center justify-between">
                                                             <div>
-                                                                <p className="text-lg font-bold text-green-400">
+                                                                <p className="text-lg font-bold text-emerald-800">
                                                                     {formatPrice(price.amount)}
                                                                 </p>
                                                                 <p className="text-xs text-slate-500 mt-1">
@@ -370,13 +370,13 @@ const Prices: React.FC = () => {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
                                                     <div>
                                                         <p className="text-xs text-slate-500 mb-1">Nashr qilish to'lovi</p>
-                                                        <p className="text-lg font-bold text-green-400">
+                                                        <p className="text-lg font-bold text-emerald-800">
                                                             {formatPrice(journal.publicationFee)}
                                                         </p>
                                                     </div>
                                                     <div>
                                                         <p className="text-xs text-slate-500 mb-1">Bet narxi</p>
-                                                        <p className="text-lg font-bold text-cyan-400">
+                                                        <p className="text-lg font-bold text-cyan-800">
                                                             {formatPrice(journal.pricePerPage)}
                                                         </p>
                                                     </div>

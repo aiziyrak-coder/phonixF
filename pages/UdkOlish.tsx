@@ -218,10 +218,10 @@ const UdkOlish: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending_payment': return 'text-orange-400 bg-orange-500/10';
-      case 'submitted': return 'text-yellow-400 bg-yellow-500/10';
-      case 'completed': return 'text-green-400 bg-green-500/10';
-      case 'rejected': return 'text-red-400 bg-red-500/10';
+      case 'pending_payment': return 'text-orange-800 bg-orange-500/10';
+      case 'submitted': return 'text-yellow-800 bg-yellow-500/10';
+      case 'completed': return 'text-emerald-800 bg-green-500/10';
+      case 'rejected': return 'text-red-700 bg-red-500/10';
       default: return 'text-slate-500 bg-gray-500/10';
     }
   };
@@ -363,7 +363,7 @@ const UdkOlish: React.FC = () => {
                       </span>
                     </div>
                     {req.status === 'completed' && req.udk_code && (
-                      <p className="text-sm text-green-400 mt-1">UDK: {req.udk_code}</p>
+                      <p className="text-sm text-emerald-800 mt-1">UDK: {req.udk_code}</p>
                     )}
                     <p className="text-xs text-slate-500 mt-1">
                       {new Date(req.created_at).toLocaleDateString('uz-UZ')}

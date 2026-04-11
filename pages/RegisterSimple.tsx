@@ -163,7 +163,7 @@ const RegisterSimple: React.FC = () => {
                         </div>
                         
                         {error && (
-                            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded text-sm text-red-300">
+                            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded text-sm text-red-800">
                                 {error}
                             </div>
                         )}
@@ -287,7 +287,7 @@ const RegisterSimple: React.FC = () => {
                         </div>
                         
                         {error && (
-                            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded text-sm text-red-300">
+                            <div className="p-3 bg-red-500/20 border border-red-500/30 rounded text-sm text-red-800">
                                 {error}
                             </div>
                         )}
@@ -344,7 +344,7 @@ const RegisterSimple: React.FC = () => {
                 <div className="mt-6 text-center text-sm">
                     <p className="text-slate-500">
                         Hisobingiz bormi?{' '}
-                        <Link to="/login" className="font-semibold text-blue-400 hover:text-blue-300">
+                        <Link to="/login" className="font-semibold text-blue-800 hover:text-blue-700">
                             Kirish
                         </Link>
                     </p>

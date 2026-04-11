@@ -53,7 +53,7 @@ const UdkVerify: React.FC = () => {
       <Card className="max-w-lg w-full">
         {data?.valid ? (
           <>
-            <div className="flex items-center gap-3 text-green-500 mb-4">
+            <div className="flex items-center gap-3 text-green-800 mb-4">
               <CheckCircle className="h-10 w-10 shrink-0" />
               <h1 className="text-xl font-bold text-slate-900">Ma\'lumotnoma haqiqiy</h1>
             </div>
@@ -101,7 +101,7 @@ const UdkVerify: React.FC = () => {
           </>
         ) : (
           <>
-            <div className="flex items-center gap-3 text-red-400 mb-4">
+            <div className="flex items-center gap-3 text-red-700 mb-4">
               <XCircle className="h-10 w-10 shrink-0" />
               <h1 className="text-xl font-bold text-slate-900">Tekshirish natijasi</h1>
             </div>

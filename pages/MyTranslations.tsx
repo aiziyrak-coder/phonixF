@@ -29,13 +29,13 @@ interface TranslationRequestApiResponse {
 const getStatusDisplayData = (status: TranslationStatus) => {
     switch (status) {
         case TranslationStatus.Yangi:
-            return { text: 'Yangi', color: 'text-blue-400', icon: Clock };
+            return { text: 'Yangi', color: 'text-blue-800', icon: Clock };
         case TranslationStatus.Jarayonda:
-            return { text: 'Jarayonda', color: 'text-yellow-400', icon: RefreshCw };
+            return { text: 'Jarayonda', color: 'text-yellow-800', icon: RefreshCw };
         case TranslationStatus.Bajarildi:
-            return { text: 'Bajarildi', color: 'text-green-400', icon: CheckCircle };
+            return { text: 'Bajarildi', color: 'text-emerald-800', icon: CheckCircle };
         case TranslationStatus.BekorQilindi:
-            return { text: 'Bekor Qilindi', color: 'text-red-400', icon: XCircle };
+            return { text: 'Bekor Qilindi', color: 'text-red-700', icon: XCircle };
         default:
             return { text: status, color: 'text-slate-500', icon: FileText };
     }
@@ -100,7 +100,7 @@ const MyTranslations: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
             </Card>
         );

@@ -71,7 +71,7 @@ const DoiRequests: React.FC = () => {
       <Card>
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2.5 rounded-xl bg-cyan-500/20">
-            <Bot className="h-6 w-6 text-cyan-400" />
+            <Bot className="h-6 w-6 text-cyan-800" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">DOI so'rovlari</h1>
@@ -104,7 +104,7 @@ const DoiRequests: React.FC = () => {
                       href={req.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:underline mt-2"
+                      className="inline-flex items-center gap-1 text-sm text-cyan-800 hover:underline mt-2"
                     >
                       <ExternalLink size={14} /> Faylni yuklab olish
                     </a>
@@ -114,7 +114,7 @@ const DoiRequests: React.FC = () => {
                       href={req.doi_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-green-400 hover:underline mt-2 ml-4"
+                      className="inline-flex items-center gap-1 text-sm text-emerald-800 hover:underline mt-2 ml-4"
                     >
                       DOI link
                     </a>

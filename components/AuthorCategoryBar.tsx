@@ -60,7 +60,7 @@ const AuthorCategoryBar: React.FC = () => {
       <div className="px-4 sm:px-6 py-3">
         <div className="flex flex-wrap items-center gap-3">
           <span className="flex items-center gap-2 text-sm font-medium text-slate-500 shrink-0">
-            <Filter size={18} className="text-blue-400" />
+            <Filter size={18} className="text-blue-800" />
             Filtr
           </span>
 

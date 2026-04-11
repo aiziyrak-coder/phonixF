@@ -157,7 +157,7 @@ const ArxivHujjatlar: React.FC = () => {
                                 <tbody>
                                     {filtered.map((it) => (
                                         <tr key={it.id} className="border-b border-white/5 hover:bg-slate-100/70">
-                                            <td className="py-3 text-sm text-blue-300">{ARCHIVE_TYPE_LABELS[it.type] || it.label}</td>
+                                            <td className="py-3 text-sm text-blue-900">{ARCHIVE_TYPE_LABELS[it.type] || it.label}</td>
                                             <td className="py-3 text-slate-900 truncate max-w-[200px] sm:max-w-none" title={it.title}>{it.title}</td>
                                             <td className="py-3 text-sm text-slate-500 hidden sm:table-cell">
                                                 {it.date ? new Date(it.date).toLocaleDateString('uz-UZ') : '—'}
@@ -167,7 +167,7 @@ const ArxivHujjatlar: React.FC = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleArchiveDownload(it)}
-                                                        className="inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"
+                                                        className="inline-flex items-center gap-1 text-sm text-blue-800 hover:text-blue-700"
                                                     >
                                                         <Download className="h-4 w-4" /> Yuklab olish
                                                     </button>
@@ -175,7 +175,7 @@ const ArxivHujjatlar: React.FC = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => navigate(it.view_url!)}
-                                                        className="inline-flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"
+                                                        className="inline-flex items-center gap-1 text-sm text-blue-800 hover:text-blue-700"
                                                     >
                                                         <ExternalLink className="h-4 w-4" /> Ko&apos;rish
                                                     </button>

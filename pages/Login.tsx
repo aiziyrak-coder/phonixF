@@ -173,7 +173,7 @@ const Login: React.FC = () => {
                  <div className="mt-6 text-center text-sm">
                     <p className="text-slate-500">
                         Hisobingiz yo'qmi?{' '}
-                        <Link to="/register" className="font-semibold text-blue-400 hover:text-blue-300">
+                        <Link to="/register" className="font-semibold text-blue-800 hover:text-blue-700">
                             Ro'yxatdan o'tish
                         </Link>
                     </p>

@@ -263,7 +263,7 @@ const ArticleDetail: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
             </Card>
         );
@@ -281,16 +281,16 @@ const ArticleDetail: React.FC = () => {
     const getStatusDisplayData = (status: string): { text: string; color: string; icon: React.ElementType } => {
         const map: Record<string, { text: string; color: string; icon: React.ElementType }> = {
             'Draft': { text: 'Yangi topshirildi', color: 'bg-gray-500/20 text-slate-600', icon: FileText },
-            'Yangi': { text: 'Yangi topshirildi', color: 'bg-blue-500/20 text-blue-300', icon: Inbox },
+            'Yangi': { text: 'Yangi topshirildi', color: 'bg-blue-500/20 text-blue-900', icon: Inbox },
             'WithEditor': { text: 'Tekshiruvda', color: 'bg-indigo-500/20 text-indigo-300', icon: Edit },
-            'QabulQilingan': { text: 'Ko\'rib chiqilmoqda', color: 'bg-yellow-500/20 text-yellow-300', icon: CheckCircle },
-            'WritingInProgress': { text: 'Tuzatish kiritilmoqda', color: 'bg-cyan-500/20 text-cyan-300', icon: Edit },
-            'NashrgaYuborilgan': { text: 'Nashrga tayyorlanmoqda', color: 'bg-purple-500/20 text-purple-300', icon: Send },
-            'PlagiarismReview': { text: 'Antiplagiat ko\'rib chiqish (bosh admin qarori)', color: 'bg-amber-500/20 text-amber-300', icon: Edit },
-            'Revision': { text: 'To\'ldirish talab qilinadi', color: 'bg-orange-500/20 text-orange-300', icon: Edit },
-            'Accepted': { text: 'Qabul qilindi', color: 'bg-teal-500/20 text-teal-300', icon: Check },
-            'Published': { text: 'Nashr etildi', color: 'bg-green-500/20 text-green-300', icon: BookOpen },
-            'Rejected': { text: 'Jarayon to\'xtatildi', color: 'bg-red-500/20 text-red-300', icon: XCircle },
+            'QabulQilingan': { text: 'Ko\'rib chiqilmoqda', color: 'bg-yellow-500/20 text-yellow-900', icon: CheckCircle },
+            'WritingInProgress': { text: 'Tuzatish kiritilmoqda', color: 'bg-cyan-500/20 text-cyan-900', icon: Edit },
+            'NashrgaYuborilgan': { text: 'Nashrga tayyorlanmoqda', color: 'bg-purple-500/20 text-purple-900', icon: Send },
+            'PlagiarismReview': { text: 'Antiplagiat ko\'rib chiqish (bosh admin qarori)', color: 'bg-amber-500/20 text-amber-900', icon: Edit },
+            'Revision': { text: 'To\'ldirish talab qilinadi', color: 'bg-orange-500/20 text-orange-900', icon: Edit },
+            'Accepted': { text: 'Qabul qilindi', color: 'bg-teal-500/20 text-teal-900', icon: Check },
+            'Published': { text: 'Nashr etildi', color: 'bg-green-500/20 text-emerald-900', icon: BookOpen },
+            'Rejected': { text: 'Jarayon to\'xtatildi', color: 'bg-red-500/20 text-red-800', icon: XCircle },
         };
         return map[status] || { text: status, color: 'bg-gray-500/20 text-slate-600', icon: FileText };
     };
@@ -317,7 +317,7 @@ const ArticleDetail: React.FC = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="min-w-0">
-                    <Link to="/articles" className="text-blue-400 hover:text-blue-300 flex items-center gap-2 mb-2 text-sm">
+                    <Link to="/articles" className="text-blue-800 hover:text-blue-700 flex items-center gap-2 mb-2 text-sm">
                         <span>←</span> Maqolalar ro'yxati
                     </Link>
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 break-words">{article.title}</h1>
@@ -328,7 +328,7 @@ const ArticleDetail: React.FC = () => {
                         {article.status_label || statusData.text}
                     </span>
                     {article.fast_track && (
-                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-300 flex items-center gap-2">
+                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/20 text-yellow-900 flex items-center gap-2">
                             <Award size={16} />
                             Tezkor
                         </span>
@@ -351,7 +351,7 @@ const ArticleDetail: React.FC = () => {
                                             fallbackSteps.find((s) => s.current)?.name ||
                                             statusData.text}
                                     </span>
-                                    <span className="text-blue-300 font-semibold">{workflowProgress}%</span>
+                                    <span className="text-blue-900 font-semibold">{workflowProgress}%</span>
                                 </div>
                                 <div className="w-full bg-white/10 rounded-full h-2.5">
                                     <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${workflowProgress}%` }} />
@@ -363,7 +363,7 @@ const ArticleDetail: React.FC = () => {
                                     {workflowSteps.map((step) => (
                                         <div
                                             key={step.name}
-                                            className={`p-2 rounded text-center border ${step.current ? 'border-blue-400 text-blue-300 bg-blue-500/10' : step.done ? 'border-green-500/30 text-green-300 bg-green-500/10' : 'border-slate-200/90 text-slate-500 bg-slate-100/70'}`}
+                                            className={`p-2 rounded text-center border ${step.current ? 'border-blue-400 text-blue-900 bg-blue-500/10' : step.done ? 'border-green-500/30 text-emerald-900 bg-green-500/10' : 'border-slate-200/90 text-slate-500 bg-slate-100/70'}`}
                                         >
                                             {step.name}
                                         </div>
@@ -418,7 +418,7 @@ const ArticleDetail: React.FC = () => {
                                 <h3 className="text-sm font-medium text-slate-500 mb-1">Kalit so'zlar</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {article.keywords?.map((keyword: string, index: number) => (
-                                        <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
+                                        <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-900 rounded-full text-sm">
                                             {keyword}
                                         </span>
                                     )) || <span className="text-slate-500">Kalit so'zlar mavjud emas</span>}
@@ -473,7 +473,7 @@ const ArticleDetail: React.FC = () => {
                                             href={article.publication_link}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 underline"
+                                            className="inline-flex items-center gap-2 text-blue-800 hover:text-blue-700 underline"
                                         >
                                             <ExternalLink size={16} />
                                             {article.publication_link}
@@ -541,7 +541,7 @@ const ArticleDetail: React.FC = () => {
                                 activityLogs.map(log => (
                                     <div key={log.id} className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-slate-100/70 rounded-lg">
                                         <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                                            <GitCommit className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
+                                            <GitCommit className="h-4 w-4 sm:h-5 sm:w-5 text-blue-800" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2">
@@ -592,7 +592,7 @@ const ArticleDetail: React.FC = () => {
                             )}
                             {user?.role === Role.SuperAdmin && article.status === ArticleStatus.PlagiarismReview && (
                                 <>
-                                    <p className="text-sm text-amber-300 mb-2">Plagiat/AI/originalilik qisman talabga mos. Qaror qiling:</p>
+                                    <p className="text-sm text-amber-900 mb-2">Plagiat/AI/originalilik qisman talabga mos. Qaror qiling:</p>
                                     <Button onClick={() => handleStatusUpdate(ArticleStatus.NashrgaYuborilgan)} variant="primary" className="w-full flex items-center justify-center gap-2">
                                         <Check size={18} /> Qabul qilish (nashrga yuborish)
                                     </Button>
@@ -631,7 +631,7 @@ const ArticleDetail: React.FC = () => {
                                 {article.publication_link && (
                                     <div>
                                         <p className="text-xs text-slate-500 mb-1">Nashr havolasi</p>
-                                        <a href={article.publication_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-sm break-all">
+                                        <a href={article.publication_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-blue-800 hover:text-blue-700 text-sm break-all">
                                             <ExternalLink size={14} />
                                             Havolani ochish
                                         </a>

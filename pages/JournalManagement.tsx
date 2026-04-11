@@ -123,7 +123,7 @@ const JournalManagement: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
             </Card>
         );
@@ -429,7 +429,7 @@ const JournalManagement: React.FC = () => {
                         return (
                             <div key={categoryId} className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-300">{categoryName}</h4>
+                                    <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-900">{categoryName}</h4>
                                     <span className="text-xs text-slate-500">{groupedJournals[categoryId].length} ta jurnal</span>
                                 </div>
                                 {groupedJournals[categoryId].map(journal => {
@@ -469,16 +469,16 @@ const JournalManagement: React.FC = () => {
                                         <p className="text-sm text-slate-500">
                                             Admin: {admin ? `${admin.firstName || admin.first_name} ${admin.lastName || admin.last_name}` : 'Tayinlanmagan'}
                                             <span className="mx-2 text-gray-600">•</span>
-                                            Kategoriya: <span className="font-medium text-blue-300">{category?.name || "Noma'lum"}</span>
+                                            Kategoriya: <span className="font-medium text-blue-900">{category?.name || "Noma'lum"}</span>
                                             <span className="mx-2 text-gray-600">•</span>
-                                            Narx: <span className="font-medium text-green-400">{priceText}</span>
+                                            Narx: <span className="font-medium text-emerald-800">{priceText}</span>
                                         </p>
                                         <p className="text-xs text-slate-500 font-mono mt-1">ISSN: {journal.issn}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-2 mt-3 sm:mt-0">
                                     <button onClick={() => handleOpenModal(journal)} className="text-indigo-400 hover:text-indigo-200 p-2 rounded-md hover:bg-white/10 transition-colors" aria-label="Tahrirlash"><Edit size={18}/></button>
-                                    <button onClick={() => handleDeleteClick(journal)} className="text-red-400 hover:text-red-200 p-2 rounded-md hover:bg-white/10 transition-colors" aria-label="O'chirish"><Trash2 size={18}/></button>
+                                    <button onClick={() => handleDeleteClick(journal)} className="text-red-700 hover:text-red-200 p-2 rounded-md hover:bg-white/10 transition-colors" aria-label="O'chirish"><Trash2 size={18}/></button>
                                 </div>
                             </div>
                         );
@@ -588,11 +588,11 @@ const JournalManagement: React.FC = () => {
                                     <div className="mt-2 flex items-center gap-4">
                                         <img src={formData.imageUrl} alt="Jurnal rasmi" className="h-24 w-48 rounded-lg object-cover" />
                                         <div>
-                                            <label htmlFor="journal-image-upload" className="cursor-pointer bg-white/10 rounded-md py-2 px-3 text-sm font-medium text-blue-300 hover:text-blue-400 hover:bg-white/20">
+                                            <label htmlFor="journal-image-upload" className="cursor-pointer bg-white/10 rounded-md py-2 px-3 text-sm font-medium text-blue-900 hover:text-blue-800 hover:bg-white/20">
                                                 O'zgartirish
                                             </label>
                                             <input id="journal-image-upload" name="journal-image-upload" type="file" className="sr-only" accept="image/png, image/jpeg" onChange={handleImageChange} />
-                                            <button type="button" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))} className="ml-3 text-red-400 hover:text-red-300 text-sm">
+                                            <button type="button" onClick={() => setFormData(prev => ({...prev, imageUrl: ''}))} className="ml-3 text-red-700 hover:text-red-800 text-sm">
                                                 O'chirish
                                             </button>
                                         </div>
@@ -610,7 +610,7 @@ const JournalManagement: React.FC = () => {
                                 )}
                             </div>
                             <div className="pt-4 border-t border-slate-200/90 min-w-0">
-                                <h4 className="text-sm font-semibold text-blue-300 mb-3">Antiplagiat & AI Detektor talablari</h4>
+                                <h4 className="text-sm font-semibold text-blue-900 mb-3">Antiplagiat & AI Detektor talablari</h4>
                                 <p className="text-xs text-slate-500 mb-3">Maqola nashrga yuborilganda tekshiriladi. Bo&apos;sh qoldirilsa — shart o&apos;rnatilmaydi.</p>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>

@@ -203,7 +203,7 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
   return (
     <Card title={title}>
       <p className="text-sm text-slate-500 mb-4 flex items-start gap-2">
-        <MessageSquare className="h-4 w-4 shrink-0 mt-0.5 text-blue-400" />
+        <MessageSquare className="h-4 w-4 shrink-0 mt-0.5 text-blue-800" />
         {hint}
       </p>
       {messagesBlock}

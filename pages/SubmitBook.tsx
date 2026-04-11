@@ -41,7 +41,7 @@ const SliderInput: React.FC<{ label: string, value: number, onChange: (value: nu
                 <Icon className="w-4 h-4 mr-2" />
                 {label}
             </label>
-            <span className="text-sm font-medium text-blue-300 bg-blue-900/30 px-2 py-1 rounded">{value}</span>
+            <span className="text-sm font-medium text-blue-900 bg-blue-900/30 px-2 py-1 rounded">{value}</span>
         </div>
         <div className="flex items-center space-x-3">
             <button 
@@ -108,7 +108,7 @@ const CheckboxCard: React.FC<{ title: string, description: string, price: number
                 <div className={`w-5 h-5 rounded-md flex items-center justify-center border-2 transition-all ${checked ? 'bg-blue-600 border-blue-500' : 'bg-white/10 border-slate-300/80'}`}>
                     {checked && <Check className="w-3 h-3 text-slate-900" />}
                 </div>
-                 <p className="text-sm font-medium text-blue-300 mt-2 whitespace-nowrap">{price.toLocaleString()} so'm</p>
+                 <p className="text-sm font-medium text-blue-900 mt-2 whitespace-nowrap">{price.toLocaleString()} so'm</p>
             </div>
         </div>
     </div>
@@ -432,7 +432,7 @@ const SubmitBook: React.FC = () => {
                                             {options.design && <div className="flex justify-between py-1.5 border-b border-slate-200/90"><span className="text-slate-500">Dizayn:</span><span className="font-medium text-slate-900">{formatCurrency(calculatedCosts.design)}</span></div>}
                                             <div className="flex justify-between items-center pt-4">
                                                 <span className="text-lg font-bold text-slate-900">JAMI:</span>
-                                                <span className="text-2xl font-bold text-blue-300">{formatCurrency(calculatedCosts.total)}</span>
+                                                <span className="text-2xl font-bold text-blue-900">{formatCurrency(calculatedCosts.total)}</span>
                                             </div>
                                         </div>
                                     ) : (
@@ -601,7 +601,7 @@ const SubmitBook: React.FC = () => {
                         )}
                         {paymentStatus === 'success' && (
                            <div className="py-8">
-                                <CheckCircle className="mx-auto h-16 w-16 text-green-500"/>
+                                <CheckCircle className="mx-auto h-16 w-16 text-green-800"/>
                                 <p className="mt-4 text-lg font-medium text-slate-700">To'lov oynasi ochildi</p>
                                 <p className="text-sm text-slate-500">Click sahifasi yangi tabda ochildi. To'lovni yakunlagach ushbu oynaga qayting.</p>
                                 <div className="space-y-2 mt-6">
@@ -655,13 +655,13 @@ const SubmitBook: React.FC = () => {
                         <div className="space-y-3">
                             <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
                                 <span className="text-slate-700">1. Buyurtma qabul qilindi</span>
-                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                <CheckCircle className="h-5 w-5 text-green-800" />
                             </div>
                             <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
                                 <span className="text-slate-700">2. To'lov holati</span>
-                                {processPaymentStatus === 'completed' && <CheckCircle className="h-5 w-5 text-green-500" />}
+                                {processPaymentStatus === 'completed' && <CheckCircle className="h-5 w-5 text-green-800" />}
                                 {processPaymentStatus === 'failed' && <XCircle className="h-5 w-5 text-red-500" />}
-                                {(processPaymentStatus === 'pending' || processPaymentStatus === null) && <Loader2 className="h-5 w-5 text-yellow-400 animate-spin" />}
+                                {(processPaymentStatus === 'pending' || processPaymentStatus === null) && <Loader2 className="h-5 w-5 text-yellow-800 animate-spin" />}
                             </div>
                             <div className="p-3 rounded-lg bg-slate-100/70 border border-slate-200/90 flex items-center justify-between">
                                 <span className="text-slate-700">3. Muharrir ko'rib chiqadi</span>

@@ -183,7 +183,7 @@ const Dashboard: React.FC = () => {
     if (error) {
         return (
             <Card title="Xatolik">
-                <p className="text-red-400">{error}</p>
+                <p className="text-red-700">{error}</p>
                 <Button onClick={() => window.location.reload()} className="mt-4">Qayta urinish</Button>
             </Card>
         );
@@ -201,11 +201,11 @@ const Dashboard: React.FC = () => {
             .slice(0, 5);
         const getStatusLabel = (status: string) => ARTICLE_STATUS_LABELS[status] || status;
         const getStatusColor = (status: string) => {
-            if (status === ArticleStatus.Published || status === 'Published') return 'bg-green-500/20 text-green-300';
-            if (status === ArticleStatus.QabulQilingan || status === 'QabulQilingan') return 'bg-yellow-500/20 text-yellow-300';
-            if (status === ArticleStatus.Revision || status === 'Revision') return 'bg-orange-500/20 text-orange-300';
+            if (status === ArticleStatus.Published || status === 'Published') return 'bg-green-500/20 text-emerald-900';
+            if (status === ArticleStatus.QabulQilingan || status === 'QabulQilingan') return 'bg-yellow-500/20 text-yellow-900';
+            if (status === ArticleStatus.Revision || status === 'Revision') return 'bg-orange-500/20 text-orange-900';
             if (status === ArticleStatus.WithEditor || status === 'WithEditor') return 'bg-indigo-500/20 text-indigo-300';
-            if (status === ArticleStatus.Rejected || status === 'Rejected') return 'bg-red-500/20 text-red-300';
+            if (status === ArticleStatus.Rejected || status === 'Rejected') return 'bg-red-500/20 text-red-800';
             return 'bg-gray-500/20 text-slate-600';
         };
 
@@ -229,40 +229,40 @@ const Dashboard: React.FC = () => {
                             to="/submit"
                             className="group flex items-start gap-4 p-5 rounded-xl border border-slate-200/90 bg-white/[0.06] hover:bg-white/10 hover:border-blue-500/30 transition-all duration-200"
                         >
-                            <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400 group-hover:bg-blue-500/30 transition-colors">
+                            <div className="p-3 rounded-xl bg-blue-500/20 text-blue-800 group-hover:bg-blue-500/30 transition-colors">
                                 <Upload className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-slate-900 group-hover:text-blue-300 transition-colors">Maqola yuborish</h3>
+                                <h3 className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">Maqola yuborish</h3>
                                 <p className="text-sm text-slate-500 mt-0.5">Jurnal tanlab maqolani topshiring</p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-blue-400 shrink-0 mt-1" />
+                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-blue-800 shrink-0 mt-1" />
                         </Link>
                         <Link
                             to="/udk-olish"
                             className="group flex items-start gap-4 p-5 rounded-xl border border-slate-200/90 bg-white/[0.06] hover:bg-white/10 hover:border-cyan-500/30 transition-all duration-200"
                         >
-                            <div className="p-3 rounded-xl bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/30 transition-colors">
+                            <div className="p-3 rounded-xl bg-cyan-500/20 text-cyan-800 group-hover:bg-cyan-500/30 transition-colors">
                                 <BookOpen className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-slate-900 group-hover:text-cyan-300 transition-colors">UDK ma&apos;lumotnoma</h3>
+                                <h3 className="font-semibold text-slate-900 group-hover:text-cyan-900 transition-colors">UDK ma&apos;lumotnoma</h3>
                                 <p className="text-sm text-slate-500 mt-0.5">Ilmiy ish uchun UDK kodi oling</p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-cyan-400 shrink-0 mt-1" />
+                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-cyan-800 shrink-0 mt-1" />
                         </Link>
                         <Link
                             to="/articles"
                             className="group flex items-start gap-4 p-5 rounded-xl border border-slate-200/90 bg-white/[0.06] hover:bg-white/10 hover:border-emerald-500/30 transition-all duration-200"
                         >
-                            <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 transition-colors">
+                            <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-800 group-hover:bg-emerald-500/30 transition-colors">
                                 <FileText className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-slate-900 group-hover:text-emerald-300 transition-colors">Mening maqolalarim</h3>
+                                <h3 className="font-semibold text-slate-900 group-hover:text-emerald-800 transition-colors">Mening maqolalarim</h3>
                                 <p className="text-sm text-slate-500 mt-0.5">Barcha maqolalar va holatlari</p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-emerald-400 shrink-0 mt-1" />
+                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-emerald-800 shrink-0 mt-1" />
                         </Link>
                         <Link
                             to="/profile"
@@ -272,10 +272,10 @@ const Dashboard: React.FC = () => {
                                 <Archive className="h-6 w-6" />
                             </div>
                             <div className="min-w-0 flex-1">
-                                <h3 className="font-semibold text-slate-900 group-hover:text-violet-300 transition-colors">Arxiv hujjatlar</h3>
+                                <h3 className="font-semibold text-slate-900 group-hover:text-violet-800 transition-colors">Arxiv hujjatlar</h3>
                                 <p className="text-sm text-slate-500 mt-0.5">PDF, UDK, sertifikatlar, taqrizlar</p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-violet-400 shrink-0 mt-1" />
+                            <ChevronRight className="h-5 w-5 text-slate-500 group-hover:text-violet-800 shrink-0 mt-1" />
                         </Link>
                     </div>
                 </div>
@@ -353,7 +353,7 @@ const Dashboard: React.FC = () => {
                     )}
                     {recentArticles.length > 0 && (
                         <div className="mt-4 pt-4 border-t border-slate-200/90">
-                            <Link to="/articles" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">
+                            <Link to="/articles" className="inline-flex items-center gap-2 text-sm font-medium text-blue-800 hover:text-blue-700">
                                 Barcha maqolalar <ArrowRight className="h-4 w-4" />
                             </Link>
                         </div>
@@ -429,11 +429,11 @@ const Dashboard: React.FC = () => {
                                         <div>
                                             <div className="flex items-center gap-3">
                                                 {article.fast_track && (
-                                                    <span className="text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap bg-yellow-500/20 text-yellow-300 flex items-center gap-1.5">
+                                                    <span className="text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap bg-yellow-500/20 text-yellow-900 flex items-center gap-1.5">
                                                         <Rocket size={14} /> TOP
                                                     </span>
                                                 )}
-                                                <p className="font-semibold text-blue-400">{article.title}</p>
+                                                <p className="font-semibold text-blue-800">{article.title}</p>
                                             </div>
                                             <p className="text-sm text-slate-500 mt-1">Muallif: {authorLabel} | Jurnal: {journalLabel}</p>
                                         </div>
@@ -448,7 +448,7 @@ const Dashboard: React.FC = () => {
                         )}
                         {articlesForReview.length > 0 && (
                             <div className="pt-2 border-t border-slate-200/90">
-                                <Link to="/articles" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">Barchasi <ArrowRight className="h-4 w-4" /></Link>
+                                <Link to="/articles" className="inline-flex items-center gap-2 text-sm font-medium text-blue-800 hover:text-blue-700">Barchasi <ArrowRight className="h-4 w-4" /></Link>
                             </div>
                         )}
                     </div>
@@ -467,7 +467,7 @@ const Dashboard: React.FC = () => {
                                         <p className="font-medium text-slate-900">{req.author_short}</p>
                                         <p className="text-xs text-slate-500">{new Date(req.created_at).toLocaleDateString('uz-UZ')}</p>
                                         {req.file_url && (
-                                            <a href={req.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:underline mt-1">
+                                            <a href={req.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-cyan-800 hover:underline mt-1">
                                                 <ExternalLink size={14} /> Fayl
                                             </a>
                                         )}
@@ -540,7 +540,7 @@ const Dashboard: React.FC = () => {
                     )}
                     {translationsPending.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-slate-200/90">
-                            <Link to="/my-translations" className="inline-flex items-center gap-2 text-sm font-medium text-blue-400 hover:text-blue-300">Barcha tarjimalar <ArrowRight className="h-4 w-4" /></Link>
+                            <Link to="/my-translations" className="inline-flex items-center gap-2 text-sm font-medium text-blue-800 hover:text-blue-700">Barcha tarjimalar <ArrowRight className="h-4 w-4" /></Link>
                         </div>
                     )}
                 </Card>
@@ -628,7 +628,7 @@ const Dashboard: React.FC = () => {
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="p-2.5 rounded-lg bg-blue-500/20 shrink-0">
-                                            <BookOpen className="h-6 w-6 text-blue-300" />
+                                            <BookOpen className="h-6 w-6 text-blue-900" />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <h3 className="font-semibold text-slate-900 text-lg leading-snug line-clamp-2">{j.name || '—'}</h3>
@@ -733,7 +733,7 @@ const Dashboard: React.FC = () => {
                     <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '24px 24px' }} />
                     <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
                         <div>
-                            <p className="text-sm font-medium text-blue-300/90 uppercase tracking-widest">{greeting}</p>
+                            <p className="text-sm font-medium text-blue-900/90 uppercase tracking-widest">{greeting}</p>
                             <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-1 tracking-tight">Platforma boshqaruvi</h1>
                             <p className="text-slate-500 mt-2 max-w-xl">Statistika, maqolalar va moliya bo‘yicha barcha ko‘rsatkichlar bir joyda.</p>
                         </div>
@@ -775,7 +775,7 @@ const Dashboard: React.FC = () => {
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className="p-2.5 rounded-xl bg-blue-500/20">
-                                    <PieChartIcon className="h-6 w-6 text-blue-400" />
+                                    <PieChartIcon className="h-6 w-6 text-blue-800" />
                                 </div>
                                 <h3 className="text-lg font-bold text-slate-900">Maqolalar holati</h3>
                             </div>
@@ -805,7 +805,7 @@ const Dashboard: React.FC = () => {
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className="p-2.5 rounded-xl bg-cyan-500/20">
-                                    <BarChart3 className="h-6 w-6 text-cyan-400" />
+                                    <BarChart3 className="h-6 w-6 text-cyan-800" />
                                 </div>
                                 <h3 className="text-lg font-bold text-slate-900">Kitob buyurtmalari</h3>
                             </div>
@@ -821,7 +821,7 @@ const Dashboard: React.FC = () => {
                             </div>
                             <div className="flex justify-between items-center text-sm pt-4 border-t border-slate-200/90">
                                 <span className="text-slate-500">Jami: <span className="font-semibold text-slate-900">{bookOrdersTotal}</span></span>
-                                <span className="font-semibold text-green-400">Tushum: {(bookTotalRevenue / 1000).toFixed(0)}k so'm</span>
+                                <span className="font-semibold text-emerald-800">Tushum: {(bookTotalRevenue / 1000).toFixed(0)}k so'm</span>
                             </div>
                         </div>
                     </div>
@@ -843,17 +843,17 @@ const Dashboard: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 dashboard-animate-in overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 rounded-xl bg-blue-500/20"><Eye className="h-5 w-5 text-blue-400" /></div>
+                            <div className="p-2 rounded-xl bg-blue-500/20"><Eye className="h-5 w-5 text-blue-800" /></div>
                             <h3 className="text-lg font-bold text-slate-900">Eng ko‘p ko‘rilgan maqolalar</h3>
                         </div>
                         <div className="space-y-2">
                             {topArticles.length > 0 ? topArticles.map((a: any, i: number) => {
-                                const rankStyle = i === 0 ? 'bg-amber-500/30 text-amber-300 border-amber-500/50' : i === 1 ? 'bg-gray-400/30 text-slate-600 border-gray-400/50' : i === 2 ? 'bg-orange-600/30 text-orange-300 border-orange-500/50' : 'bg-white/10 text-slate-500 border-slate-200/90';
+                                const rankStyle = i === 0 ? 'bg-amber-500/30 text-amber-900 border-amber-500/50' : i === 1 ? 'bg-gray-400/30 text-slate-600 border-gray-400/50' : i === 2 ? 'bg-orange-600/30 text-orange-900 border-orange-500/50' : 'bg-white/10 text-slate-500 border-slate-200/90';
                                 return (
                                     <Link key={a.id} to={`/articles/${a.id}`} className="flex items-center gap-4 p-3 rounded-xl bg-slate-100/70 hover:bg-white/10 border border-transparent hover:border-slate-200/90 transition-all duration-200 group">
                                         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold ${rankStyle}`}>{i + 1}</span>
-                                        <span className="flex-1 text-sm text-slate-900 truncate group-hover:text-blue-300">{a.title}</span>
-                                        <span className="flex items-center gap-1 text-sm font-medium text-blue-400 shrink-0"><Eye size={14} /> {a.views_count || 0}</span>
+                                        <span className="flex-1 text-sm text-slate-900 truncate group-hover:text-blue-700">{a.title}</span>
+                                        <span className="flex items-center gap-1 text-sm font-medium text-blue-800 shrink-0"><Eye size={14} /> {a.views_count || 0}</span>
                                     </Link>
                                 );
                             }) : (
@@ -918,9 +918,9 @@ const Dashboard: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="dashboard-animate-in overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-6 shadow-xl">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 rounded-xl bg-emerald-500/20"><Wallet className="h-5 w-5 text-emerald-400" /></div>
+                            <div className="p-2 rounded-xl bg-emerald-500/20"><Wallet className="h-5 w-5 text-emerald-800" /></div>
                             <h3 className="text-lg font-bold text-slate-900">So‘ngi to‘lovlar</h3>
-                            <Link to="/financials" className="ml-auto text-sm text-blue-400 hover:text-blue-300 font-medium">Barchasi →</Link>
+                            <Link to="/financials" className="ml-auto text-sm text-blue-800 hover:text-blue-700 font-medium">Barchasi →</Link>
                         </div>
                         <div className="space-y-2">
                             {recentTx.length > 0 ? recentTx.map((t: any) => {
@@ -933,14 +933,14 @@ const Dashboard: React.FC = () => {
                                         <div className="flex items-center justify-between">
                                             <span className="text-sm text-slate-500">{serviceLabels[t.service_type] || t.service_type}</span>
                                             <span className={`text-sm font-semibold ${
-                                                isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400'
+                                                isCompleted ? 'text-emerald-800' : isFailed ? 'text-red-700' : 'text-yellow-800'
                                             }`}>
                                                 {amountStr}
                                                 {isPending && <span className="text-xs font-normal text-slate-500 ml-1">(kutilmoqda)</span>}
                                             </span>
                                         </div>
                                         {isFailed && (
-                                            <p className="text-xs text-red-300/90">Sabab: {t.error_note || 'To\'lov bekor qilindi'}</p>
+                                            <p className="text-xs text-red-800/90">Sabab: {t.error_note || 'To\'lov bekor qilindi'}</p>
                                         )}
                                     </div>
                                 );
@@ -1020,7 +1020,7 @@ const Dashboard: React.FC = () => {
                                                 </p>
                                             </div>
                                             <div className="text-right">
-                                                <p className={`font-medium ${isCompleted ? 'text-green-400' : isFailed ? 'text-red-400' : 'text-yellow-400'}`}>
+                                                <p className={`font-medium ${isCompleted ? 'text-emerald-800' : isFailed ? 'text-red-700' : 'text-yellow-800'}`}>
                                                     {amountStr}
                                                     {isPending && <span className="text-xs font-normal text-slate-500 ml-1">(kutilmoqda)</span>}
                                                 </p>
@@ -1030,7 +1030,7 @@ const Dashboard: React.FC = () => {
                                             </div>
                                         </div>
                                         {isFailed && (
-                                            <p className="text-xs text-red-300/90 mt-1">Sabab: {transaction.error_note || 'To\'lov bekor qilindi'}</p>
+                                            <p className="text-xs text-red-800/90 mt-1">Sabab: {transaction.error_note || 'To\'lov bekor qilindi'}</p>
                                         )}
                                     </div>
                                 );
@@ -1094,37 +1094,37 @@ const Dashboard: React.FC = () => {
                     <Card className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-blue-300 mb-1">Jami so'rovlar</p>
+                                <p className="text-sm text-blue-900 mb-1">Jami so'rovlar</p>
                                 <p className="text-3xl font-bold text-slate-900">{stats?.totalRequests || 0}</p>
                             </div>
-                            <FileText className="w-12 h-12 text-blue-400 opacity-50" />
+                            <FileText className="w-12 h-12 text-blue-800 opacity-50" />
                         </div>
                     </Card>
                     
                     <Card className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border-yellow-500/30">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-yellow-300 mb-1">Tekshiruvda</p>
+                                <p className="text-sm text-yellow-900 mb-1">Tekshiruvda</p>
                                 <p className="text-3xl font-bold text-slate-900">{stats?.pendingRequests || 0}</p>
                             </div>
-                            <Clock className="w-12 h-12 text-yellow-400 opacity-50" />
+                            <Clock className="w-12 h-12 text-yellow-800 opacity-50" />
                         </div>
                     </Card>
                     
                     <Card className="bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-green-300 mb-1">Yakunlangan</p>
+                                <p className="text-sm text-emerald-900 mb-1">Yakunlangan</p>
                                 <p className="text-3xl font-bold text-slate-900">{stats?.completedRequests || 0}</p>
                             </div>
-                            <CheckCircle className="w-12 h-12 text-green-400 opacity-50" />
+                            <CheckCircle className="w-12 h-12 text-emerald-800 opacity-50" />
                         </div>
                     </Card>
                     
                     <Card className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-purple-300 mb-1">Rad etilgan</p>
+                                <p className="text-sm text-purple-900 mb-1">Rad etilgan</p>
                                 <p className="text-3xl font-bold text-slate-900">{stats?.rejectedRequests || 0}</p>
                             </div>
                             <XCircle className="w-12 h-12 text-purple-400 opacity-50" />

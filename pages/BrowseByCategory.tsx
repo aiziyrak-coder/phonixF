@@ -84,7 +84,7 @@ const BrowseByCategory: React.FC = () => {
         )}
         {error ? (
           <div className="text-center py-12">
-            <p className="text-red-400 mb-4">{error}</p>
+            <p className="text-red-700 mb-4">{error}</p>
             <Button onClick={load}>Qayta urinish</Button>
           </div>
         ) : loading ? (
@@ -107,7 +107,7 @@ const BrowseByCategory: React.FC = () => {
             </p>
             <Link
               to="/submit"
-              className="inline-block mt-4 text-blue-400 hover:text-blue-300 text-sm font-medium"
+              className="inline-block mt-4 text-blue-800 hover:text-blue-700 text-sm font-medium"
             >
               Maqola yuborish →
             </Link>
@@ -121,7 +121,7 @@ const BrowseByCategory: React.FC = () => {
               >
                 <div className="flex gap-3">
                   <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="w-5 h-5 text-blue-400" />
+                    <BookOpen className="w-5 h-5 text-blue-800" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-semibold text-slate-900">{j.name}</h3>
@@ -132,7 +132,7 @@ const BrowseByCategory: React.FC = () => {
                       <p className="text-xs text-slate-500 font-mono mt-1">{j.issn}</p>
                     )}
                     {priceText(j) && (
-                      <p className="text-sm text-blue-300 mt-2">{priceText(j)}</p>
+                      <p className="text-sm text-blue-900 mt-2">{priceText(j)}</p>
                     )}
                   </div>
                 </div>

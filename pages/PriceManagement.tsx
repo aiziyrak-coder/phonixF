@@ -154,7 +154,7 @@ const PriceManagement: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-green-500/20">
-              <DollarSign className="h-6 w-6 text-green-400" />
+              <DollarSign className="h-6 w-6 text-emerald-800" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900">Xizmat Narxlari</h1>
@@ -171,7 +171,7 @@ const PriceManagement: React.FC = () => {
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-green-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-800" />
           </div>
         ) : prices.length === 0 ? (
           <p className="text-slate-500 text-center py-8">Hozircha xizmatlar yo'q.</p>
@@ -231,7 +231,7 @@ const PriceManagement: React.FC = () => {
                       ) : (
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-lg font-bold text-green-400">
+                            <p className="text-lg font-bold text-emerald-800">
                               {formatPrice(price.amount, price.currency)}
                             </p>
                             <p className="text-xs text-slate-500 mt-1">
@@ -249,7 +249,7 @@ const PriceManagement: React.FC = () => {
                             <Button
                               variant="secondary"
                               onClick={() => handleDelete(price.id)}
-                              className="p-2 text-red-400 hover:text-red-300"
+                              className="p-2 text-red-700 hover:text-red-800"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

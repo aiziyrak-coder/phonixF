@@ -129,14 +129,14 @@ const OperatorDashboard: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, string> = {
-      submitted: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      Yangi: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      submitted: 'bg-yellow-500/20 text-yellow-800 border-yellow-500/30',
+      pending: 'bg-yellow-500/20 text-yellow-800 border-yellow-500/30',
+      Yangi: 'bg-blue-500/20 text-blue-800 border-blue-500/30',
       Jarayonda: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-      completed: 'bg-green-500/20 text-green-400 border-green-500/30',
-      Bajarildi: 'bg-green-500/20 text-green-400 border-green-500/30',
-      rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
-      BekorQilindi: 'bg-red-500/20 text-red-400 border-red-500/30',
+      completed: 'bg-green-500/20 text-emerald-800 border-green-500/30',
+      Bajarildi: 'bg-green-500/20 text-emerald-800 border-green-500/30',
+      rejected: 'bg-red-500/20 text-red-700 border-red-500/30',
+      BekorQilindi: 'bg-red-500/20 text-red-700 border-red-500/30',
     };
     return badges[status] || 'bg-gray-500/20 text-slate-500 border-gray-500/30';
   };
@@ -201,8 +201,8 @@ const OperatorDashboard: React.FC = () => {
             <div className="text-right">
               <div className="text-sm text-slate-500 mb-1">Platformadagi roli</div>
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30">
-                <Award className="h-4 w-4 text-blue-400" />
-                <span className="font-semibold text-blue-400">Bosh Operator</span>
+                <Award className="h-4 w-4 text-blue-800" />
+                <span className="font-semibold text-blue-800">Bosh Operator</span>
               </div>
             </div>
           </div>
@@ -277,7 +277,7 @@ const OperatorDashboard: React.FC = () => {
       <Card className="mb-8 border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-gray-900/80">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-cyan-400" />
+            <MessageSquare className="h-5 w-5 text-cyan-800" />
             Muallif chatlari (oxirgi xabarlar)
           </h3>
           <Link to="/articles">
@@ -322,7 +322,7 @@ const OperatorDashboard: React.FC = () => {
       <Card className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <Activity className="h-5 w-5 text-blue-400" />
+            <Activity className="h-5 w-5 text-blue-800" />
             Oxirgi Faollik
           </h3>
           <Button variant="secondary" className="!px-4 !py-2 text-sm">
@@ -335,9 +335,9 @@ const OperatorDashboard: React.FC = () => {
             <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-white/70 backdrop-blur-sm hover:bg-white/90 border border-slate-200/70 transition-colors shadow-sm">
               <div className="flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  activity.type === 'udk' ? 'bg-blue-500/20 text-blue-400' :
+                  activity.type === 'udk' ? 'bg-blue-500/20 text-blue-800' :
                   activity.type === 'doi' ? 'bg-purple-500/20 text-purple-400' :
-                  'bg-green-500/20 text-green-400'
+                  'bg-green-500/20 text-emerald-800'
                 }`}>
                   {activity.type === 'udk' ? <BookOpen className="h-5 w-5" /> :
                    activity.type === 'doi' ? <Library className="h-5 w-5" /> :
@@ -412,7 +412,7 @@ const StatCard: React.FC<{
         </div>
       </div>
       {alert && (
-        <div className="flex items-center gap-2 text-yellow-400 text-sm">
+        <div className="flex items-center gap-2 text-yellow-800 text-sm">
           <AlertCircle className="h-4 w-4" />
           <span>Diqqat talab qilinadi</span>
         </div>
@@ -430,10 +430,10 @@ const ServiceStatCard: React.FC<{
   link: string;
 }> = ({ icon: Icon, title, count, color, link }) => {
   const colors: Record<string, string> = {
-    blue: 'from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-blue-400',
+    blue: 'from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-blue-800',
     purple: 'from-purple-600/20 to-pink-600/20 border-purple-500/30 text-purple-400',
-    green: 'from-green-600/20 to-emerald-600/20 border-green-500/30 text-green-400',
-    orange: 'from-orange-600/20 to-red-600/20 border-orange-500/30 text-orange-400',
+    green: 'from-green-600/20 to-emerald-600/20 border-green-500/30 text-emerald-800',
+    orange: 'from-orange-600/20 to-red-600/20 border-orange-500/30 text-orange-800',
   };
 
   return (
