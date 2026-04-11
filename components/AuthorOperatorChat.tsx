@@ -19,6 +19,8 @@ interface AuthorOperatorChatProps {
   articleId: string;
   viewerIsAuthor: boolean;
   authorDisplayName?: string;
+  /** O‘ng tomonda ixcham doimiy panel */
+  variant?: 'default' | 'dock';
 }
 
 /**
@@ -29,6 +31,7 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
   articleId,
   viewerIsAuthor,
   authorDisplayName,
+  variant = 'default',
 }) => {
   const [messages, setMessages] = useState<OperatorChatMessage[]>([]);
   const [text, setText] = useState('');
@@ -94,72 +97,107 @@ const AuthorOperatorChat: React.FC<AuthorOperatorChatProps> = ({
     ? 'Xabaringiz barcha faol operatorlarga yetadi. Javoblar «Operator» nomidan ko‘rinadi.'
     : `Muallif: ${authorDisplayName || '—'}. Barcha operatorlar ushbu yozishmani ko‘ra oladi; javoblar muallifga umumiy «Operator» sifatida chiqadi.`;
 
+  const isDock = variant === 'dock';
+
+  const messagesBlock = (
+    <div
+      className={
+        isDock
+          ? 'flex-1 min-h-0 overflow-y-auto space-y-2.5 px-2 py-2 pr-1'
+          : 'max-h-80 overflow-y-auto space-y-3 mb-4 pr-1'
+      }
+    >
+      {initialLoading ? (
+        <p className={`text-center text-gray-500 ${isDock ? 'py-4 text-xs' : 'py-6 text-sm'}`}>Yuklanmoqda...</p>
+      ) : messages.length === 0 ? (
+        <p className={`text-center text-gray-500 ${isDock ? 'py-4 text-xs' : 'py-6 text-sm'}`}>
+          Hozircha xabar yo‘q. Birinchi xabarni yozing.
+        </p>
+      ) : (
+        messages.map((msg) => {
+          const own = isOwn(msg);
+          return (
+            <div key={msg.id} className={`flex ${own ? 'justify-end' : 'justify-start'}`}>
+              <div
+                className={`${isDock ? 'max-w-[92%] px-3 py-2' : 'max-w-[85%] sm:max-w-[70%] px-4 py-2.5'} rounded-2xl ${
+                  own
+                    ? 'bg-blue-600/90 text-white rounded-br-md'
+                    : 'bg-white/10 text-gray-100 rounded-bl-md border border-white/10'
+                }`}
+              >
+                <div className={`font-semibold opacity-90 mb-0.5 ${isDock ? 'text-[10px]' : 'text-xs'}`}>
+                  {msg.display_name}
+                </div>
+                <p className={`whitespace-pre-wrap break-words ${isDock ? 'text-xs' : 'text-sm'}`}>{msg.body}</p>
+                <div className={`mt-1 ${own ? 'text-blue-100' : 'text-gray-500'} ${isDock ? 'text-[9px]' : 'text-[10px]'}`}>
+                  {new Date(msg.created_at).toLocaleString('uz-UZ')}
+                </div>
+              </div>
+            </div>
+          );
+        })
+      )}
+      <div ref={bottomRef} />
+    </div>
+  );
+
+  const inputBlock = (
+    <div className={`flex gap-2 ${isDock ? 'flex-col shrink-0 p-2 border-t border-white/10 bg-gray-950/90' : 'flex-col sm:flex-row'}`}>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            void send();
+          }
+        }}
+        placeholder={isDock ? 'Xabar… (Enter — yuborish)' : 'Xabar yozing... (Enter — yuborish, Shift+Enter — yangi qator)'}
+        rows={isDock ? 2 : 3}
+        className={
+          isDock
+            ? 'w-full rounded-lg bg-gray-900/90 border border-white/10 text-white placeholder-gray-500 px-2.5 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none min-h-[52px]'
+            : 'flex-1 rounded-xl bg-gray-900/80 border border-white/10 text-white placeholder-gray-500 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[80px]'
+        }
+        maxLength={10000}
+      />
+      <Button
+        type="button"
+        onClick={() => void send()}
+        disabled={sending || !text.trim()}
+        className={`${isDock ? 'w-full py-2 text-xs' : 'sm:self-end shrink-0'} flex items-center justify-center gap-2`}
+        variant="primary"
+      >
+        <Send className={isDock ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
+        {sending ? 'Yuborilmoqda...' : 'Yuborish'}
+      </Button>
+    </div>
+  );
+
+  if (isDock) {
+    return (
+      <div className="flex flex-col h-full min-h-0 text-left">
+        <div className="shrink-0 px-3 py-2 border-b border-white/10 bg-gradient-to-r from-blue-950/80 to-gray-950/90">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 text-blue-400 shrink-0" />
+            <span className="text-sm font-semibold text-white leading-tight">{title}</span>
+          </div>
+          <p className="text-[10px] text-gray-500 mt-1 line-clamp-2 leading-snug">{hint}</p>
+        </div>
+        {messagesBlock}
+        {inputBlock}
+      </div>
+    );
+  }
+
   return (
     <Card title={title}>
       <p className="text-sm text-gray-400 mb-4 flex items-start gap-2">
         <MessageSquare className="h-4 w-4 shrink-0 mt-0.5 text-blue-400" />
         {hint}
       </p>
-
-      <div className="max-h-80 overflow-y-auto space-y-3 mb-4 pr-1">
-        {initialLoading ? (
-          <p className="text-center text-gray-500 py-6 text-sm">Yuklanmoqda...</p>
-        ) : messages.length === 0 ? (
-          <p className="text-center text-gray-500 py-6 text-sm">Hozircha xabar yo‘q. Birinchi xabarni yozing.</p>
-        ) : (
-          messages.map((msg) => {
-            const own = isOwn(msg);
-            return (
-              <div
-                key={msg.id}
-                className={`flex ${own ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-2.5 ${
-                    own
-                      ? 'bg-blue-600/90 text-white rounded-br-md'
-                      : 'bg-white/10 text-gray-100 rounded-bl-md border border-white/10'
-                  }`}
-                >
-                  <div className="text-xs font-semibold opacity-90 mb-1">{msg.display_name}</div>
-                  <p className="text-sm whitespace-pre-wrap break-words">{msg.body}</p>
-                  <div className={`text-[10px] mt-1.5 ${own ? 'text-blue-100' : 'text-gray-500'}`}>
-                    {new Date(msg.created_at).toLocaleString('uz-UZ')}
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        )}
-        <div ref={bottomRef} />
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-2">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              void send();
-            }
-          }}
-          placeholder="Xabar yozing... (Enter — yuborish, Shift+Enter — yangi qator)"
-          rows={3}
-          className="flex-1 rounded-xl bg-gray-900/80 border border-white/10 text-white placeholder-gray-500 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y min-h-[80px]"
-          maxLength={10000}
-        />
-        <Button
-          type="button"
-          onClick={() => void send()}
-          disabled={sending || !text.trim()}
-          className="sm:self-end shrink-0 flex items-center justify-center gap-2"
-          variant="primary"
-        >
-          <Send className="h-4 w-4" />
-          {sending ? 'Yuborilmoqda...' : 'Yuborish'}
-        </Button>
-      </div>
+      {messagesBlock}
+      {inputBlock}
     </Card>
   );
 };

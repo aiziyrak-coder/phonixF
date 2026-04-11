@@ -11,6 +11,7 @@ import { apiService } from '../services/apiService';
 import { toast } from 'react-toastify';
 import { getAuthorWorkflowStepsFromStatus, getAuthorWorkflowProgressPercent } from '../utils/articleAuthorWorkflow';
 import AuthorOperatorChat from '../components/AuthorOperatorChat';
+import { useMediaMinWidth } from '../hooks/useMediaMinWidth';
 
 // Type for the API response which has different field names
 interface ArticleApiResponse {
@@ -46,6 +47,7 @@ const ArticleDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const isLargeScreen = useMediaMinWidth(1024);
     const [article, setArticle] = useState<ArticleApiResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -704,9 +706,11 @@ const ArticleDetail: React.FC = () => {
                 </div>
             </div>
 
-            {(viewerRoleNorm === 'author' ||
-                viewerRoleNorm === 'operator' ||
-                viewerRoleNorm === 'super_admin') &&
+            {/* lg+ da chat Layout ichidagi o‘ng panelda; kichik ekranda shu yerda */}
+            {!isLargeScreen &&
+                (viewerRoleNorm === 'author' ||
+                    viewerRoleNorm === 'operator' ||
+                    viewerRoleNorm === 'super_admin') &&
                 id && (
                     <AuthorOperatorChat
                         articleId={id}
