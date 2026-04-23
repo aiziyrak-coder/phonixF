@@ -23,6 +23,9 @@ interface TranslationRequestApiResponse {
     completion_date?: string;
     author_name?: string;
     reviewer_name?: string;
+    payment_completed?: boolean;
+    payment_pending?: boolean;
+    payment_status_label?: string;
 }
 
 const TranslationDetail: React.FC = () => {
@@ -176,14 +179,22 @@ const TranslationDetail: React.FC = () => {
     };
 
     const showReviewerActions = canManage;
+    const costNum = Number(request.cost ?? 0);
+    /** Aniq `false` — tizim to'lov topilmadi deb biladi (taqrizchi bloklanadi) */
+    const translationNeedsPay = costNum > 0 && request.payment_completed === false;
+    /** Muallif: to'lov hali tasdiqlanmagan (yoki API eski) */
+    const showAuthorPayReminder = isAuthor && costNum > 0 && request.payment_completed !== true;
+
     const canAccept =
         showReviewerActions &&
         request.status === TranslationStatus.Yangi &&
-        (!request.reviewer || String(request.reviewer) === String(user.id));
+        (!request.reviewer || String(request.reviewer) === String(user.id)) &&
+        !translationNeedsPay;
     const canUpload =
         showReviewerActions &&
         request.status === TranslationStatus.Jarayonda &&
-        (!request.reviewer || String(request.reviewer) === String(user.id));
+        (!request.reviewer || String(request.reviewer) === String(user.id)) &&
+        !translationNeedsPay;
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -200,6 +211,39 @@ const TranslationDetail: React.FC = () => {
                             </p>
                         </div>
                     </div>
+
+                    {(request.payment_status_label || costNum > 0) && (
+                        <div
+                            className={`mb-4 rounded-xl border px-4 py-3 text-sm font-medium ${
+                                costNum <= 0 || request.payment_completed
+                                    ? 'border-emerald-300/80 bg-emerald-500/10 text-emerald-950'
+                                    : 'border-amber-400/70 bg-amber-400/15 text-amber-950'
+                            }`}
+                        >
+                            <p className="font-semibold text-slate-900">
+                                To&apos;lov holati
+                            </p>
+                            <p className="mt-1 text-slate-800">
+                                {request.payment_status_label ||
+                                    (costNum <= 0
+                                        ? 'To\'lov talab qilinmaydi.'
+                                        : request.payment_completed
+                                          ? 'To\'lov tasdiqlangan.'
+                                          : 'To\'lov holati tekshirilmoqda — «Xizmatlar → Tarjima»dan to\'lovni yakunlang.')}
+                            </p>
+                            {showAuthorPayReminder && (
+                                <p className="mt-2 text-xs text-slate-700">
+                                    Click yoki Payme orqali to&apos;lov tugagach, bu yerda &quot;To&apos;lov tasdiqlangan&quot;
+                                    deb chiqadi. To&apos;lov kutayotgan bo&apos;lsa, biroz kutib sahifani yangilang.
+                                </p>
+                            )}
+                            {canManage && translationNeedsPay && (
+                                <p className="mt-2 text-xs text-amber-950">
+                                    Muallif to&apos;lovni yakunlaguncha buyurtmani ishga qabul qilish mumkin emas.
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     {isAuthor && !canManage && (
                         <p className="text-sm text-slate-500 mb-4 p-3 rounded-lg bg-slate-100/70 border border-slate-200/90">

@@ -132,7 +132,7 @@ const OperatorDashboard: React.FC = () => {
       submitted: 'bg-yellow-500/20 text-yellow-800 border-yellow-500/30',
       pending: 'bg-yellow-500/20 text-yellow-800 border-yellow-500/30',
       Yangi: 'bg-blue-500/20 text-blue-800 border-blue-500/30',
-      Jarayonda: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+      Jarayonda: 'bg-purple-500/25 text-purple-900 border-purple-400/40',
       completed: 'bg-green-500/20 text-emerald-800 border-green-500/30',
       Bajarildi: 'bg-green-500/20 text-emerald-800 border-green-500/30',
       rejected: 'bg-red-500/20 text-red-700 border-red-500/30',
@@ -143,26 +143,29 @@ const OperatorDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-500/25 via-violet-400/20 to-cyan-300/30 p-8">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-500">Ma'lumotlar yuklanmoqda...</p>
+          <div className="mx-auto mb-4 h-14 w-14 animate-spin rounded-full border-4 border-violet-600 border-t-transparent" />
+          <p className="font-medium text-slate-900">Ma&apos;lumotlar yuklanmoqda...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black p-6">
+    <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[28px] border border-white/45 bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-400 p-[1px] shadow-2xl shadow-indigo-950/25">
+      <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(ellipse_at_15%_0%,rgba(255,255,255,0.55),transparent_50%)]" aria-hidden />
+      <div className="pointer-events-none absolute inset-0 rounded-[26px] bg-[radial-gradient(ellipse_at_100%_100%,rgba(250,204,21,0.22),transparent_45%)]" aria-hidden />
+      <div className="relative rounded-[26px] bg-gradient-to-br from-white/25 via-white/15 to-cyan-100/25 px-4 py-8 backdrop-blur-md sm:px-8 sm:py-10">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">
-              👑 Operator Dashboard
+            <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-slate-950">
+              Operator boshqaruvi
             </h1>
-            <p className="text-slate-500">
-              Barcha so'rovlarni nazorat qilish va boshqarish markazi
+            <p className="font-medium text-slate-800">
+              Barcha so&apos;rovlarni nazorat qilish va boshqarish markazi
             </p>
           </div>
           <div className="flex items-center gap-4">
@@ -180,33 +183,34 @@ const OperatorDashboard: React.FC = () => {
         </div>
 
         {/* User Info Card */}
-        <Card className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/30">
-          <div className="flex items-center justify-between">
+        <div className="rounded-2xl border border-white/55 bg-white/45 p-6 shadow-xl backdrop-blur-2xl">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white">
-                {user?.firstName?.[0]}{user?.lastName?.[0]}
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 text-xl font-bold text-white shadow-lg">
+                {user?.firstName?.[0]}
+                {user?.lastName?.[0]}
               </div>
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-xl font-bold text-slate-950">
                   {`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Operator'}
                 </h2>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <Shield className="h-4 w-4" />
-                  <span>Senior Operator</span>
-                  <span>•</span>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-800">
+                  <Shield className="h-4 w-4 text-violet-800" />
+                  <span>Operator</span>
+                  <span className="text-slate-500">•</span>
                   <span>{user?.phone}</span>
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-slate-500 mb-1">Platformadagi roli</div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30">
-                <Award className="h-4 w-4 text-blue-800" />
-                <span className="font-semibold text-blue-800">Bosh Operator</span>
+            <div className="text-left md:text-right">
+              <div className="mb-1 text-sm font-medium text-slate-700">Platformadagi rol</div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/50 bg-white/60 px-4 py-2 shadow-inner backdrop-blur-sm">
+                <Award className="h-4 w-4 text-violet-900" />
+                <span className="font-semibold text-violet-950">Bosh operator</span>
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -274,10 +278,10 @@ const OperatorDashboard: React.FC = () => {
         />
       </div>
 
-      <Card className="mb-8 border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-gray-900/80">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-cyan-800" />
+      <div className="mb-8 rounded-2xl border border-white/55 bg-white/40 p-6 shadow-xl backdrop-blur-2xl">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-bold text-slate-950">
+            <MessageSquare className="h-5 w-5 text-violet-800" />
             Muallif chatlari (oxirgi xabarlar)
           </h3>
           <Link to="/articles">
@@ -286,18 +290,20 @@ const OperatorDashboard: React.FC = () => {
             </Button>
           </Link>
         </div>
-        <p className="text-sm text-slate-500 mb-4">
+        <p className="mb-4 text-sm font-medium text-slate-800">
           Har bir maqola alohida yozishma. Muallif yozganida barcha operatorlarga bildirishnoma boradi.
         </p>
         {chatInbox.length === 0 ? (
-          <p className="text-slate-500 text-sm py-4 text-center">Hozircha faol chatlar yo‘q. Maqolalar ro‘yxatidan oching.</p>
+          <p className="py-6 text-center text-sm font-medium text-slate-700">
+            Hozircha faol chatlar yo&apos;q. Maqolalar ro&apos;yxatidan oching.
+          </p>
         ) : (
           <ul className="space-y-2 max-h-64 overflow-y-auto">
             {chatInbox.slice(0, 15).map((row) => (
               <li key={row.id}>
                 <Link
                   to={`/articles/${row.id}`}
-                  className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/70 backdrop-blur-sm hover:bg-white/90 border border-slate-200/80 transition-colors shadow-sm"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-white/60 bg-white/55 p-3 shadow-sm backdrop-blur-md transition-colors hover:bg-white/75"
                 >
                   <div className="min-w-0">
                     <p className="font-medium text-slate-900 truncate">{row.title}</p>
@@ -306,7 +312,7 @@ const OperatorDashboard: React.FC = () => {
                       {row.journal_name ? ` · ${row.journal_name}` : ''}
                     </p>
                   </div>
-                  <span className="text-xs text-slate-500 shrink-0">
+                  <span className="shrink-0 text-xs font-medium text-slate-600">
                     {row.last_message_at
                       ? new Date(row.last_message_at).toLocaleString('uz-UZ')
                       : ''}
@@ -316,14 +322,14 @@ const OperatorDashboard: React.FC = () => {
             ))}
           </ul>
         )}
-      </Card>
+      </div>
 
       {/* Recent Activity */}
-      <Card className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <Activity className="h-5 w-5 text-blue-800" />
-            Oxirgi Faollik
+      <div className="mb-8 rounded-2xl border border-white/55 bg-white/35 p-6 shadow-xl backdrop-blur-2xl">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="flex items-center gap-2 text-xl font-bold text-slate-950">
+            <Activity className="h-5 w-5 text-violet-800" />
+            Oxirgi faollik
           </h3>
           <Button variant="secondary" className="!px-4 !py-2 text-sm">
             Barchasini ko'rish
@@ -332,11 +338,11 @@ const OperatorDashboard: React.FC = () => {
         </div>
         <div className="space-y-3">
           {stats?.recentActivities.slice(0, 5).map((activity, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 rounded-xl bg-white/70 backdrop-blur-sm hover:bg-white/90 border border-slate-200/70 transition-colors shadow-sm">
+            <div key={idx} className="flex flex-col gap-3 rounded-xl border border-white/55 bg-white/50 p-4 shadow-sm backdrop-blur-md transition-colors hover:bg-white/70 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                   activity.type === 'udk' ? 'bg-blue-500/20 text-blue-800' :
-                  activity.type === 'doi' ? 'bg-purple-500/20 text-purple-400' :
+                  activity.type === 'doi' ? 'bg-purple-500/25 text-purple-900' :
                   'bg-green-500/20 text-emerald-800'
                 }`}>
                   {activity.type === 'udk' ? <BookOpen className="h-5 w-5" /> :
@@ -359,7 +365,7 @@ const OperatorDashboard: React.FC = () => {
             </div>
           ))}
         </div>
-      </Card>
+      </div>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -385,6 +391,7 @@ const OperatorDashboard: React.FC = () => {
           color="purple"
         />
       </div>
+      </div>
     </div>
   );
 };
@@ -398,17 +405,17 @@ const StatCard: React.FC<{
   description?: string;
   alert?: boolean;
 }> = ({ icon: Icon, title, value, gradient, description, alert }) => (
-  <Card className="relative overflow-hidden">
-    <div className={`absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-20 blur-3xl bg-gradient-to-br ${gradient}`} />
+  <Card className="relative overflow-hidden border-white/55 bg-white/45 shadow-xl backdrop-blur-2xl">
+    <div className={`absolute -top-12 -right-12 h-32 w-32 rounded-full bg-gradient-to-br opacity-25 blur-3xl ${gradient}`} />
     <div className="relative">
-      <div className="flex items-start justify-between mb-4">
+      <div className="mb-4 flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-slate-900">{value}</p>
-          {description && <p className="text-xs text-slate-500 mt-1">{description}</p>}
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-700">{title}</p>
+          <p className="text-3xl font-bold text-slate-950">{value}</p>
+          {description && <p className="mt-1 text-xs font-medium text-slate-600">{description}</p>}
         </div>
-        <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient}`}>
-          <Icon className="h-6 w-6 text-slate-900" />
+        <div className={`rounded-xl bg-gradient-to-br p-3 shadow-md ${gradient}`}>
+          <Icon className="h-6 w-6 text-white drop-shadow-sm" />
         </div>
       </div>
       {alert && (
@@ -429,23 +436,33 @@ const ServiceStatCard: React.FC<{
   color: string;
   link: string;
 }> = ({ icon: Icon, title, count, color, link }) => {
-  const colors: Record<string, string> = {
-    blue: 'from-blue-600/20 to-cyan-600/20 border-blue-500/30 text-blue-800',
-    purple: 'from-purple-600/20 to-pink-600/20 border-purple-500/30 text-purple-400',
-    green: 'from-green-600/20 to-emerald-600/20 border-green-500/30 text-emerald-800',
-    orange: 'from-orange-600/20 to-red-600/20 border-orange-500/30 text-orange-800',
+  const accents: Record<string, string> = {
+    blue: 'border-blue-400/35 text-blue-900',
+    purple: 'border-purple-400/35 text-purple-950',
+    green: 'border-emerald-400/35 text-emerald-950',
+    orange: 'border-orange-400/35 text-orange-950',
+  };
+
+  const iconGradients: Record<string, string> = {
+    blue: 'from-blue-600 to-cyan-600',
+    purple: 'from-purple-600 to-pink-600',
+    green: 'from-green-600 to-emerald-600',
+    orange: 'from-orange-600 to-red-600',
   };
 
   return (
     <Link to={link}>
-      <Card className={`h-full border ${colors[color]} hover:scale-105 transition-transform cursor-pointer`}>
-        <div className="flex items-center justify-between">
+      <Card
+        className={`h-full cursor-pointer border-white/55 bg-white/40 shadow-lg backdrop-blur-2xl transition-transform hover:scale-[1.02] ${accents[color]}`}
+      >
+        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/50 to-transparent opacity-80" aria-hidden />
+        <div className="relative flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-            <p className="text-2xl font-bold text-slate-900">{count}</p>
+            <p className="mb-1 text-sm font-semibold text-slate-700">{title}</p>
+            <p className="text-2xl font-bold text-slate-950">{count}</p>
           </div>
-          <div className={`p-3 rounded-xl bg-gradient-to-br ${color === 'blue' ? 'from-blue-600 to-cyan-600' : color === 'purple' ? 'from-purple-600 to-pink-600' : color === 'green' ? 'from-green-600 to-emerald-600' : 'from-orange-600 to-red-600'}`}>
-            <Icon className="h-6 w-6 text-slate-900" />
+          <div className={`rounded-xl bg-gradient-to-br p-3 shadow-md ${iconGradients[color]}`}>
+            <Icon className="h-6 w-6 text-white drop-shadow-sm" />
           </div>
         </div>
       </Card>
@@ -461,22 +478,34 @@ const QuickActionCard: React.FC<{
   link: string;
   color: string;
 }> = ({ icon: Icon, title, description, link, color }) => {
-  const colors: Record<string, string> = {
-    blue: 'hover:border-blue-500/50',
-    green: 'hover:border-green-500/50',
-    purple: 'hover:border-purple-500/50',
+  const hoverBorder: Record<string, string> = {
+    blue: 'hover:border-blue-400/55',
+    green: 'hover:border-emerald-400/55',
+    purple: 'hover:border-violet-400/55',
+  };
+  const iconWrap: Record<string, string> = {
+    blue: 'bg-gradient-to-br from-blue-600/25 to-cyan-600/15',
+    green: 'bg-gradient-to-br from-emerald-600/25 to-green-600/15',
+    purple: 'bg-gradient-to-br from-violet-600/25 to-purple-600/15',
+  };
+  const iconTone: Record<string, string> = {
+    blue: 'text-blue-900',
+    green: 'text-emerald-900',
+    purple: 'text-violet-950',
   };
 
   return (
     <Link to={link}>
-      <Card className={`h-full border border-slate-200 ${colors[color]} transition-all cursor-pointer hover:shadow-lg`}>
+      <Card
+        className={`h-full cursor-pointer border-white/55 bg-white/38 shadow-lg backdrop-blur-2xl transition-all hover:-translate-y-0.5 hover:shadow-xl ${hoverBorder[color]}`}
+      >
         <div className="flex items-start gap-4">
-          <div className={`p-4 rounded-xl bg-gradient-to-br from-${color}-600/20 to-${color}-600/10`}>
-            <Icon className={`h-8 w-8 text-${color}-400`} />
+          <div className={`rounded-xl p-4 shadow-inner ${iconWrap[color]}`}>
+            <Icon className={`h-8 w-8 ${iconTone[color]}`} />
           </div>
           <div className="flex-1">
-            <h3 className="font-bold text-slate-900 mb-1">{title}</h3>
-            <p className="text-sm text-slate-500">{description}</p>
+            <h3 className="mb-1 font-bold text-slate-950">{title}</h3>
+            <p className="text-sm font-medium text-slate-700">{description}</p>
           </div>
         </div>
       </Card>

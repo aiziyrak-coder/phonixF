@@ -24,6 +24,9 @@ interface TranslationRequestApiResponse {
     completion_date?: string;
     author_name?: string;
     reviewer_name?: string;
+    payment_completed?: boolean;
+    payment_pending?: boolean;
+    payment_status_label?: string;
 }
 
 const getStatusDisplayData = (status: TranslationStatus) => {
@@ -81,7 +84,7 @@ const MyTranslations: React.FC = () => {
     const myRequests = useMemo(() => {
         if (!user) return [];
         return requests
-            .filter(req => req.author === user.id)
+            .filter(req => String(req.author) === String(user.id))
             .sort((a, b) => new Date(b.submission_date).getTime() - new Date(a.submission_date).getTime());
     }, [user, requests]);
 
@@ -134,6 +137,23 @@ const MyTranslations: React.FC = () => {
                                                 </span>
                                             )}
                                         </div>
+                                        {(req.payment_status_label || Number(req.cost ?? 0) > 0) && (
+                                            <p
+                                                className={`mt-2 text-xs font-medium rounded-lg px-2 py-1.5 inline-block max-w-full ${
+                                                    Number(req.cost ?? 0) <= 0 || req.payment_completed
+                                                        ? 'bg-emerald-500/15 text-emerald-950'
+                                                        : 'bg-amber-400/20 text-amber-950'
+                                                }`}
+                                            >
+                                                To&apos;lov:{' '}
+                                                {req.payment_status_label ||
+                                                    (Number(req.cost ?? 0) <= 0
+                                                        ? 'talab qilinmaydi'
+                                                        : req.payment_completed
+                                                          ? 'tasdiqlangan'
+                                                          : 'kutilmoqda — «Xizmatlar»dan to‘lovni yakunlang')}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex flex-col sm:items-end gap-2 w-full sm:w-auto">
                                         <div className={`flex items-center gap-2 font-semibold ${statusInfo.color}`}>

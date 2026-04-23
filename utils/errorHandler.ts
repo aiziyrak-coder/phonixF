@@ -102,6 +102,8 @@ export function formatDrfValidationErrors(responseBody: Record<string, unknown> 
     first_name: 'Ism',
     last_name: 'Familiya',
     affiliation: 'Tashkilot',
+    journal: 'Jurnal',
+    article: 'Maqola',
     non_field_errors: '',
   };
   const parts: string[] = [];

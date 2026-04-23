@@ -11,6 +11,7 @@ const ARCHIVE_TYPE_LABELS: Record<string, string> = {
     article_pdf: 'Maqola PDF',
     udk_certificate: "UDK ma'lumotnoma",
     udk_standalone: "UDK ma'lumotnoma",
+    udk_request_order: 'UDK buyurtmasi',
     publication_certificate: "Nashr sertifikati",
     review_result: "Taqriz natijasi",
     doi_link: "DOI raqami",
@@ -127,7 +128,10 @@ const ArxivHujjatlar: React.FC = () => {
                     <div className="text-center py-12 text-slate-500">
                         <FileText className="h-14 w-14 mx-auto mb-3 opacity-50" />
                         <p className="text-lg">Hozircha arxiv hujjatlari yo&apos;q.</p>
-                        <p className="text-sm mt-2">Maqola yuborilganda, UDK buyurtma berilganda va taqrizlar yakunlanganda hujjatlar shu yerga qo&apos;shiladi.</p>
+                        <p className="text-sm mt-2 max-w-md mx-auto">
+                            Maqola PDFlari, UDK buyurtmalari (to&apos;lovdan keyin), tayyor ma&apos;lumotnomalar va taqrizlar shu yerda ko&apos;rinadi. UDK bo&apos;yicha avval
+                            &quot;Taqrizchida&quot;, keyin PDF yuklab olish paydo bo&apos;ladi.
+                        </p>
                     </div>
                 ) : (
                     <>
@@ -157,7 +161,7 @@ const ArxivHujjatlar: React.FC = () => {
                                 <tbody>
                                     {filtered.map((it) => (
                                         <tr key={it.id} className="border-b border-white/5 hover:bg-slate-100/70">
-                                            <td className="py-3 text-sm text-blue-900">{ARCHIVE_TYPE_LABELS[it.type] || it.label}</td>
+                                            <td className="py-3 text-sm text-blue-900">{it.label || ARCHIVE_TYPE_LABELS[it.type] || it.type}</td>
                                             <td className="py-3 text-slate-900 truncate max-w-[200px] sm:max-w-none" title={it.title}>{it.title}</td>
                                             <td className="py-3 text-sm text-slate-500 hidden sm:table-cell">
                                                 {it.date ? new Date(it.date).toLocaleDateString('uz-UZ') : '—'}

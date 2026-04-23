@@ -50,6 +50,10 @@ interface TranslationRequestApiResponse {
     completion_date?: string;
     author_name?: string;
     reviewer_name?: string;
+    /** Backend: Transaction (service_type translation) completed */
+    payment_completed?: boolean;
+    payment_pending?: boolean;
+    payment_status_label?: string;
 }
 
 interface JournalApiResponse {
@@ -379,6 +383,18 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
 const TranslationItem: React.FC<{ request: TranslationRequestApiResponse }> = ({ request }) => {
     const navigate = useNavigate();
     const statusData = getStatusDisplayData(request.status);
+    const costNum = Number(request.cost ?? 0);
+    const paid = costNum <= 0 || request.payment_completed === true;
+    const unpaidKnown = costNum > 0 && request.payment_completed === false;
+    const paymentHint =
+        request.payment_status_label ||
+        (paid
+            ? costNum <= 0
+                ? 'To\'lov talab qilinmaydi (0 so\'m)'
+                : 'To\'lov tasdiqlangan'
+            : unpaidKnown
+              ? 'To\'lov qilinmagan yoki kutilmoqda'
+              : 'To\'lov holati — batafsil uchun oching');
 
     return (
         <div 
@@ -390,6 +406,21 @@ const TranslationItem: React.FC<{ request: TranslationRequestApiResponse }> = ({
                 <span className={`text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap ${statusData.color}`}>
                     {statusData.text}
                 </span>
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span
+                    className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                        paid
+                            ? 'bg-emerald-500/15 text-emerald-900'
+                            : unpaidKnown
+                              ? 'bg-amber-500/25 text-amber-950'
+                              : 'bg-slate-200/90 text-slate-800'
+                    }`}
+                    title={paymentHint}
+                >
+                    {paid ? 'To\'lov: OK' : unpaidKnown ? 'To\'lov: yo\'q' : 'To\'lov: ?'}
+                </span>
+                <span className="text-xs text-slate-600 truncate max-w-full">{paymentHint}</span>
             </div>
             <div className="flex justify-between items-end mt-4">
                 <div>
@@ -413,6 +444,11 @@ const Articles: React.FC = () => {
     // Handle both string and enum role values
     const userRole = typeof user?.role === 'string' ? user.role.toLowerCase() : user?.role;
     const isJournalAdmin = userRole === Role.JournalAdmin || userRole === 'journal_admin' || userRole === 'journaladmin';
+    /** API / JWT ba'zan role qiymatini boshqacha yuborishi mumkin */
+    const isSuperAdminUser =
+        userRole === Role.SuperAdmin ||
+        userRole === 'super_admin' ||
+        userRole === 'superadmin';
     /** API ba'zan role ni boshqa registrda yuborishi mumkin; switch(user.role) bo'sh ro'yxat qaytardi */
     const isReviewer = userRole === 'reviewer' || user?.role === Role.Reviewer;
     const isOperator = userRole === 'operator' || user?.role === Role.Operator;
@@ -471,18 +507,19 @@ const Articles: React.FC = () => {
     
     const articlesToShow: ArticleApiResponse[] = useMemo(() => {
         if (isJournalAdmin) {
-            // Backend returns only this admin's journals for journal_admin; use all as managed
-            const managedJournalIds = journals.map(j => j.id);
+            /** GET /articles/ allaqachon journal_admin uchun journal__journal_admin bilan cheklangan.
+             * Jurnal ro'yxati esa paginatsiyali (/journals/journals/ default ~20 ta) — journal ID bilan qayta
+             * filtrlash maqolani yo'qotishi mumkin; shuning uchun faqat tab bo'yicha status filtri. */
             const selectedTab = journalAdminTabs.find(t => t.id === activeTab);
             if (!selectedTab) return [];
             return articles.filter(a => {
-                const journalId = getArticleJournalId(a);
-                const journalMatch = managedJournalIds.length === 0 || managedJournalIds.includes(journalId);
-                const statusMatch = selectedTab.id === 'all' || (selectedTab.statuses && selectedTab.statuses.includes(a.status as ArticleStatus));
-                return journalMatch && statusMatch;
+                const statusMatch =
+                    selectedTab.id === 'all' ||
+                    !!(selectedTab.statuses && selectedTab.statuses.includes(a.status as ArticleStatus));
+                return statusMatch;
             }).sort((a, b) => (b.fast_track ? 1 : 0) - (a.fast_track ? 1 : 0));
         }
-        if (user.role === Role.SuperAdmin) {
+        if (isSuperAdminUser) {
             const selectedTab = journalAdminTabs.find(t => t.id === activeTab);
             if (!selectedTab) return articles;
             return articles.filter(a => selectedTab.id === 'all' || (selectedTab.statuses && selectedTab.statuses.includes(a.status as ArticleStatus)))
@@ -514,7 +551,7 @@ const Articles: React.FC = () => {
             return [];
         }
         return [];
-    }, [user, userRole, activeTab, articles, journals, isJournalAdmin, isReviewer, isOperator]);
+    }, [user, userRole, activeTab, articles, isJournalAdmin, isReviewer, isOperator, isSuperAdminUser]);
 
     const translationsToShow: TranslationRequestApiResponse[] = useMemo(() => {
         if (!isReviewer || activeTab !== 'translations') return [];
@@ -603,20 +640,17 @@ const Articles: React.FC = () => {
     }, [articles, translations, reviewerTabs, user?.id]);
 
     const journalAdminTabCounts = useMemo(() => {
-        const managedJournalIds = journals.map(j => j.id);
         return journalAdminTabs.map(tab => {
             let count = 0;
             if (tab.statuses !== undefined) {
                 count = articles.filter(a => {
-                    const journalId = getArticleJournalId(a);
-                    const journalMatch = managedJournalIds.length === 0 || managedJournalIds.includes(journalId);
                     const statusMatch = tab.id === 'all' || (tab.statuses as ArticleStatus[]).includes(a.status);
-                    return journalMatch && statusMatch;
+                    return statusMatch;
                 }).length;
             }
             return { id: tab.id, count };
         });
-    }, [articles, journals, journalAdminTabs]);
+    }, [articles, journalAdminTabs]);
 
     const superAdminTabCounts = useMemo(() => {
         return journalAdminTabs.map(tab => {
@@ -637,6 +671,55 @@ const Articles: React.FC = () => {
         });
     }, [articles]);
 
+    /** JWT bo'yicha maqolalar filtrlangan. Paginatsiya (20+) bo'lsa barcha sahifalar yig'iladi; ?author= ishlatilmaydi. */
+    const fetchAllArticlesPages = useCallback(async (): Promise<ArticleApiResponse[]> => {
+        const pageSize = 200;
+        const merged: ArticleApiResponse[] = [];
+        let page = 1;
+        while (page <= 40) {
+            const raw = await apiService.articles.list({
+                page_size: String(pageSize),
+                page: String(page),
+            });
+            if (Array.isArray(raw)) {
+                merged.push(...(raw as ArticleApiResponse[]));
+                break;
+            }
+            const batch = Array.isArray((raw as { results?: ArticleApiResponse[] }).results)
+                ? (raw as { results: ArticleApiResponse[] }).results
+                : [];
+            merged.push(...batch);
+            const nextUrl = (raw as { next?: string | null })?.next;
+            if (!nextUrl || batch.length === 0 || batch.length < pageSize) {
+                break;
+            }
+            page += 1;
+        }
+        return merged;
+    }, []);
+
+    /** Jurnal dropdown / guruhlash uchun: default API ~20 ta qaytaradi — barcha sahifalar yig'iladi */
+    const fetchAllJournalsPages = useCallback(async (): Promise<JournalApiResponse[]> => {
+        const pageSize = 200;
+        const merged: JournalApiResponse[] = [];
+        let page = 1;
+        while (page <= 40) {
+            const raw = await apiService.journals.list({ pageSize, page });
+            const batch = Array.isArray(raw)
+                ? raw
+                : Array.isArray((raw as { results?: JournalApiResponse[] })?.results)
+                  ? (raw as { results: JournalApiResponse[] }).results
+                  : [];
+            merged.push(...batch);
+            const nextUrl = !Array.isArray(raw) ? (raw as { next?: string | null })?.next : null;
+            if (!nextUrl || batch.length === 0 || batch.length < pageSize) {
+                break;
+            }
+            page += 1;
+        }
+        return merged;
+    }, []);
+
     const fetchData = useCallback(async () => {
         if (!user) return;
         
@@ -644,24 +727,13 @@ const Articles: React.FC = () => {
             setLoading(true);
             setError(null);
             
-            // Fetch data based on user role
-            const [articlesData, translationsData, journalsData] = await Promise.all([
-                user.role === Role.Author 
-                    ? apiService.articles.list({ author: user.id })
-                    : apiService.articles.list(),
+            const [articlesArrayFlat, translationsData, journalsMerged] = await Promise.all([
+                fetchAllArticlesPages(),
                 apiService.translations.list(),
-                apiService.journals.list()
+                fetchAllJournalsPages(),
             ]);
             
-            // Ensure we're working with arrays and handle pagination
-            let articlesArray = [];
-            if (Array.isArray(articlesData)) {
-                articlesArray = articlesData;
-            } else if (articlesData && typeof articlesData === 'object' && 'results' in articlesData && Array.isArray(articlesData.results)) {
-                articlesArray = articlesData.results;
-            } else if (articlesData?.data && Array.isArray(articlesData.data)) {
-                articlesArray = articlesData.data;
-            }
+            let articlesArray = articlesArrayFlat;
             
             const translationsArray = Array.isArray(translationsData) 
                 ? translationsData 
@@ -671,23 +743,15 @@ const Articles: React.FC = () => {
                         ? translationsData.results 
                         : []));
             
-            const journalsArray = Array.isArray(journalsData) 
-                ? journalsData 
-                : (journalsData?.data && Array.isArray(journalsData.data) 
-                    ? journalsData.data 
-                    : (journalsData?.results && Array.isArray(journalsData.results) 
-                        ? journalsData.results 
-                        : []));
-            
             setArticles(articlesArray);
             setTranslations(translationsArray);
-            setJournals(journalsArray);
+            setJournals(journalsMerged);
         } catch (error: any) {
             setError(error?.message || 'Maqolalar ma\'lumotlarini yuklashda xatolik. Iltimos, keyinroq urinib ko\'ring.');
         } finally {
             setLoading(false);
         }
-    }, [user]);
+    }, [user, fetchAllArticlesPages, fetchAllJournalsPages]);
 
     useEffect(() => {
         fetchData();
@@ -763,7 +827,7 @@ const Articles: React.FC = () => {
         }
 
         // Determine if user is super admin or journal admin
-        const isAdmin = user.role === Role.SuperAdmin;
+        const isAdmin = isSuperAdminUser;
         const isJournalAdmin = userRole === Role.JournalAdmin || userRole === 'journal_admin' || userRole === 'journaladmin';
         
         // Get the journal IDs for journal admins
@@ -850,7 +914,7 @@ const Articles: React.FC = () => {
                 {isReviewer && renderTabs(reviewerTabs, reviewerTabCounts)}
                 {(userRole === Role.Author || userRole === 'author') && renderTabs(authorArticleTabs, authorTabCounts)}
                 {isJournalAdmin && renderTabs(journalAdminTabs, journalAdminTabCounts)}
-                {user.role === Role.SuperAdmin && renderTabs(journalAdminTabs, superAdminTabCounts)}
+                {isSuperAdminUser && renderTabs(journalAdminTabs, superAdminTabCounts)}
                 {isOperator && renderTabs(journalAdminTabs, superAdminTabCounts)}
 
                 {/* Jurnal admin bir nechta jurnalda: jurnal bo'yicha filtrlash (alohida-alohida) */}

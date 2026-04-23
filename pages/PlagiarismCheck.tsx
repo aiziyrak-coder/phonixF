@@ -70,6 +70,28 @@ const HUJJAT_TURI_OPTIONS = [
   'Boshqa',
 ];
 
+/** Modal va toast uchun: HTML entity va texnik UUID xabarlarini soddalashtirish */
+function formatPlagiarismPaymentMessage(raw: string): string {
+  let s = raw;
+  if (typeof document !== 'undefined' && s.includes('&')) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.innerHTML = s;
+      s = ta.value;
+    } catch {
+      /* ignore */
+    }
+  }
+  const low = s.toLowerCase();
+  if (
+    (low.includes('journal') || low.includes('jurnal')) &&
+    (low.includes('uuid') || low.includes('not a valid') || low.includes("to'g'ri"))
+  ) {
+    return 'Jurnal aniqlanmadi yoki server bilan bog\'lanishda nomuvofiqlik bo\'ldi. Sahifani yangilang (F5) va qayta urinib ko\'ring.';
+  }
+  return s;
+}
+
 const PlagiarismCheck: React.FC = () => {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
@@ -112,7 +134,7 @@ const PlagiarismCheck: React.FC = () => {
   const JOURNAL_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   const journalIdValid = (j: any): string | null => {
-    const id = String(j?.id ?? '').trim();
+    const id = String(j?.id ?? j?.uuid ?? j?.pk ?? '').trim();
     return JOURNAL_UUID_RE.test(id) ? id : null;
   };
 
@@ -342,7 +364,7 @@ const PlagiarismCheck: React.FC = () => {
               // Payment preparation failed
               const errorMsg = (result as any)?.user_message || result?.error_note || result?.error || "To'lovni amalga oshirishda xatolik yuz berdi.";
               setPaymentStatus('failed');
-              setPaymentError(errorMsg);
+              setPaymentError(formatPlagiarismPaymentMessage(errorMsg));
               addNotification({ 
                   message: errorMsg,
               });
@@ -351,7 +373,7 @@ const PlagiarismCheck: React.FC = () => {
           console.error('Payment failed:', err);
           const errorMsg = err.message || err.error_note || err.user_message || "To'lovni amalga oshirishda xatolik yuz berdi.";
           setPaymentStatus('failed');
-          setPaymentError(errorMsg);
+          setPaymentError(formatPlagiarismPaymentMessage(errorMsg));
       }
   };
 
@@ -504,84 +526,88 @@ const PlagiarismCheck: React.FC = () => {
 
   return (
       <>
-      <Card title="Mustaqil Antiplagiat Tekshiruvi" className="no-print">
-          <p className="text-sm text-slate-500 mb-6">Ma'lumotnoma va tekshiruv natijalari uchun quyidagi maydonlarni to'ldiring. Ko'chirma foizi va manbalar (aniq linklar) hisoblanadi.</p>
+      <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[28px] border border-white/40 bg-gradient-to-br from-indigo-600 via-violet-600 to-cyan-400 p-[1px] shadow-2xl shadow-indigo-950/35">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(255,255,255,0.45),transparent_55%)]" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_100%_80%,rgba(250,204,21,0.25),transparent_45%)]" aria-hidden />
+        <div className="relative rounded-[26px] bg-gradient-to-br from-white/20 via-white/10 to-cyan-200/15 px-4 py-8 backdrop-blur-md sm:px-8 sm:py-10">
+      <Card title="Mustaqil Antiplagiat Tekshiruvi" className="no-print border-white/50 bg-white/30 shadow-2xl backdrop-blur-2xl">
+          <p className="mb-6 text-sm font-medium text-slate-900">Ma'lumotnoma va tekshiruv natijalari uchun quyidagi maydonlarni to'ldiring. Ko'chirma foizi va manbalar (aniq linklar) hisoblanadi.</p>
 
-          <div className="space-y-4 max-w-xl mx-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="mx-auto max-w-xl space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-1">Ism *</label>
+                      <label className="mb-1 block text-sm font-semibold text-slate-900">Ism *</label>
                       <input
                           type="text"
                           value={authorFirstName}
                           onChange={e => setAuthorFirstName(e.target.value)}
                           placeholder="Ism"
-                          className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full rounded-xl border border-white/60 bg-white/45 px-4 py-2.5 text-slate-950 placeholder-slate-600 shadow-inner backdrop-blur-md transition focus:outline-none focus:ring-2 focus:ring-violet-500"
                       />
                   </div>
                   <div>
-                      <label className="block text-sm font-medium text-slate-600 mb-1">Familya *</label>
+                      <label className="mb-1 block text-sm font-semibold text-slate-900">Familya *</label>
                       <input
                           type="text"
                           value={authorLastName}
                           onChange={e => setAuthorLastName(e.target.value)}
                           placeholder="Familya"
-                          className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full rounded-xl border border-white/60 bg-white/45 px-4 py-2.5 text-slate-950 placeholder-slate-600 shadow-inner backdrop-blur-md transition focus:outline-none focus:ring-2 focus:ring-violet-500"
                       />
                   </div>
               </div>
               <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Hujjat nomi *</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-900">Hujjat nomi *</label>
                   <input
                       type="text"
                       value={documentName}
                       onChange={e => setDocumentName(e.target.value)}
                       placeholder="Hujjat nomini kiriting"
-                      className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full rounded-xl border border-white/60 bg-white/45 px-4 py-2.5 text-slate-950 placeholder-slate-600 shadow-inner backdrop-blur-md transition focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
               </div>
               <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Hujjat turi *</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-900">Hujjat turi *</label>
                   <select
                       value={documentType}
                       onChange={e => setDocumentType(e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full rounded-xl border border-white/60 bg-white/45 px-4 py-2.5 text-slate-950 shadow-inner backdrop-blur-md transition focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
-                      <option value="" className="bg-white/50 text-slate-900">Hujjat turini tanlang</option>
+                      <option value="" className="bg-slate-900 text-white">Hujjat turini tanlang</option>
                       {HUJJAT_TURI_OPTIONS.map((opt) => (
-                          <option key={opt} value={opt} className="bg-white/50 text-slate-900">{opt}</option>
+                          <option key={opt} value={opt} className="text-slate-900">{opt}</option>
                       ))}
                   </select>
               </div>
               <div className="text-center">
-                  <label htmlFor="file-upload" className="cursor-pointer block">
-                      <div className="p-10 border-2 border-dashed rounded-lg dark:border-slate-200 bg-slate-100/70 hover:bg-white/10 transition-colors">
-                          <Upload className="mx-auto h-12 w-12 text-slate-500" />
-                          <p className="mt-2 text-sm text-slate-600">
+                  <label htmlFor="file-upload" className="block cursor-pointer">
+                      <div className="rounded-2xl border-2 border-dashed border-white/70 bg-white/35 p-10 shadow-inner backdrop-blur-lg transition hover:bg-white/45">
+                          <Upload className="mx-auto h-12 w-12 text-violet-900/80" />
+                          <p className="mt-2 text-sm font-medium text-slate-950">
                               {file ? `Tanlangan fayl: ${file.name}` : 'Hujjatni shu joyga tortib tashlang yoki faylni tanlang (.docx, .pdf)'}
                           </p>
-                          <p className="text-xs text-slate-500 mt-1">Maksimal hajmi: 10MB</p>
+                          <p className="mt-1 text-xs font-medium text-slate-800">Maksimal hajmi: 10MB</p>
                       </div>
                       <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.doc,.docx" />
                   </label>
               </div>
               <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Hujjat tavsifi (ixtiyoriy)</label>
+                  <label className="mb-1 block text-sm font-semibold text-slate-900">Hujjat tavsifi (ixtiyoriy)</label>
                   <textarea
                       value={documentDescription}
                       onChange={e => setDocumentDescription(e.target.value)}
                       placeholder="Hujjat haqida qisqacha"
                       rows={3}
-                      className="w-full px-4 py-2 rounded-lg bg-slate-100/70 border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full rounded-xl border border-white/60 bg-white/45 px-4 py-2.5 text-slate-950 placeholder-slate-600 shadow-inner backdrop-blur-md transition focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
               </div>
           </div>
 
-          <div className="mt-6 text-center space-y-4">
-              <div className="p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg max-w-md mx-auto">
-                  <p className="text-sm text-slate-600 mb-2">
-                      <span className="font-semibold text-blue-900">Narx:</span> {PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm
-                      {PLAGIARISM_CHECK_PRICE === 0 && <span className="text-emerald-800 ml-2">(test rejimi)</span>}
+          <div className="mt-6 space-y-4 text-center">
+              <div className="mx-auto max-w-md rounded-2xl border border-white/55 bg-white/35 p-4 shadow-lg backdrop-blur-xl">
+                  <p className="mb-2 text-sm font-medium text-slate-950">
+                      <span className="font-bold text-violet-950">Narx:</span> {PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm
+                      {PLAGIARISM_CHECK_PRICE === 0 && <span className="ml-2 font-semibold text-emerald-900">(test rejimi)</span>}
                   </p>
                   {PLAGIARISM_CHECK_PRICE > 0 && (
                       <p className="text-xs text-slate-500">Antiplagiat tekshiruvi uchun to'lov talab qilinadi</p>
@@ -591,16 +617,16 @@ const PlagiarismCheck: React.FC = () => {
                   {isChecking ? 'Tekshirilmoqda...' : <><FileCheck className="mr-2 h-4 w-4" /> {PLAGIARISM_CHECK_PRICE > 0 ? 'To\'lov va Tekshirish' : 'Tekshirish'}</>}
               </Button>
               {paymentVerifiedCompleted && (
-                  <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg mt-4 max-w-xs mx-auto">
-                      <p className="text-emerald-900 text-sm font-medium mb-2">To'lov tasdiqlandi</p>
+                  <div className="mx-auto mt-4 max-w-xs rounded-xl border border-emerald-700/35 bg-emerald-200/45 p-4 backdrop-blur-md">
+                      <p className="mb-2 text-sm font-semibold text-emerald-950">To'lov tasdiqlandi</p>
                       <Button onClick={() => handleCheck(true)} disabled={isChecking} className="w-full">
                           Tekshirishni davom ettirish
                       </Button>
                   </div>
               )}
               {pendingPlagiarismPayment && !paymentVerifiedCompleted && (
-                  <div className="p-4 bg-amber-500/15 border border-amber-500/35 rounded-lg mt-4 max-w-md mx-auto text-center">
-                      <p className="text-amber-100 text-sm mb-3">
+                  <div className="mx-auto mt-4 max-w-md rounded-xl border border-amber-700/35 bg-amber-200/40 p-4 text-center backdrop-blur-md">
+                      <p className="mb-3 text-sm font-medium text-amber-950">
                           To&apos;lov Clickda qilingan bo&apos;lsa, tizimga kelishi biroz vaqt olishi mumkin.
                       </p>
                       <Button type="button" variant="secondary" onClick={recheckPlagiarismPayment} className="w-full sm:w-auto">
@@ -611,10 +637,10 @@ const PlagiarismCheck: React.FC = () => {
           </div>
 
           {isChecking && (
-              <div className="mt-8 max-w-lg mx-auto">
-                  <p className="text-center text-slate-600 mb-2">Tahlil qilinmoqda... Iltimos, kuting.</p>
-                  <div className="w-full bg-white/10 rounded-full h-2.5">
-                      <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${progress}%`, transition: 'width 0.3s ease-in-out' }}></div>
+              <div className="mx-auto mt-8 max-w-lg">
+                  <p className="mb-2 text-center font-medium text-slate-950">Tahlil qilinmoqda... Iltimos, kuting.</p>
+                  <div className="h-2.5 w-full rounded-full bg-white/35 shadow-inner">
+                      <div className="h-2.5 rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 shadow-sm transition-[width] duration-300 ease-in-out" style={{ width: `${progress}%` }} />
                   </div>
               </div>
           )}
@@ -622,26 +648,26 @@ const PlagiarismCheck: React.FC = () => {
           {result && (
               <div className="mt-8">
                   <h3 className="text-xl font-bold text-center mb-4 text-slate-900">Tekshiruv Natijalari</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto p-4 bg-slate-100/70 rounded-lg">
-                      <div className="p-4 bg-slate-100/70 rounded-lg text-center">
-                          <p className="text-sm text-slate-500">Originallik</p>
+                  <div className="mx-auto grid max-w-3xl grid-cols-1 gap-4 rounded-2xl border border-white/50 bg-white/35 p-4 backdrop-blur-xl md:grid-cols-3">
+                      <div className="rounded-xl border border-white/45 bg-white/40 p-4 text-center shadow-inner backdrop-blur-md">
+                          <p className="text-sm font-semibold text-slate-800">Originallik</p>
                           <p className="text-4xl font-bold text-emerald-800 mt-1">{100 - result.plagiarism}%</p>
                       </div>
-                      <div className="p-4 bg-slate-100/70 rounded-lg text-center">
-                          <p className="text-sm text-slate-500">O'xshashlik (Plagiat)</p>
+                      <div className="rounded-xl border border-white/45 bg-white/40 p-4 text-center shadow-inner backdrop-blur-md">
+                          <p className="text-sm font-semibold text-slate-800">O'xshashlik (Plagiat)</p>
                           <p className="text-4xl font-bold text-yellow-800 mt-1">{result.plagiarism}%</p>
                       </div>
-                      <div className="p-4 bg-slate-100/70 rounded-lg text-center">
-                          <p className="text-sm text-slate-500">AI-Kontent</p>
+                      <div className="rounded-xl border border-white/45 bg-white/40 p-4 text-center shadow-inner backdrop-blur-md">
+                          <p className="text-sm font-semibold text-slate-800">AI-Kontent</p>
                           <p className="text-4xl font-bold text-cyan-800 mt-1">{result.aiContent}%</p>
                       </div>
                   </div>
 
-                   <Card title="Topilgan manbalar" className="mt-6 max-w-3xl mx-auto">
-                      <p className="text-sm text-slate-500 mb-4 -mt-4">Tizim matningizga o'xshashlik topgan manbalar ro'yxati. Bu natijalar taxminiy bo'lib, yakuniy xulosa uchun qo'shimcha tahlil talab etilishi mumkin.</p>
-                      <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                   <Card title="Topilgan manbalar" className="mx-auto mt-6 max-w-3xl border-white/50 bg-white/25 backdrop-blur-xl">
+                      <p className="-mt-4 mb-4 text-sm font-medium text-slate-900">Tizim matningizga o'xshashlik topgan manbalar ro'yxati. Bu natijalar taxminiy bo'lib, yakuniy xulosa uchun qo'shimcha tahlil talab etilishi mumkin.</p>
+                      <div className="max-h-80 space-y-4 overflow-y-auto pr-2">
                           {result.sources.map((source, index) => (
-                          <div key={index} className="p-4 bg-slate-100/70 rounded-lg border border-slate-200/90">
+                          <div key={index} className="rounded-xl border border-white/50 bg-white/35 p-4 backdrop-blur-md">
                               <div className="flex justify-between items-start text-sm">
                                   <a href={source.source.startsWith('http') ? source.source : `https://${source.source}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-800 hover:underline break-all">
                                       <LinkIcon size={14}/> {source.source.length > 60 ? source.source.slice(0, 57) + '...' : source.source}
@@ -682,6 +708,8 @@ const PlagiarismCheck: React.FC = () => {
               </div>
           </div>
       )}
+        </div>
+      </div>
 
       {/* Full Report Modal */}
       {showFullReport && fullReportData && (
@@ -705,13 +733,13 @@ const PlagiarismCheck: React.FC = () => {
 
       {/* Payment Modal */}
       {isPaymentModalOpen && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-              <div className="bg-white/55 rounded-lg p-6 max-w-md w-full border border-slate-200/90">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-md">
+              <div className="w-full max-w-md rounded-2xl border border-white/50 bg-gradient-to-br from-white/45 via-white/30 to-violet-200/35 p-6 shadow-2xl backdrop-blur-2xl transition-all duration-300">
                   {paymentStatus === 'idle' && (
                       <div>
-                          <h3 className="text-xl font-semibold text-slate-900 mb-4">To'lovni tasdiqlash</h3>
-                          <p className="text-slate-600 mb-4">
-                              Antiplagiat tekshiruvi uchun to'lov: <span className="font-bold text-blue-800">{PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm</span>
+                          <h3 className="mb-4 text-xl font-bold text-slate-950">To'lovni tasdiqlash</h3>
+                          <p className="mb-4 font-medium text-slate-900">
+                              Antiplagiat tekshiruvi uchun to'lov: <span className="font-bold text-violet-950">{PLAGIARISM_CHECK_PRICE.toLocaleString()} so'm</span>
                           </p>
                           <div className="flex gap-3">
                               <Button onClick={handlePay} className="flex-1">
@@ -726,17 +754,17 @@ const PlagiarismCheck: React.FC = () => {
                   )}
                   {paymentStatus === 'processing' && (
                       <div className="text-center">
-                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                          <p className="mt-4 text-lg font-medium text-slate-700">To&apos;lovga tayyorlanmoqda…</p>
-                          <p className="mt-2 text-sm text-slate-500 max-w-xs mx-auto">
+                          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+                          <p className="mt-4 text-lg font-semibold text-slate-950">To&apos;lovga tayyorlanmoqda…</p>
+                          <p className="mx-auto mt-2 max-w-xs text-sm font-medium text-slate-800">
                               Maqola yaratilmoqda va tranzaksiya ochilmoqda. Bu 30–60 soniya davom etishi mumkin; iltimos kuting yoki oynani yopmang.
                           </p>
                       </div>
                   )}
                   {paymentStatus === 'success' && (
                       <div className="text-center">
-                          <div className="text-green-800 text-4xl mb-4">✓</div>
-                          <p className="mt-4 text-lg font-medium text-slate-700">To'lov muvaffaqiyatli!</p>
+                          <div className="mb-4 text-4xl text-emerald-800">✓</div>
+                          <p className="mt-4 text-lg font-semibold text-slate-950">To'lov muvaffaqiyatli!</p>
                           <Button onClick={() => { closePaymentModal(); handleCheck(true); }} className="w-full mt-6">
                               Tekshirishni Davom Ettirish
                           </Button>
@@ -744,9 +772,9 @@ const PlagiarismCheck: React.FC = () => {
                   )}
                   {paymentStatus === 'failed' && (
                       <div>
-                          <div className="text-red-500 text-4xl mb-4 text-center">✗</div>
-                          <p className="mt-4 text-lg font-medium text-slate-700 text-center">To'lovda xatolik!</p>
-                          <p className="text-sm text-slate-500 max-w-xs mx-auto text-center mb-4">{paymentError}</p>
+                          <div className="mb-4 text-center text-4xl text-red-600">✗</div>
+                          <p className="mt-4 text-center text-lg font-bold text-slate-950">To'lovda xatolik!</p>
+                          <p className="mx-auto mb-4 max-w-xs break-words rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-center text-sm font-medium text-slate-900">{paymentError}</p>
                           <div className="flex gap-3">
                               <Button onClick={handlePay} className="flex-1">
                                   Qayta Urinish

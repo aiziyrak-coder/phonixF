@@ -3,7 +3,7 @@
  * Handles all HTTP requests to the backend
  */
 
-import { getUserFriendlyError, isAuthError } from '../utils/errorHandler';
+import { formatDrfValidationErrors, getUserFriendlyError, isAuthError } from '../utils/errorHandler';
 import { API_V1_BASE_URL, API_MEDIA_BASE_URL, isProductionHost } from '../config/apiBase';
 
 /** @deprecated Use API_V1_BASE_URL — nom mosligi uchun */
@@ -413,7 +413,15 @@ export const apiService = {
         Object.keys(articleData).forEach(key => {
           const value = articleData[key];
           if (value !== null && value !== undefined) {
-            if (key === 'journal' && typeof value === 'string' && !String(value).trim()) {
+            if (key === 'journal') {
+              let jid = '';
+              if (typeof value === 'object' && value !== null) {
+                const o = value as Record<string, unknown>;
+                jid = String(o.id ?? o.uuid ?? o.pk ?? '').trim();
+              } else {
+                jid = String(value).trim();
+              }
+              if (jid) formData.append(key, jid);
               return;
             }
             if (Array.isArray(value)) {
@@ -452,9 +460,9 @@ export const apiService = {
         
         if (!response.ok) {
           const errorText = await response.text();
-          let error: { detail?: string; message?: string };
+          let error: Record<string, unknown>;
           try {
-            error = JSON.parse(errorText);
+            error = JSON.parse(errorText) as Record<string, unknown>;
           } catch {
             if (errorText.includes('<!DOCTYPE html>') || errorText.includes('<html')) {
               const errorMatch = errorText.match(/<pre class="exception_value">(.*?)<\/pre>/s);
@@ -467,8 +475,12 @@ export const apiService = {
               error = { detail: errorText || 'Unknown error' };
             }
           }
+          const drfMsg = formatDrfValidationErrors(error);
+          const fallback =
+            (typeof error.detail === 'string' ? error.detail : null) ||
+            (typeof error.message === 'string' ? error.message : null);
           const apiError: Error & { status?: number; response?: unknown } = new Error(
-            error.detail || error.message || `API request failed with status ${response.status}`
+            drfMsg || fallback || `API request failed with status ${response.status}`
           );
           apiError.status = response.status;
           apiError.response = error;
@@ -501,7 +513,15 @@ export const apiService = {
         Object.keys(articleData).forEach(key => {
           const value = articleData[key];
           if (value !== null && value !== undefined) {
-            if (key === 'journal' && typeof value === 'string' && !String(value).trim()) {
+            if (key === 'journal') {
+              let jid = '';
+              if (typeof value === 'object' && value !== null) {
+                const o = value as Record<string, unknown>;
+                jid = String(o.id ?? o.uuid ?? o.pk ?? '').trim();
+              } else {
+                jid = String(value).trim();
+              }
+              if (jid) formData.append(key, jid);
               return;
             }
             if (Array.isArray(value)) {
@@ -515,7 +535,7 @@ export const apiService = {
           }
         });
         
-        // Add files if provided
+        // Add files if present
         if (files.mainFile) {
           formData.append('final_pdf_path', files.mainFile);
         }
@@ -708,12 +728,13 @@ export const apiService = {
   journals: {
     listCategories: () => apiFetch('/journals/categories/'),
     
-    list: (opts?: { pageSize?: number }) =>
-      apiFetch(
-        opts?.pageSize
-          ? `/journals/journals/?page_size=${encodeURIComponent(String(opts.pageSize))}`
-          : '/journals/journals/'
-      ),
+    list: (opts?: { pageSize?: number; page?: number }) => {
+      const params = new URLSearchParams();
+      if (opts?.pageSize != null) params.set('page_size', String(opts.pageSize));
+      if (opts?.page != null) params.set('page', String(opts.page));
+      const qs = params.toString();
+      return apiFetch(qs ? `/journals/journals/?${qs}` : '/journals/journals/');
+    },
     
     get: (id: string) => apiFetch(`/journals/journals/${id}/`),
     
