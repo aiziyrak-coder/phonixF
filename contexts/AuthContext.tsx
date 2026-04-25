@@ -45,6 +45,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const notificationIdCounter = React.useRef<number>(Date.now());
 
+  const refreshNotifications = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+      const notificationsData = await apiService.notifications.list();
+      const notificationsArray = Array.isArray(notificationsData)
+        ? notificationsData
+        : (notificationsData?.data && Array.isArray(notificationsData.data)
+            ? notificationsData.data
+            : []);
+      const mappedNotifications: Notification[] = notificationsArray.map((n: any) => ({
+        id: n.id,
+        message: n.message,
+        read: n.read,
+        link: n.link || undefined
+      }));
+      setNotifications(mappedNotifications);
+    } catch {
+      // polling xatolari UI ni buzmasin
+    }
+  }, []);
+
   // Load user from localStorage on initial load
   useEffect(() => {
     const loadUser = async () => {
@@ -84,27 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           setUser(user);
           
-          // Load notifications for the user
-          try {
-            const notificationsData = await apiService.notifications.list();
-            const notificationsArray = Array.isArray(notificationsData) 
-              ? notificationsData 
-              : (notificationsData?.data && Array.isArray(notificationsData.data) 
-                  ? notificationsData.data 
-                  : []);
-            
-            // Map backend notifications to frontend Notification type
-            const mappedNotifications: Notification[] = notificationsArray.map((n: any) => ({
-              id: n.id,
-              message: n.message,
-              read: n.read,
-              link: n.link || undefined
-            }));
-            
-            setNotifications(mappedNotifications);
-          } catch (notificationsError) {
-            // Continue without notifications if fetch fails
-          }
+          await refreshNotifications();
         } catch (profileError: any) {
           const msg = profileError?.message ?? '';
           const isSessionExpired = msg.includes('sessiya') || profileError?.status === 401;
@@ -142,7 +144,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     loadUser();
-  }, [navigate]);
+  }, [navigate, refreshNotifications]);
+
+  // Bell bildirgilarini yangilab turish (DOI, taqriz va boshqalar real-time ko'rinsin)
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    refreshNotifications();
+    const t = window.setInterval(() => {
+      if (!cancelled) refreshNotifications();
+    }, 30000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(t);
+    };
+  }, [user, refreshNotifications]);
 
   const login = async (phone: string, password: string): Promise<LoginResult> => {
     setLoading(true);

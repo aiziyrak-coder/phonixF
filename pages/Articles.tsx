@@ -675,33 +675,44 @@ const Articles: React.FC = () => {
     const fetchAllArticlesPages = useCallback(async (): Promise<ArticleApiResponse[]> => {
         const pageSize = 200;
         const merged: ArticleApiResponse[] = [];
+        const parseBatch = (raw: unknown): ArticleApiResponse[] => {
+            if (Array.isArray(raw)) return raw as ArticleApiResponse[];
+            if (!raw || typeof raw !== 'object') return [];
+            const rawObj = raw as {
+                results?: ArticleApiResponse[];
+                data?: ArticleApiResponse[] | { results?: ArticleApiResponse[]; items?: ArticleApiResponse[] };
+                items?: ArticleApiResponse[];
+            };
+            const nestedData = rawObj.data;
+            if (Array.isArray(rawObj.results)) return rawObj.results;
+            if (Array.isArray(rawObj.items)) return rawObj.items;
+            if (Array.isArray(nestedData)) return nestedData;
+            if (nestedData && typeof nestedData === 'object') {
+                if (Array.isArray((nestedData as { results?: ArticleApiResponse[] }).results)) {
+                    return (nestedData as { results: ArticleApiResponse[] }).results;
+                }
+                if (Array.isArray((nestedData as { items?: ArticleApiResponse[] }).items)) {
+                    return (nestedData as { items: ArticleApiResponse[] }).items;
+                }
+            }
+            return [];
+        };
         let page = 1;
         while (page <= 40) {
             const raw = await apiService.articles.list({
                 page_size: String(pageSize),
                 page: String(page),
             });
+            const batch = parseBatch(raw);
+            merged.push(...batch);
             if (Array.isArray(raw)) {
-                merged.push(...(raw as ArticleApiResponse[]));
                 break;
             }
             const rawObj = (raw as {
-                results?: ArticleApiResponse[];
-                data?: ArticleApiResponse[] | { results?: ArticleApiResponse[]; next?: string | null };
-                items?: ArticleApiResponse[];
+                data?: { next?: string | null };
                 next?: string | null;
             }) || {};
             const nestedData = rawObj.data;
-            const batch = Array.isArray(rawObj.results)
-                ? rawObj.results
-                : Array.isArray(rawObj.items)
-                  ? rawObj.items
-                  : Array.isArray(nestedData)
-                    ? nestedData
-                    : Array.isArray((nestedData as { results?: ArticleApiResponse[] } | undefined)?.results)
-                      ? ((nestedData as { results: ArticleApiResponse[] }).results || [])
-                      : [];
-            merged.push(...batch);
             const nextUrl =
                 rawObj.next ??
                 (!Array.isArray(nestedData) ? (nestedData as { next?: string | null } | undefined)?.next : null);
@@ -709,6 +720,11 @@ const Articles: React.FC = () => {
                 break;
             }
             page += 1;
+        }
+        // Ba'zi deploylarda query params bilan bo'sh qaytishi mumkin — oddiy /articles/ bilan fallback.
+        if (merged.length === 0) {
+            const raw = await apiService.articles.list();
+            merged.push(...parseBatch(raw));
         }
         return merged;
     }, []);
