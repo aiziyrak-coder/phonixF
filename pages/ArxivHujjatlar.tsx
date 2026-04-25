@@ -9,6 +9,7 @@ import { Role } from '../types';
 
 const ARCHIVE_TYPE_LABELS: Record<string, string> = {
     article_pdf: 'Maqola PDF',
+    article_sample_order: 'Maqola yozish buyurtmasi',
     udk_certificate: "UDK ma'lumotnoma",
     udk_standalone: "UDK ma'lumotnoma",
     udk_request_order: 'UDK buyurtmasi',

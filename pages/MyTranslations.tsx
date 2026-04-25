@@ -6,6 +6,8 @@ import { Languages, Download, Clock, CheckCircle, RefreshCw, XCircle, FileText, 
 // FIX: Import the Button component to resolve 'Cannot find name' error.
 import Button from '../components/ui/Button';
 import { apiService } from '../services/apiService';
+import { paymentService } from '../services/paymentService';
+import { toast } from 'react-toastify';
 
 // Type for the API response which has different field names
 interface TranslationRequestApiResponse {
@@ -49,6 +51,7 @@ const MyTranslations: React.FC = () => {
     const [requests, setRequests] = useState<TranslationRequestApiResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [payingRequestId, setPayingRequestId] = useState<string | null>(null);
 
     // Fetch translation requests
     useEffect(() => {
@@ -87,6 +90,35 @@ const MyTranslations: React.FC = () => {
             .filter(req => String(req.author) === String(user.id))
             .sort((a, b) => new Date(b.submission_date).getTime() - new Date(a.submission_date).getTime());
     }, [user, requests]);
+
+    const handlePayTranslation = async (req: TranslationRequestApiResponse) => {
+        const amount = Number(req.cost ?? 0);
+        if (amount <= 0) {
+            toast.info("Ushbu tarjima uchun to'lov talab qilinmaydi.");
+            return;
+        }
+        setPayingRequestId(req.id);
+        try {
+            const result = await paymentService.createTransactionAndPay(
+                amount,
+                'UZS',
+                'translation',
+                undefined,
+                req.id,
+                'click'
+            );
+            if (result?.transaction_id) {
+                toast.info("To'lov sahifasiga yo'naltirilmoqda...");
+                paymentService.redirectToPaymentPage(result.transaction_id);
+                return;
+            }
+            toast.error(result?.error || result?.error_note || "To'lovni boshlashda xatolik");
+        } catch (err: any) {
+            toast.error(err?.message || "To'lovni boshlashda xatolik");
+        } finally {
+            setPayingRequestId(null);
+        }
+    };
 
     if (!user) {
         return <Card title="Xatolik"><p>Foydalanuvchi topilmadi.</p></Card>;
@@ -160,6 +192,22 @@ const MyTranslations: React.FC = () => {
                                             <StatusIcon className={`w-5 h-5 ${req.status === TranslationStatus.Jarayonda ? 'animate-spin' : ''}`} />
                                             <span>{statusInfo.text}</span>
                                         </div>
+                                        {Number(req.cost ?? 0) > 0 && !req.payment_completed && (
+                                            <Button
+                                                onClick={() => handlePayTranslation(req)}
+                                                disabled={payingRequestId === req.id}
+                                                className="w-full sm:w-auto"
+                                            >
+                                                {payingRequestId === req.id ? (
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Yo&apos;naltirilmoqda...
+                                                    </>
+                                                ) : (
+                                                    "To'lov qilish"
+                                                )}
+                                            </Button>
+                                        )}
                                         {req.status === TranslationStatus.Bajarildi && req.translated_file_path && (
                                             <a href={apiService.getMediaUrl(req.translated_file_path)} download>
                                                 <Button variant="secondary" className="w-full">

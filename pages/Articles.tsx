@@ -685,11 +685,26 @@ const Articles: React.FC = () => {
                 merged.push(...(raw as ArticleApiResponse[]));
                 break;
             }
-            const batch = Array.isArray((raw as { results?: ArticleApiResponse[] }).results)
-                ? (raw as { results: ArticleApiResponse[] }).results
-                : [];
+            const rawObj = (raw as {
+                results?: ArticleApiResponse[];
+                data?: ArticleApiResponse[] | { results?: ArticleApiResponse[]; next?: string | null };
+                items?: ArticleApiResponse[];
+                next?: string | null;
+            }) || {};
+            const nestedData = rawObj.data;
+            const batch = Array.isArray(rawObj.results)
+                ? rawObj.results
+                : Array.isArray(rawObj.items)
+                  ? rawObj.items
+                  : Array.isArray(nestedData)
+                    ? nestedData
+                    : Array.isArray((nestedData as { results?: ArticleApiResponse[] } | undefined)?.results)
+                      ? ((nestedData as { results: ArticleApiResponse[] }).results || [])
+                      : [];
             merged.push(...batch);
-            const nextUrl = (raw as { next?: string | null })?.next;
+            const nextUrl =
+                rawObj.next ??
+                (!Array.isArray(nestedData) ? (nestedData as { next?: string | null } | undefined)?.next : null);
             if (!nextUrl || batch.length === 0 || batch.length < pageSize) {
                 break;
             }

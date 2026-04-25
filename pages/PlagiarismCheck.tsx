@@ -133,6 +133,19 @@ const PlagiarismCheck: React.FC = () => {
 
   const JOURNAL_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+  const extractList = <T,>(raw: any): T[] => {
+    if (Array.isArray(raw)) return raw as T[];
+    if (!raw || typeof raw !== 'object') return [];
+    if (Array.isArray(raw.results)) return raw.results as T[];
+    if (Array.isArray(raw.items)) return raw.items as T[];
+    if (Array.isArray(raw.data)) return raw.data as T[];
+    if (raw.data && typeof raw.data === 'object') {
+      if (Array.isArray(raw.data.results)) return raw.data.results as T[];
+      if (Array.isArray(raw.data.items)) return raw.data.items as T[];
+    }
+    return [];
+  };
+
   const journalIdValid = (j: any): string | null => {
     const id = String(j?.id ?? j?.uuid ?? j?.pk ?? '').trim();
     return JOURNAL_UUID_RE.test(id) ? id : null;
@@ -165,13 +178,18 @@ const PlagiarismCheck: React.FC = () => {
       const fetchJournals = async () => {
           if (!user) return;
           try {
-              const journalsData = await apiService.journals.list({ pageSize: 500 });
-              const journalsArray = Array.isArray(journalsData)
-                  ? journalsData
-                  : (journalsData?.results || journalsData?.data || []);
-              setAvailableJournals(journalsArray);
+              // Turli API formatlarini qo'llab-quvvatlash (results/data/items)
+              const [paged, plain] = await Promise.all([
+                  apiService.journals.list({ pageSize: 500 }),
+                  apiService.journals.list(),
+              ]);
+              const merged = [...extractList<any>(paged), ...extractList<any>(plain)];
+              const dedup = Array.from(new Map(merged.map((j: any) => [String(j?.id ?? j?.uuid ?? j?.pk ?? ''), j])).values())
+                  .filter((j: any) => journalIdValid(j));
+              setAvailableJournals(dedup);
           } catch (err) {
               console.error('Failed to fetch journals for plagiarism check:', err);
+              setAvailableJournals([]);
           }
       };
 

@@ -2,12 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { UploadCloud, CheckCircle, Loader2, XCircle, FileText, Users, AlertTriangle, Eye, BookOpen, Filter, Layers, X } from 'lucide-react';
+import { UploadCloud, CheckCircle, Loader2, XCircle, FileText, Users, Eye, BookOpen, Filter, Layers, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { PUBLICATION_TYPES, SUBJECT_AREAS } from '../constants/authorCategories';
 import { apiService } from '../services/apiService';
 import { paymentService } from '../services/paymentService';
-import { PlagiarismBadges } from '../components/PlagiarismReport';
 import { toast } from 'react-toastify';
 
 const SubmitArticle: React.FC = () => {
@@ -32,12 +31,6 @@ const SubmitArticle: React.FC = () => {
     references: '',
     coAuthors: [] as { name: string; email: string }[],
   });
-
-  // Plagiarism check state
-  const [plagiarism, setPlagiarism] = useState<number>(0);
-  const [aiContent, setAiContent] = useState<number>(0);
-  const [checkedAt, setCheckedAt] = useState<string | null>(null);
-  const [checking, setChecking] = useState(false);
 
   // Validation errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -144,28 +137,6 @@ const SubmitArticle: React.FC = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  /** Abstrakt bo‘yicha taxminiy ko‘rsatkich (backend maqola yaratilganda haqiqiy tekshiruv qiladi). */
-  const checkPlagiarism = async () => {
-    if (!formData.abstract.trim()) {
-      toast.info('Avval abstraktni kiriting');
-      return;
-    }
-    setChecking(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      const mockPlagiarism = Math.random() * 25;
-      const mockAiContent = Math.random() * 15;
-      setPlagiarism(mockPlagiarism);
-      setAiContent(mockAiContent);
-      setCheckedAt(new Date().toISOString());
-      toast.success('Tekshiruv yakunlandi. Maqola yuborilgach backend to‘liq antiplagiat tekshiradi.');
-    } catch (error) {
-      toast.error('Tekshiruvda xatolik yuz berdi');
-    } finally {
-      setChecking(false);
-    }
-  };
-
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -205,9 +176,6 @@ const SubmitArticle: React.FC = () => {
       references: '',
       coAuthors: [],
     });
-    setPlagiarism(0);
-    setAiContent(0);
-    setCheckedAt(null);
     setCurrentStep(1);
     setJournalSearch('');
     setPaymentPendingTransactionId(null);
@@ -605,54 +573,6 @@ const SubmitArticle: React.FC = () => {
               {errors.keywords && <p className="text-red-500 text-sm mt-1">{errors.keywords}</p>}
             </div>
 
-            {/* Plagiarism Check Section */}
-            <div className="border-t border-slate-200 pt-6">
-              <h3 className="text-lg font-medium text-slate-900 mb-4">Antiplagiat tekshiruvi</h3>
-
-              <div className="flex items-center justify-between mb-4">
-                <Button
-                  onClick={checkPlagiarism}
-                  disabled={checking || !formData.abstract.trim()}
-                  variant="secondary"
-                  className="flex items-center gap-2"
-                >
-                  {checking ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4" />
-                  )}
-                  {checking ? 'Tekshirilmoqda...' : 'Antiplagiat tekshiruvi'}
-                </Button>
-
-                {checkedAt && (
-                  <PlagiarismBadges
-                    plagiarism={plagiarism}
-                    ai={aiContent}
-                    checkedAt={checkedAt}
-                  />
-                )}
-              </div>
-
-              {checkedAt && (
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                  <p className="text-blue-900 text-sm">
-                    <strong>Plagiat foizi:</strong> {plagiarism.toFixed(1)}% |
-                    <strong> AI kontent:</strong> {aiContent.toFixed(1)}%
-                  </p>
-                  <p className="text-slate-500 text-xs mt-1">
-                    Tekshiruv vaqti: {new Date(checkedAt).toLocaleString()}
-                  </p>
-                </div>
-              )}
-
-              <div className="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                <p className="text-yellow-900 text-sm">
-                  <strong>Qanday hisoblanadi?</strong> Antiplagiat tekshiruvi maqola matnini millionlab ilmiy manbalar bilan solishtiradi.
-                  Plagiat foizi - matnning qanchalik mos kelishi, AI kontent - sun'iy intellekt tomonidan yaratilganlik darajasi.
-                  Odatda plagiat 15% dan kam, AI kontent 10% dan kam bo'lishi kerak.
-                </p>
-              </div>
-            </div>
           </div>
         )}
 
@@ -722,17 +642,6 @@ const SubmitArticle: React.FC = () => {
                   <p><strong>Abstrakt:</strong> {formData.abstract.substring(0, 100)}...</p>
                 </div>
               </div>
-
-              {checkedAt && (
-                <div>
-                  <h3 className="text-lg font-medium text-slate-900 mb-2">Antiplagiat natijalari</h3>
-                  <PlagiarismBadges
-                    plagiarism={plagiarism}
-                    ai={aiContent}
-                    checkedAt={checkedAt}
-                  />
-                </div>
-              )}
 
               {formData.coAuthors.length > 0 && (
                 <div>
