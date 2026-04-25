@@ -29,7 +29,7 @@ const SubmitArticle: React.FC = () => {
     abstract: '',
     keywords: '',
     references: '',
-    coAuthors: [] as { name: string; email: string }[],
+    coAuthors: [] as { name: string; identifier: string }[],
   });
 
   // Validation errors
@@ -161,6 +161,15 @@ const SubmitArticle: React.FC = () => {
       page_count: 1,
       fast_track: false,
     };
+    const coAuthorContacts = formData.coAuthors
+      .map((coAuthor) => ({
+        name: coAuthor.name.trim(),
+        identifier: coAuthor.identifier.trim(),
+      }))
+      .filter((coAuthor) => coAuthor.identifier);
+    if (coAuthorContacts.length > 0) {
+      articlePayload.co_author_contacts = coAuthorContacts;
+    }
     if (paymentPendingTransactionId) {
       articlePayload.payment_transaction_id = paymentPendingTransactionId;
     }
@@ -292,7 +301,7 @@ const SubmitArticle: React.FC = () => {
   const addCoAuthor = () => {
     setFormData({
       ...formData,
-      coAuthors: [...formData.coAuthors, { name: '', email: '' }]
+      coAuthors: [...formData.coAuthors, { name: '', identifier: '' }]
     });
   };
 
@@ -303,7 +312,7 @@ const SubmitArticle: React.FC = () => {
     });
   };
 
-  const updateCoAuthor = (index: number, field: 'name' | 'email', value: string) => {
+  const updateCoAuthor = (index: number, field: 'name' | 'identifier', value: string) => {
     const updated = [...formData.coAuthors];
     updated[index][field] = value;
     setFormData({ ...formData, coAuthors: updated });
@@ -596,14 +605,14 @@ const SubmitArticle: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-slate-600 mb-2">
-                    Email
+                    ID / email / telefon *
                   </label>
                   <input
-                    type="email"
-                    value={coAuthor.email}
-                    onChange={(e) => updateCoAuthor(index, 'email', e.target.value)}
+                    type="text"
+                    value={coAuthor.identifier}
+                    onChange={(e) => updateCoAuthor(index, 'identifier', e.target.value)}
                     className="w-full px-3 py-2 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
-                    placeholder="email@example.com"
+                    placeholder="User ID yoki email yoki telefon"
                   />
                 </div>
                 <Button
@@ -649,7 +658,7 @@ const SubmitArticle: React.FC = () => {
                   <div className="space-y-2">
                     {formData.coAuthors.map((coAuthor, index) => (
                       <div key={index} className="bg-slate-100/70 rounded-lg p-3">
-                        <p>{coAuthor.name} - {coAuthor.email}</p>
+                        <p>{coAuthor.name || 'Nomsiz hammuallif'} - {coAuthor.identifier}</p>
                       </div>
                     ))}
                   </div>
