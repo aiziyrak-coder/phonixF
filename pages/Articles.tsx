@@ -11,6 +11,7 @@ import { PlagiarismBadges } from '../components/PlagiarismReport';
 import { downloadNashrHisobotDocx } from '../utils/exportNashrHisobotDocx';
 import { getAuthorWorkflowStepsFromStatus, getAuthorWorkflowStageLabel } from '../utils/articleAuthorWorkflow';
 import { apiService } from '../services/apiService';
+import { paymentService } from '../services/paymentService';
 import { toast } from 'react-toastify';
 
 // Type for the API response which has different field names
@@ -32,6 +33,7 @@ interface ArticleApiResponse {
     plagiarism_percentage?: number;
     ai_content_percentage?: number;
     plagiarism_checked_at?: string | null;
+    pending_payment_transaction_id?: string | null;
 }
 
 interface TranslationRequestApiResponse {
@@ -262,6 +264,8 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
         return allStatuses;
     };
 
+    const pendingTxId = article.pending_payment_transaction_id;
+
     return (
         <div 
             className="p-4 sm:p-5 bg-slate-100/70 rounded-xl hover:bg-white/10 transition-all duration-200 cursor-pointer border border-transparent hover:border-slate-200/90"
@@ -333,6 +337,27 @@ const ArticleItem: React.FC<{ article: ArticleApiResponse, isAdmin?: boolean, is
                 </div>
             </div>
             <p className="text-sm text-slate-500 mt-2 line-clamp-2">{article.abstract}</p>
+            {isAuthor && currentStatus === ArticleStatus.Draft && pendingTxId && (
+                <div
+                    className="mt-3 p-3 rounded-lg bg-amber-500/15 border border-amber-500/30"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <p className="text-sm text-amber-950 mb-2">
+                        To&apos;lov kutilmoqda — jurnalga yuborish uchun to&apos;lovni tugating.
+                    </p>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        className="w-full sm:w-auto"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            paymentService.redirectToPaymentPage(pendingTxId);
+                        }}
+                    >
+                        To&apos;lovni tugatish
+                    </Button>
+                </div>
+            )}
             {authorWorkflowSteps.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-slate-200/90" onClick={(e) => e.stopPropagation()}>
                     <p className="text-xs text-slate-500 mb-2">Jarayon: <span className="text-blue-900">{authorStageHint}</span></p>
@@ -454,7 +479,9 @@ const Articles: React.FC = () => {
     const isOperator = userRole === 'operator' || user?.role === Role.Operator;
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState(isReviewer ? 'reviews' : isJournalAdmin ? 'new' : 'all');
+    const [activeTab, setActiveTab] = useState(
+        isReviewer ? 'reviews' : isJournalAdmin ? 'new' : 'all'
+    );
     const [showReportModal, setShowReportModal] = useState(false);
     const [showNashrHisobotModal, setShowNashrHisobotModal] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
@@ -639,18 +666,24 @@ const Articles: React.FC = () => {
         });
     }, [articles, translations, reviewerTabs, user?.id]);
 
+    const articlesForJournalFilter = useMemo(() => {
+        if (!filterJournal) return articles;
+        return articles.filter((a) => getArticleJournalId(a) === filterJournal);
+    }, [articles, filterJournal]);
+
     const journalAdminTabCounts = useMemo(() => {
+        const source = isJournalAdmin ? articlesForJournalFilter : articles;
         return journalAdminTabs.map(tab => {
             let count = 0;
             if (tab.statuses !== undefined) {
-                count = articles.filter(a => {
+                count = source.filter(a => {
                     const statusMatch = tab.id === 'all' || (tab.statuses as ArticleStatus[]).includes(a.status);
                     return statusMatch;
                 }).length;
             }
             return { id: tab.id, count };
         });
-    }, [articles, journalAdminTabs]);
+    }, [articles, articlesForJournalFilter, journalAdminTabs, isJournalAdmin]);
 
     const superAdminTabCounts = useMemo(() => {
         return journalAdminTabs.map(tab => {
@@ -671,63 +704,12 @@ const Articles: React.FC = () => {
         });
     }, [articles]);
 
-    /** JWT bo'yicha maqolalar filtrlangan. Paginatsiya (20+) bo'lsa barcha sahifalar yig'iladi; ?author= ishlatilmaydi. */
+    const isAuthorUser = userRole === Role.Author || userRole === 'author';
+    /** Rol bo'yicha to'liq ro'yxat (staff / mine / paginatsiyali list) */
     const fetchAllArticlesPages = useCallback(async (): Promise<ArticleApiResponse[]> => {
-        const pageSize = 200;
-        const merged: ArticleApiResponse[] = [];
-        const parseBatch = (raw: unknown): ArticleApiResponse[] => {
-            if (Array.isArray(raw)) return raw as ArticleApiResponse[];
-            if (!raw || typeof raw !== 'object') return [];
-            const rawObj = raw as {
-                results?: ArticleApiResponse[];
-                data?: ArticleApiResponse[] | { results?: ArticleApiResponse[]; items?: ArticleApiResponse[] };
-                items?: ArticleApiResponse[];
-            };
-            const nestedData = rawObj.data;
-            if (Array.isArray(rawObj.results)) return rawObj.results;
-            if (Array.isArray(rawObj.items)) return rawObj.items;
-            if (Array.isArray(nestedData)) return nestedData;
-            if (nestedData && typeof nestedData === 'object') {
-                if (Array.isArray((nestedData as { results?: ArticleApiResponse[] }).results)) {
-                    return (nestedData as { results: ArticleApiResponse[] }).results;
-                }
-                if (Array.isArray((nestedData as { items?: ArticleApiResponse[] }).items)) {
-                    return (nestedData as { items: ArticleApiResponse[] }).items;
-                }
-            }
-            return [];
-        };
-        let page = 1;
-        while (page <= 40) {
-            const raw = await apiService.articles.list({
-                page_size: String(pageSize),
-                page: String(page),
-            });
-            const batch = parseBatch(raw);
-            merged.push(...batch);
-            if (Array.isArray(raw)) {
-                break;
-            }
-            const rawObj = (raw as {
-                data?: { next?: string | null };
-                next?: string | null;
-            }) || {};
-            const nestedData = rawObj.data;
-            const nextUrl =
-                rawObj.next ??
-                (!Array.isArray(nestedData) ? (nestedData as { next?: string | null } | undefined)?.next : null);
-            if (!nextUrl || batch.length === 0 || batch.length < pageSize) {
-                break;
-            }
-            page += 1;
-        }
-        // Ba'zi deploylarda query params bilan bo'sh qaytishi mumkin — oddiy /articles/ bilan fallback.
-        if (merged.length === 0) {
-            const raw = await apiService.articles.list();
-            merged.push(...parseBatch(raw));
-        }
-        return merged;
-    }, []);
+        const raw = await apiService.articles.listAllForRole(String(userRole || user?.role || ''));
+        return (Array.isArray(raw) ? raw : []) as ArticleApiResponse[];
+    }, [userRole, user?.role]);
 
     /** Jurnal dropdown / guruhlash uchun: default API ~20 ta qaytaradi — barcha sahifalar yig'iladi */
     const fetchAllJournalsPages = useCallback(async (): Promise<JournalApiResponse[]> => {
@@ -791,7 +773,20 @@ const Articles: React.FC = () => {
     useEffect(() => {
         const jid = searchParams.get('journal');
         if (jid) setFilterJournal(jid);
+        const tab = searchParams.get('tab');
+        if (tab && authorArticleTabs.some((t) => t.id === tab)) {
+            setActiveTab(tab);
+        }
     }, [searchParams]);
+
+    useEffect(() => {
+        if (!user) return;
+        const onFocus = () => {
+            void fetchData();
+        };
+        window.addEventListener('focus', onFocus);
+        return () => window.removeEventListener('focus', onFocus);
+    }, [user, fetchData]);
 
     // Handle early returns after all hooks are declared
     if (!user) return null;

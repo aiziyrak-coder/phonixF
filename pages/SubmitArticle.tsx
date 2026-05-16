@@ -94,8 +94,8 @@ const SubmitArticle: React.FC = () => {
         if (cancelled) return;
         if (res.payment_status === 2) {
           sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
-          toast.success("To'lov tasdiqlandi. Maqola arxivda ko'rinadi.");
-          navigate('/arxiv');
+          toast.success("To'lov tasdiqlandi. Maqola «Maqolalarim» bo'limida ko'rinadi.");
+          navigate('/articles?tab=journal');
         }
       } catch {
         /* ignore */
@@ -237,7 +237,7 @@ const SubmitArticle: React.FC = () => {
     setJournalSearch('');
     setPaymentPendingTransactionId(null);
     sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
-    navigate('/arxiv');
+    navigate('/articles?tab=journal');
   };
 
   const handleSubmit = async () => {
@@ -266,7 +266,8 @@ const SubmitArticle: React.FC = () => {
     }
 
     const selectedJournal = journals.find((j) => j.id === formData.journalId);
-    const isPrePayment = selectedJournal?.payment_model === 'pre-payment';
+    // API ba'zan payment_model qaytarmasa ham jurnal default pre-payment
+    const isPrePayment = (selectedJournal?.payment_model || 'pre-payment') === 'pre-payment';
     const pubFee = selectedJournal?.publication_fee != null ? Number(selectedJournal.publication_fee) : 0;
     const perPage = selectedJournal?.price_per_page != null ? Number(selectedJournal.price_per_page) : 0;
     // Backend bilan mos: publication_fee yoki price_per_page > 0 bo'lsa oldindan to'lov talab qilinishi mumkin
@@ -310,7 +311,7 @@ const SubmitArticle: React.FC = () => {
             JSON.stringify({ articleId, transactionId: result.transaction_id })
           );
           toast.info(
-            'Maqola saqlandi. To\'lovni amalga oshiring — tasdiqlangach arxivda avtomatik ko\'rinadi.'
+            'Maqola saqlandi. To\'lovni amalga oshiring — «Maqolalarim» → To\'lov va qoralama bo\'limida ham ko\'rinadi.'
           );
           paymentService.redirectToPaymentPage(result.transaction_id);
         } else {
@@ -346,8 +347,8 @@ const SubmitArticle: React.FC = () => {
         const pendingRaw = sessionStorage.getItem(SUBMIT_ARTICLE_PENDING_KEY);
         if (pendingRaw) {
           sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
-          toast.success("To'lov tasdiqlandi. Maqola arxivda ko'rinadi.");
-          navigate('/arxiv');
+          toast.success("To'lov tasdiqlandi. Maqola «Maqolalarim» bo'limida ko'rinadi.");
+          navigate('/articles?tab=journal');
           return;
         }
         setLoading(true);

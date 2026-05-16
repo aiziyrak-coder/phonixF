@@ -213,7 +213,7 @@ const ClickPayment: React.FC = () => {
         if (archiveRedirectScheduled.current) return;
         archiveRedirectScheduled.current = true;
         sessionStorage.removeItem('phonix_submit_article_pending');
-        const timer = window.setTimeout(() => navigate('/arxiv'), 3500);
+        const timer = window.setTimeout(() => navigate('/articles?tab=journal'), 3500);
         return () => window.clearTimeout(timer);
     }, [isPaymentCompleted, transaction?.service_type, navigate]);
 
@@ -322,9 +322,14 @@ const ClickPayment: React.FC = () => {
 
                         <div className="flex flex-col gap-2">
                             {transaction.service_type === 'publication_fee' && (
-                                <Button onClick={() => navigate('/arxiv')} className="w-full">
-                                    Arxiv hujjatlarga o&apos;tish
-                                </Button>
+                                <>
+                                    <Button onClick={() => navigate('/articles?tab=journal')} className="w-full">
+                                        Maqolalarimga o&apos;tish
+                                    </Button>
+                                    <Button onClick={() => navigate('/arxiv')} variant="secondary" className="w-full">
+                                        Arxiv hujjatlarga o&apos;tish
+                                    </Button>
+                                </>
                             )}
                             <Button
                                 onClick={() => navigate('/dashboard')}

@@ -114,8 +114,9 @@ const Dashboard: React.FC = () => {
                     }
                 }
 
+                const roleNorm = String(user.role || '').toLowerCase();
                 const [articlesData, journalsData, transactionsData] = await Promise.all([
-                    apiService.articles.list(),
+                    apiService.articles.listAllForRole(roleNorm),
                     apiService.journals.list(),
                     apiService.payments.listTransactions()
                 ]);

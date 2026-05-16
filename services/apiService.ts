@@ -396,6 +396,70 @@ export const apiService = {
       return apiFetch(`/articles/?${new URLSearchParams(params)}`);
     },
 
+    /** Muallifning barcha maqolalari (Draft/Yangi) — paginatsiya muammosiz */
+    mine: () => apiFetch('/articles/mine/'),
+
+    /** Bosh admin / jurnal admin / operator — barcha maqolalar (paginatsiyasiz) */
+    staff: () => apiFetch('/articles/staff/'),
+
+    /**
+     * Rol bo'yicha to'liq maqolalar ro'yxati (staff/mine yoki paginatsiyali list).
+     */
+    listAllForRole: async (role: string): Promise<unknown[]> => {
+      const parseBatch = (raw: unknown): unknown[] => {
+        if (Array.isArray(raw)) return raw;
+        if (!raw || typeof raw !== 'object') return [];
+        const o = raw as {
+          results?: unknown[];
+          data?: unknown[] | { results?: unknown[]; items?: unknown[] };
+          items?: unknown[];
+        };
+        if (Array.isArray(o.results)) return o.results;
+        if (Array.isArray(o.items)) return o.items;
+        const nested = o.data;
+        if (Array.isArray(nested)) return nested;
+        if (nested && typeof nested === 'object') {
+          const n = nested as { results?: unknown[]; items?: unknown[] };
+          if (Array.isArray(n.results)) return n.results;
+          if (Array.isArray(n.items)) return n.items;
+        }
+        return [];
+      };
+
+      const r = String(role || '').toLowerCase();
+      if (r === 'author') {
+        return parseBatch(await apiService.articles.mine());
+      }
+      const staffRoles = ['super_admin', 'superadmin', 'journal_admin', 'journaladmin', 'operator', 'accountant'];
+      if (staffRoles.includes(r)) {
+        try {
+          return parseBatch(await apiService.articles.staff());
+        } catch {
+          /* eski backend */
+        }
+      }
+
+      const pageSize = 200;
+      const merged: unknown[] = [];
+      let page = 1;
+      while (page <= 40) {
+        const raw = await apiService.articles.list({
+          page_size: String(pageSize),
+          page: String(page),
+        });
+        const batch = parseBatch(raw);
+        merged.push(...batch);
+        if (Array.isArray(raw)) break;
+        const nextUrl = (raw as { next?: string | null })?.next;
+        if (!nextUrl || batch.length === 0 || batch.length < pageSize) break;
+        page += 1;
+      }
+      if (merged.length === 0) {
+        return parseBatch(await apiService.articles.list());
+      }
+      return merged;
+    },
+
     get: (id: string) => apiFetch(`/articles/${id}/`),
 
     getPublic: (id: string) => apiFetch(`/articles/public/${id}/`),
