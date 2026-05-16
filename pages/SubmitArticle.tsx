@@ -39,6 +39,8 @@ const SubmitArticle: React.FC = () => {
   const [paymentPendingTransactionId, setPaymentPendingTransactionId] = useState<string | null>(null);
   const [paymentChecking, setPaymentChecking] = useState(false);
 
+  const SUBMIT_ARTICLE_PENDING_KEY = 'phonix_submit_article_pending';
+
   const steps = [
     { id: 1, title: 'Jurnal tanlash', icon: BookOpen },
     { id: 2, title: 'Fayl yuklash', icon: UploadCloud },
@@ -70,6 +72,39 @@ const SubmitArticle: React.FC = () => {
     };
     load();
   }, []);
+
+  /** To'lovdan qaytganida: maqola allaqachon yaratilgan bo'lsa arxivga yo'naltirish */
+  useEffect(() => {
+    const raw = sessionStorage.getItem(SUBMIT_ARTICLE_PENDING_KEY);
+    if (!raw) return;
+    let pending: { articleId?: string; transactionId?: string };
+    try {
+      pending = JSON.parse(raw);
+    } catch {
+      sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
+      return;
+    }
+    const txId = pending.transactionId;
+    if (!txId) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await paymentService.checkPaymentStatus(txId);
+        if (cancelled) return;
+        if (res.payment_status === 2) {
+          sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
+          toast.success("To'lov tasdiqlandi. Maqola arxivda ko'rinadi.");
+          navigate('/arxiv');
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
 
   const validateStep = (step: number): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -149,10 +184,14 @@ const SubmitArticle: React.FC = () => {
     }
   };
 
-  /** Create article (called when no payment required or after payment completed). */
-  const doSubmitArticle = async () => {
+  const buildArticlePayload = (options?: {
+    awaitingPublicationPayment?: boolean;
+    paymentTransactionId?: string | null;
+  }): Record<string, unknown> => {
     const keywordsStr = formData.keywords.trim();
-    const keywordsList = keywordsStr ? keywordsStr.split(/\s*,\s*/).map((k: string) => k.trim()).filter(Boolean) : [];
+    const keywordsList = keywordsStr
+      ? keywordsStr.split(/\s*,\s*/).map((k: string) => k.trim()).filter(Boolean)
+      : [];
     const articlePayload: Record<string, unknown> = {
       title: formData.title.trim(),
       journal: formData.journalId,
@@ -170,10 +209,19 @@ const SubmitArticle: React.FC = () => {
     if (coAuthorContacts.length > 0) {
       articlePayload.co_author_contacts = coAuthorContacts;
     }
-    if (paymentPendingTransactionId) {
-      articlePayload.payment_transaction_id = paymentPendingTransactionId;
+    if (options?.awaitingPublicationPayment) {
+      articlePayload.awaiting_publication_payment = true;
     }
-    await apiService.articles.create(articlePayload, { mainFile: formData.file! });
+    const txId = options?.paymentTransactionId ?? paymentPendingTransactionId;
+    if (txId) {
+      articlePayload.payment_transaction_id = txId;
+    }
+    return articlePayload;
+  };
+
+  /** Create article (called when no payment required or after payment completed). */
+  const doSubmitArticle = async () => {
+    await apiService.articles.create(buildArticlePayload(), { mainFile: formData.file! });
     toast.success('Maqola muvaffaqiyatli yuborildi');
     setFormData({
       title: '',
@@ -188,7 +236,8 @@ const SubmitArticle: React.FC = () => {
     setCurrentStep(1);
     setJournalSearch('');
     setPaymentPendingTransactionId(null);
-    navigate('/articles');
+    sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
+    navigate('/arxiv');
   };
 
   const handleSubmit = async () => {
@@ -236,17 +285,33 @@ const SubmitArticle: React.FC = () => {
     if (isPrePayment && hasFee && amountForPayment > 0) {
       setLoading(true);
       try {
+        const draftArticle = await apiService.articles.create(
+          buildArticlePayload({ awaitingPublicationPayment: true }),
+          { mainFile: formData.file! }
+        );
+        const articleId = draftArticle?.id;
+        if (!articleId) {
+          toast.error('Maqola yaratilmadi. Qayta urinib ko\'ring.');
+          return;
+        }
+
         const result = await paymentService.createTransactionAndPay(
           amountForPayment,
           'UZS',
           'publication_fee',
-          undefined,
+          articleId,
           undefined,
           'click'
         );
         if (result?.transaction_id) {
           setPaymentPendingTransactionId(result.transaction_id);
-          toast.info('To\'lov sahifasiga yo\'naltirilmoqda — QR kodni skanerlang yoki tugmani bosing.');
+          sessionStorage.setItem(
+            SUBMIT_ARTICLE_PENDING_KEY,
+            JSON.stringify({ articleId, transactionId: result.transaction_id })
+          );
+          toast.info(
+            'Maqola saqlandi. To\'lovni amalga oshiring — tasdiqlangach arxivda avtomatik ko\'rinadi.'
+          );
           paymentService.redirectToPaymentPage(result.transaction_id);
         } else {
           toast.error(result?.error || result?.error_note || 'To\'lovni boshlashda xatolik');
@@ -278,6 +343,13 @@ const SubmitArticle: React.FC = () => {
     try {
       const res = await paymentService.checkPaymentStatus(paymentPendingTransactionId);
       if (res.payment_status === 2) {
+        const pendingRaw = sessionStorage.getItem(SUBMIT_ARTICLE_PENDING_KEY);
+        if (pendingRaw) {
+          sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
+          toast.success("To'lov tasdiqlandi. Maqola arxivda ko'rinadi.");
+          navigate('/arxiv');
+          return;
+        }
         setLoading(true);
         try {
           await doSubmitArticle();
@@ -441,15 +513,15 @@ const SubmitArticle: React.FC = () => {
                     className="text-left rounded-xl border-2 border-slate-200/90 bg-slate-100/70 hover:border-blue-500/50 hover:bg-white/10 transition-all duration-200 group overflow-hidden"
                   >
                     <div className="flex flex-col">
-                      <div className="w-full h-36 sm:h-40 rounded-t-xl bg-slate-100/70 flex items-center justify-center overflow-hidden border-b border-slate-200/90">
+                      <div className="w-full h-36 sm:h-40 rounded-t-xl bg-white flex items-center justify-center overflow-hidden border-b border-slate-200/90 p-2">
                         {j.image_url ? (
                           <img
                             src={j.image_url.startsWith('http') ? j.image_url : apiService.getMediaUrl(j.image_url)}
                             alt={j.name}
-                            className="w-full h-full object-cover"
+                            className="max-w-full max-h-full w-auto h-auto object-contain object-center"
                           />
                         ) : (
-                          <BookOpen className="w-16 h-16 text-blue-800" />
+                          <BookOpen className="w-16 h-16 text-blue-800 shrink-0" />
                         )}
                       </div>
                       <div className="p-4 min-w-0">
