@@ -36,26 +36,37 @@ const ArxivHujjatlar: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [archiveFilter, setArchiveFilter] = useState('');
 
-    useEffect(() => {
+    const fetchArchive = useCallback(async () => {
         if (!user || user.role !== Role.Author) {
             setLoading(false);
             return;
         }
-        const fetchArchive = async () => {
-            try {
-                setLoading(true);
-                const res = await apiService.auth.getArchive();
-                const data = res?.data ?? res;
-                setArchiveItems(Array.isArray(data?.items) ? data.items : []);
-            } catch (e) {
-                console.error('Archive fetch failed', e);
-                setArchiveItems([]);
-            } finally {
-                setLoading(false);
+        try {
+            setLoading(true);
+            const res = await apiService.auth.getArchive();
+            const data = res?.data ?? res;
+            setArchiveItems(Array.isArray(data?.items) ? data.items : []);
+        } catch (e) {
+            console.error('Archive fetch failed', e);
+            setArchiveItems([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        void fetchArchive();
+    }, [fetchArchive]);
+
+    useEffect(() => {
+        const onVisible = () => {
+            if (document.visibilityState === 'visible') {
+                void fetchArchive();
             }
         };
-        fetchArchive();
-    }, [user]);
+        document.addEventListener('visibilitychange', onVisible);
+        return () => document.removeEventListener('visibilitychange', onVisible);
+    }, [fetchArchive]);
 
     const handleArchiveDownload = useCallback(
         async (item: ArchiveItem) => {

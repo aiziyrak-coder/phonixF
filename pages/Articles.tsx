@@ -92,7 +92,11 @@ const journalAdminTabsBase = [
             ArticleStatus.WritingInProgress,
         ],
     },
-    { id: 'new', label: 'Yangi Kelganlar', statuses: [ArticleStatus.Yangi] },
+    {
+        id: 'new',
+        label: 'Yangi kelganlar',
+        statuses: [ArticleStatus.Yangi, ArticleStatus.Draft],
+    },
     { id: 'with-editor', label: 'Redaktorda', statuses: [ArticleStatus.WithEditor] },
     { id: 'in-review', label: 'Tekshiruvda', statuses: [ArticleStatus.QabulQilingan] },
     { id: 'plagiarism-review', label: 'Antiplagiat (bosh admin)', statuses: [ArticleStatus.PlagiarismReview] },
@@ -479,9 +483,11 @@ const Articles: React.FC = () => {
     const isOperator = userRole === 'operator' || user?.role === Role.Operator;
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState(
-        isReviewer ? 'reviews' : isJournalAdmin ? 'new' : 'all'
-    );
+    const [activeTab, setActiveTab] = useState(() => {
+        if (isReviewer) return 'reviews';
+        if (isJournalAdmin || isSuperAdminUser || isOperator) return 'new';
+        return 'all';
+    });
     const [showReportModal, setShowReportModal] = useState(false);
     const [showNashrHisobotModal, setShowNashrHisobotModal] = useState(false);
     const [showFilters, setShowFilters] = useState(false);

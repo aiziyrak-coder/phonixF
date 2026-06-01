@@ -103,25 +103,27 @@ class PaymentService {
    */
   async checkPaymentStatus(transactionId: string): Promise<PaymentStatusResponse> {
     try {
-      const transaction = await apiService.payments.getTransaction(transactionId);
+      const syncResult = await apiService.payments.checkStatus(transactionId);
+      const transaction = syncResult?.transaction;
 
       if (!transaction?.id) {
         return {
-          error_code: -5,
-          error_note: 'Transaction not found',
+          error_code: syncResult?.error_code ?? -5,
+          error_note: syncResult?.error_note || 'Transaction not found',
+          payment_status: syncResult?.payment_status ?? 0,
         };
       }
 
       const st = transaction.status as string;
       return {
-        error_code: 0,
-        error_note: 'Success',
+        error_code: syncResult?.error_code ?? 0,
+        error_note: syncResult?.error_note || 'Success',
         payment_status:
           st === 'completed'
             ? 2
             : st === 'failed' || st === 'cancelled'
               ? -1
-              : 0,
+              : syncResult?.payment_status ?? 0,
       };
     } catch (error: any) {
       console.error('Error checking payment status:', error);

@@ -94,8 +94,8 @@ const SubmitArticle: React.FC = () => {
         if (cancelled) return;
         if (res.payment_status === 2) {
           sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
-          toast.success("To'lov tasdiqlandi. Maqola «Maqolalarim» bo'limida ko'rinadi.");
-          navigate('/articles?tab=journal');
+          toast.success("To'lov tasdiqlandi. Maqola arxiv va «Maqolalarim» bo'limlarida ko'rinadi.");
+          navigate('/arxiv');
         }
       } catch {
         /* ignore */
@@ -347,8 +347,8 @@ const SubmitArticle: React.FC = () => {
         const pendingRaw = sessionStorage.getItem(SUBMIT_ARTICLE_PENDING_KEY);
         if (pendingRaw) {
           sessionStorage.removeItem(SUBMIT_ARTICLE_PENDING_KEY);
-          toast.success("To'lov tasdiqlandi. Maqola «Maqolalarim» bo'limida ko'rinadi.");
-          navigate('/articles?tab=journal');
+          toast.success("To'lov tasdiqlandi. Maqola arxiv va «Maqolalarim» bo'limlarida ko'rinadi.");
+          navigate('/arxiv');
           return;
         }
         setLoading(true);

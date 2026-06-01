@@ -87,7 +87,21 @@ const ClickPayment: React.FC = () => {
     const refreshTransaction = useCallback(async (silent = false): Promise<PaymentTransaction | null> => {
         if (!transactionId) return null;
         try {
-            const tx = (await apiService.payments.getTransaction(transactionId)) as PaymentTransaction;
+            let tx: PaymentTransaction | null = null;
+
+            try {
+                const syncResult = await apiService.payments.checkStatus(transactionId);
+                if (syncResult?.transaction) {
+                    tx = syncResult.transaction as PaymentTransaction;
+                }
+            } catch {
+                // Click sinxronlash ishlamasa, oddiy GET
+            }
+
+            if (!tx) {
+                tx = (await apiService.payments.getTransaction(transactionId)) as PaymentTransaction;
+            }
+
             setTransaction(tx);
             if (tx?.status === 'completed' && !confirmedToastShown.current) {
                 confirmedToastShown.current = true;
@@ -213,7 +227,7 @@ const ClickPayment: React.FC = () => {
         if (archiveRedirectScheduled.current) return;
         archiveRedirectScheduled.current = true;
         sessionStorage.removeItem('phonix_submit_article_pending');
-        const timer = window.setTimeout(() => navigate('/articles?tab=journal'), 3500);
+        const timer = window.setTimeout(() => navigate('/arxiv'), 3500);
         return () => window.clearTimeout(timer);
     }, [isPaymentCompleted, transaction?.service_type, navigate]);
 
@@ -232,6 +246,7 @@ const ClickPayment: React.FC = () => {
         'Xizmat';
 
     const showPaymentMethods = status === 'success' && paymentUrl && isPaymentPending;
+    const showPendingSummary = isPaymentPending && transaction && !isLoading;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
@@ -323,11 +338,11 @@ const ClickPayment: React.FC = () => {
                         <div className="flex flex-col gap-2">
                             {transaction.service_type === 'publication_fee' && (
                                 <>
-                                    <Button onClick={() => navigate('/articles?tab=journal')} className="w-full">
-                                        Maqolalarimga o&apos;tish
-                                    </Button>
-                                    <Button onClick={() => navigate('/arxiv')} variant="secondary" className="w-full">
+                                    <Button onClick={() => navigate('/arxiv')} className="w-full">
                                         Arxiv hujjatlarga o&apos;tish
+                                    </Button>
+                                    <Button onClick={() => navigate('/articles?tab=journal')} variant="secondary" className="w-full">
+                                        Maqolalarimga o&apos;tish
                                     </Button>
                                 </>
                             )}
@@ -342,16 +357,48 @@ const ClickPayment: React.FC = () => {
                     </div>
                 )}
 
+                {showPendingSummary && (
+                    <div className="mb-4 p-4 bg-slate-100/80 border border-slate-200/90 rounded-xl text-sm">
+                        <p className="font-semibold text-slate-800 mb-2">To&apos;lov ma&apos;lumotlari</p>
+                        <dl className="space-y-1.5 text-slate-700">
+                            <div className="flex justify-between gap-2">
+                                <dt className="text-slate-500">Xizmat</dt>
+                                <dd className="font-medium text-right">{serviceLabel}</dd>
+                            </div>
+                            <div className="flex justify-between gap-2">
+                                <dt className="text-slate-500">Summa</dt>
+                                <dd className="font-semibold text-right">
+                                    {formatAmount(transaction.amount, transaction.currency)}
+                                </dd>
+                            </div>
+                            <div className="flex justify-between gap-2">
+                                <dt className="text-slate-500">Holat</dt>
+                                <dd className="font-medium text-right text-amber-800">Kutilmoqda</dd>
+                            </div>
+                        </dl>
+                    </div>
+                )}
+
                 {showPaymentMethods && (
                     <div className="space-y-4">
-                        {isPolling && (
-                            <div className="flex items-center gap-2 p-3 bg-blue-500/15 border border-blue-500/30 rounded-lg text-sm text-slate-700">
+                        <div
+                            className={`flex items-center gap-2 p-3 rounded-lg text-sm border ${
+                                isPolling
+                                    ? 'bg-blue-500/15 border-blue-500/40 text-slate-800'
+                                    : 'bg-slate-100/70 border-slate-200/90 text-slate-600'
+                            }`}
+                        >
+                            {isPolling ? (
                                 <Loader className="h-4 w-4 animate-spin text-blue-800 shrink-0" />
-                                <span>
-                                    To&apos;lov kutilmoqda — tasdiqlangach bu yerda avtomatik ko&apos;rsatiladi
-                                </span>
-                            </div>
-                        )}
+                            ) : (
+                                <CheckCircle className="h-4 w-4 text-slate-500 shrink-0" />
+                            )}
+                            <span>
+                                {isPolling
+                                    ? "To'lov avtomatik tekshirilmoqda — tasdiqlangach quyida ko'rsatiladi"
+                                    : "To'lovni amalga oshirgach, tasdiq bu sahifada avtomatik chiqadi"}
+                            </span>
+                        </div>
 
                         <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
                             <div className="flex items-center gap-2 text-emerald-900 mb-2">
@@ -418,9 +465,10 @@ const ClickPayment: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={() => void refreshTransaction(false)}
-                                className="text-sm text-slate-500 hover:text-slate-900 underline-offset-2 hover:underline"
+                                disabled={isLoading}
+                                className="text-sm text-slate-500 hover:text-slate-900 underline-offset-2 hover:underline disabled:opacity-50"
                             >
-                                To&apos;lovni qo&apos;lda tekshirish
+                                Hozir tekshirish
                             </button>
                         </div>
 
